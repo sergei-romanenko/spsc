@@ -6,7 +6,6 @@ import scala.util.parsing.combinator.syntactical.StandardTokenParsers
 import scala.util.parsing.input.Position
 import scala.util.parsing.input.NoPosition
 
-// currently Parser doesn't handle all errors 
 object SmallLanguage extends StandardTokenParsers with StrongParsers{
   
   // base class for term
@@ -73,8 +72,8 @@ object SmallLanguage extends StandardTokenParsers with StrongParsers{
   private def definition: Parser[Definition] =
     (gPattern | fPattern) ~ "=" ~ term ~ ";" ^^ {case pattern ~ "=" ~ term ~ ";" => Definition(pattern, term)}
   
-  // main simple parser
-  private def program0: Parser[List[Definition]] = plus1(definition)
+  // main parser
+  private def program: Parser[List[Definition]] = strongRep1(definition)
   
   
   // utility class for iterating over "definition stream"
@@ -223,7 +222,7 @@ object SmallLanguage extends StandardTokenParsers with StrongParsers{
               } else {
                 gInfo(name) = (args.size, Set(cName))
               }
-              // 2.a No variable occurs more than once in a left side
+              // 3.a No variable occurs more than once in a left side
               // 3.b Name of variable must be unique in global context
               for (arg <- constructor.args ::: args.tail){
                 val v = arg.asInstanceOf[Variable]
@@ -250,30 +249,16 @@ object SmallLanguage extends StandardTokenParsers with StrongParsers{
         }
       }
       
-      plus1(validateDefinition)
+      strongRep1(validateDefinition)
     }
   }
   
   def parseProgram(r: Reader[Char]): ParseResult[List[Definition]] = {
-    val result0 = program0((new lexical.Scanner(r)))
+    val result0 = program((new lexical.Scanner(r)))
     if (result0.successful) 
       Validator.validate(result0.get)(new DefinitionScanner(result0.get)).asInstanceOf[ParseResult[List[Definition]]]
     else
       result0
-  }
-  
-  def main(args: Array[String]) {
-    import scala.util.parsing.input.CharArrayReader
-    val input1 = """|
-                    |a(Nil, x) = x;
-                    |a(Cons(x, y), s) = a(x, a);
-                    |""".stripMargin
-    println(input1)
-    val in = new CharArrayReader(input1.toCharArray())
-    val result2 = parseProgram(in)
-    println(result2)
-    
-    
   }
   
 }
