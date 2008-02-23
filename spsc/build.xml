@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<project name="ScalaExamples" default="all" basedir=".">
+<project name="Small Positive SuperCompiler" default="all" basedir=".">
 
 	<!-- ================================= 
 	          target: all              
