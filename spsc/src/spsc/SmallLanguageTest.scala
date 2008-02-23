@@ -51,8 +51,31 @@ class SmallLanguageTest {
     val result = SmallLanguage.parseProgram(in)
     println(result)
     assertTrue(result.successful)
-    assertEquals(expected, result.get)
+    assertEquals(expected, result.get)    
+  }
+  
+  @Test def parserError01(): Unit ={
+    val program = 
+    """
+    |a(Nil, Nil) = Nil;
+    """
     
+    val in = new CharArrayReader(program.stripMargin.toCharArray)
+    val result = SmallLanguage.parseProgram(in)
+    println(result)
+    assertFalse("Input is incorrect. Parser should fail.", result.successful)    
+  }
+  
+  @Test def syntaxError01(): Unit ={
+    val program = 
+    """
+    |a(x, x) = x;
+    """
+    
+    val in = new CharArrayReader(program.stripMargin.toCharArray)
+    val result = SmallLanguage.parseProgram(in)
+    println(result)
+    assertFalse("Input is incorrect. Validator should find error.", result.successful)    
   }
   
 }
