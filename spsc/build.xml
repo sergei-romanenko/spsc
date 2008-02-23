@@ -1,0 +1,77 @@
+<?xml version="1.0" ?>
+<project name="ScalaExamples" default="all" basedir=".">
+
+	<!-- ================================= 
+	          target: all              
+	         ================================= -->
+	<target name="all" depends="clean, prepare, compile, test" description="compile code and then run tests"/>
+
+	<!-- 1. Define common properties. -->
+
+	<property file="build_spsc.properties" />
+
+	<property name="src.dir" value="src" />
+	<property name="build.dir" value="build" />
+	<property name="classes.dir" value="build/classes" />
+	<property name="test_res.dir" value="build/test_results" />
+
+	<property name="scala-compiler.jar" value="${scala.home}/lib/scala-compiler.jar" />
+	<property name="scala-library.jar" value="${scala.home}/lib/scala-library.jar" />
+
+	<!-- 2. Define Scala CLASSPATH. -->
+
+	<path id="scala.classpath">
+		<pathelement location="${scala-compiler.jar}" />
+		<pathelement location="${scala-library.jar}" />
+	</path>
+
+	<!-- 3. Define project CLASSPATH. -->
+
+	<path id="project.classpath">
+		<path refid="scala.classpath" />
+		<pathelement location="${junit4.jar}" />
+	</path>
+
+	<path id="final.classpath">
+		<pathelement location="${basedir}/build/classes/" />
+		<path refid="project.classpath" />
+	</path>
+
+	<!-- 4. Define scala compiler command. -->
+
+	<taskdef resource="scala/tools/ant/antlib.xml">
+		<classpath refid="scala.classpath" />
+	</taskdef>
+
+	<target name="clean" description="delete build directory">
+		<delete dir="${build.dir}" />
+	</target>
+
+	<target name="prepare" depends="clean">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${classes.dir}" />
+		<mkdir dir="${test_res.dir}" />
+	</target>
+
+	<target name="compile" depends="prepare" description="compile code">
+		<scalac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="project.classpath" force="changed">
+			<include name="**/*.scala" />
+		</scalac>
+	</target>
+
+	<target name="test" depends="compile" description="run junit tests">
+		<junit printsummary="true" haltonfailure="yes" filtertrace="true" showoutput="true">
+			<classpath>
+				<pathelement location="${classes.dir}" />
+				<path refid="project.classpath" />
+			</classpath>
+
+			<batchtest todir="${test_res.dir}">
+				<fileset dir="${classes.dir}">
+					<include name="**/*Test.class" />
+				</fileset>
+				<formatter type="plain" />
+			</batchtest>
+		</junit>
+	</target>
+</project>
