@@ -14,8 +14,8 @@ object SmallLanguage extends StandardTokenParsers with StrongParsers{
   case class Variable(name: String) extends Term
   // constructor begins with upper case letter and optionally has args
   case class Constructor(name: String, args: List[Term]) extends Term
-  // function application
-  case class Application(name: String, args: List[Term]) extends Term
+  // function call
+  case class Call(name: String, args: List[Term]) extends Term
   
   
   // base class for patterns
@@ -57,9 +57,9 @@ object SmallLanguage extends StandardTokenParsers with StrongParsers{
       ("(" ~> constructorDefinition  ~ ((("," ~ variable)^^{case x ~ y => y})*) <~ ")") ^^
         {case name ~ (p ~ args) => GPattern(name, p :: args)}
   
-  private def application: Parser[Application] =
+  private def call: Parser[Call] =
     (ident ^? (startsWithLowerCase, x => "Expected fun name, found " + x)) ~ ("(" ~> repsep(term, ",") <~ ")") ^^
-      {case fName ~ args => Application(fName, args)}
+      {case fName ~ args => Call(fName, args)}
 
   private def constructor: Parser[Constructor] =
     (ident ^? (startsWithUpperCase, x => "Expected constructor, found " + x)) ~ (("(" ~> repsep(term, ",") <~ ")")?) ^^
@@ -67,7 +67,7 @@ object SmallLanguage extends StandardTokenParsers with StrongParsers{
         case None => Constructor(name, Nil)
         case Some(args) => Constructor(name, args)}}
 
-  private def term: Parser[Term] = application | constructor | variable
+  private def term: Parser[Term] = call | constructor | variable
   
   private def definition: Parser[Definition] =
     (gPattern | fPattern) ~ "=" ~ term ~ ";" ^^ {case pattern ~ "=" ~ term ~ ";" => Definition(pattern, term)}
@@ -156,7 +156,7 @@ object SmallLanguage extends StandardTokenParsers with StrongParsers{
                     None
                   }
                 }
-                case Application (name, args) => {
+                case Call (name, args) => {
                   if (!fArity.contains(name))
                     return Some("Call to undefined function " + name)
                   else if (fArity(name) != args.size)

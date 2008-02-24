@@ -46,7 +46,7 @@ class SmallLanguageTest {
     val expected = 
       Definition(GPattern("a", List(Constructor("Nil", Nil), Variable("vs"))), Variable("vs")) ::
       Definition(GPattern("a", List(Constructor("Cons", List(Variable("u"), Variable("us"))), Variable("vs"))), 
-          Constructor("Cons", List(Variable("u"), Application("a", List(Variable("us"), Variable("vs")))))) :: Nil
+          Constructor("Cons", List(Variable("u"), Call("a", List(Variable("us"), Variable("vs")))))) :: Nil
     val in = new CharArrayReader(program.stripMargin.toCharArray)
     val result = SmallLanguage.parseProgram(in)
     println(result)
