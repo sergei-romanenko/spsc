@@ -5,6 +5,7 @@ Build prerequisites:
   scala 2.7 (http://scala-lang.org )
   
 Set up junit4 and scala locations in build_spsc.properties file.  
+Use build_spsc.properties.sample as cheat sheet.
 
 From project directory run ant:
 $ant
