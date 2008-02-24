@@ -15,8 +15,11 @@ object SmallLanguage extends StandardTokenParsers with StrongParsers{
   // constructor begins with upper case letter and optionally has args
   case class Constructor(name: String, args: List[Term]) extends Term
   // function call
-  case class Call(name: String, args: List[Term]) extends Term
+  case class Call(name: String, args: List[Term], var callType: CallType.Value) extends Term
   
+  object CallType extends Enumeration {
+    val F, G, Unknown = Value
+  }
   
   // base class for patterns
   sealed abstract class Pattern
@@ -59,7 +62,7 @@ object SmallLanguage extends StandardTokenParsers with StrongParsers{
   
   private def call: Parser[Call] =
     (ident ^? (startsWithLowerCase, x => "Expected fun name, found " + x)) ~ ("(" ~> repsep(term, ",") <~ ")") ^^
-      {case fName ~ args => Call(fName, args)}
+      {case fName ~ args => Call(fName, args, CallType.Unknown)}
 
   private def constructor: Parser[Constructor] =
     (ident ^? (startsWithUpperCase, x => "Expected constructor, found " + x)) ~ (("(" ~> repsep(term, ",") <~ ")")?) ^^
@@ -104,12 +107,13 @@ object SmallLanguage extends StandardTokenParsers with StrongParsers{
       import scala.collection.mutable.Set
       
       val fArity = Map[String, Int]()
+      val gArity = Map[String, Int]()
       
       for (definition <- rawProgram) definition.pattern match {
         case FPattern(name, args) => 
-          if (!fArity.contains(name)) fArity + (name -> args.size)
+          if (!fArity.contains(name) && !gArity.contains(name)) fArity + (name -> args.size)
         case GPattern(name, args) => 
-          if (!fArity.contains(name)) fArity + (name -> args.size)
+          if (!fArity.contains(name) && !gArity.contains(name)) gArity + (name -> args.size)
       }
       
       val cInfo = Map[String, Int]() // arity for constructor
@@ -156,18 +160,24 @@ object SmallLanguage extends StandardTokenParsers with StrongParsers{
                     None
                   }
                 }
-                case Call (name, args) => {
-                  if (!fArity.contains(name))
+                case c @ Call (name, args, _) => {
+                  if (fArity.contains(name)) {
+                    c.callType = CallType.F
+                    if (fArity(name) != args.size)
+                      return Some("Wrong numbers of arguments for function " + name) 
+                  } else if (gArity.contains(name)) {
+                    c.callType = CallType.G
+                    if (gArity(name) != args.size)
+                      return Some("Wrong numbers of arguments for function " + name) 
+                  } else {
                     return Some("Call to undefined function " + name)
-                  else if (fArity(name) != args.size)
-                    return Some("Wrong numbers of arguments for function " + name)
-                  else 
-                    for (arg <- args) {
-                      val subError = validateTerm(arg)
-                      if (!subError.isEmpty){
-                        return subError
-                      }
+                  }
+                  for (arg <- args) {
+                    val subError = validateTerm(arg)
+                    if (!subError.isEmpty){
+                      return subError
                     }
+                  }
                   None
                 }
               }
