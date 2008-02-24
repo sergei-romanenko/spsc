@@ -11,24 +11,36 @@ object SmallLanguage extends StandardTokenParsers with StrongParsers{
   // base class for term
   sealed abstract class Term
   // variable begins with lower case letter and has no args
-  case class Variable(name: String) extends Term
+  case class Variable(name: String) extends Term {
+    override def toString() = name
+  }
   // constructor begins with upper case letter and optionally has args
-  case class Constructor(name: String, args: List[Term]) extends Term
+  case class Constructor(name: String, args: List[Term]) extends Term {
+    override def toString = name + args.mkString("(", ", " ,")")
+  }
   // function call
-  case class Call(name: String, args: List[Term], var callType: CallType.Value) extends Term
+  case class Call(name: String, args: List[Term], var callType: CallType.Value) extends Term {
+    override def toString = name + "_" + callType + args.mkString("(", ", ", ")")
+  }
   
-  object CallType extends Enumeration {
+  object CallType extends Enumeration(0, "F", "G", "Unknown") {
     val F, G, Unknown = Value
   }
   
   // base class for patterns
   sealed abstract class Pattern
   // really args contains only simple variable
-  case class FPattern(name: String, args: List[Term]) extends Pattern
+  case class FPattern(name: String, args: List[Term]) extends Pattern {
+    override def toString = name + args.mkString("(", ", ", ")")
+  }
   // the first arg is constructor, the other ones are simple variables
-  case class GPattern(name: String, args: List[Term]) extends Pattern
+  case class GPattern(name: String, args: List[Term]) extends Pattern {
+    override def toString = name + args.mkString("(", ", ", ")")
+  }
   
-  case class Definition(pattern: Pattern, term: Term)
+  case class Definition(pattern: Pattern, term: Term) {
+    override def toString() = pattern + " = " + term 
+  }
   
   private object startsWithLowerCase extends PartialFunction[String, String] {
     def isDefinedAt(s: String) = s.charAt(0).isLowerCase
@@ -264,12 +276,16 @@ object SmallLanguage extends StandardTokenParsers with StrongParsers{
   }
   
   def parseProgram(r: Reader[Char]): ParseResult[List[Definition]] = {
-    val result0 = program((new lexical.Scanner(r)))
+    val result0 = program(new lexical.Scanner(r))
     if (result0.successful) 
       Validator.validate(result0.get)(new DefinitionScanner(result0.get)).asInstanceOf[ParseResult[List[Definition]]]
     else
       result0
   }
+  
+  // parse term without context
+  // so there is no call classification.
+  def parseTerm(r: Reader[Char]): ParseResult[Term] = term(new lexical.Scanner(r))
   
 }
 
