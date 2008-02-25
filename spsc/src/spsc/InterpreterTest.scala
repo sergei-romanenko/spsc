@@ -20,20 +20,20 @@ class InterpreterTest {
     val expRes2Text = "Cons(A, Cons(A, Cons(A, Cons(A, Nil))))"
         
     val in = new CharArrayReader(programText.stripMargin.toCharArray)
-    val parseResult = SmallLanguage.parseProgram(in)
+    val parseResult = SmallLanguageParsers.parseProgram(in)
     println(parseResult)
     val program = parseResult.get    
     val interpreter = new Interpreter(program)
     
     val res1 = interpreter.eval(Call("test1", Nil, CallType.F))
     println(res1)
-    val exp1 = SmallLanguage.parseTerm(new CharArrayReader(expRes1Text.toCharArray)).get
+    val exp1 = SmallLanguageParsers.parseTerm(new CharArrayReader(expRes1Text.toCharArray)).get
     println(exp1)
     assertEquals(exp1, res1)
     
     val res2 = interpreter.eval(Call("test2", Nil, CallType.F))
     println(res2)
-    val exp2 = SmallLanguage.parseTerm(new CharArrayReader(expRes2Text.toCharArray)).get
+    val exp2 = SmallLanguageParsers.parseTerm(new CharArrayReader(expRes2Text.toCharArray)).get
     println(exp2)
     assertEquals(exp2, res2)
   }

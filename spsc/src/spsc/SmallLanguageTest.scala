@@ -5,7 +5,7 @@ import org.junit.Test
 import org.junit.Assert._
 import SmallLanguage._
 
-class SmallLanguageTest {
+class SmallLanguageParsersTest {
   @Test def simple01(): Unit ={
     val program = 
     """
@@ -15,7 +15,7 @@ class SmallLanguageTest {
     val expected = 
       Definition(FPattern("a", List(Variable("x"))), Variable("x")) :: Nil
     val in = new CharArrayReader(program.stripMargin.toCharArray)
-    val result = SmallLanguage.parseProgram(in)
+    val result = SmallLanguageParsers.parseProgram(in)
     println(result)
     assertTrue(result.successful)
     assertEquals(expected, result.get)    
@@ -30,7 +30,7 @@ class SmallLanguageTest {
     val expected = 
       Definition(GPattern("a", List(Constructor("C", Nil))), Constructor("C", Nil)) :: Nil
     val in = new CharArrayReader(program.stripMargin.toCharArray)
-    val result = SmallLanguage.parseProgram(in)
+    val result = SmallLanguageParsers.parseProgram(in)
     println(result)
     assertTrue(result.successful)
     assertEquals(expected, result.get)
@@ -48,7 +48,7 @@ class SmallLanguageTest {
       Definition(GPattern("a", List(Constructor("Cons", List(Variable("u"), Variable("us"))), Variable("vs"))), 
           Constructor("Cons", List(Variable("u"), Call("a", List(Variable("us"), Variable("vs")), CallType.G)))) :: Nil
     val in = new CharArrayReader(program.stripMargin.toCharArray)
-    val result = SmallLanguage.parseProgram(in)
+    val result = SmallLanguageParsers.parseProgram(in)
     println(result)
     assertTrue(result.successful)
     assertEquals(expected, result.get)    
@@ -61,7 +61,7 @@ class SmallLanguageTest {
     """
     
     val in = new CharArrayReader(program.stripMargin.toCharArray)
-    val result = SmallLanguage.parseProgram(in)
+    val result = SmallLanguageParsers.parseProgram(in)
     println(result)
     assertFalse("Input is incorrect. Parser should fail.", result.successful)    
   }
@@ -73,7 +73,7 @@ class SmallLanguageTest {
     """
     
     val in = new CharArrayReader(program.stripMargin.toCharArray)
-    val result = SmallLanguage.parseProgram(in)
+    val result = SmallLanguageParsers.parseProgram(in)
     println(result)
     assertFalse("Input is incorrect. Validator should find error.", result.successful)    
   }
