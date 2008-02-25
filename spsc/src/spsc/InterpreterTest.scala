@@ -3,34 +3,25 @@ package spsc;
 import org.junit.Test
 import org.junit.Assert._
 import SmallLanguage._
-
+import TestUtils.runTest
 
 class InterpreterTest {
-  @Test def simpleAppend(): Unit ={
-    val programText = 
+  @Test def simpleAppend(): Unit =
+  {
+    val program = 
     """
-    |test1() = a(Nil, Nil);
-    |test2() = a(Cons(A, Cons(A, Nil)), Cons(A, Cons(A, Nil)));
-    |a(Nil, vs) = vs;
-    |a(Cons(u, us), vs) = Cons(u, a(us, vs));
+    |test1() = append(Nil, Nil);
+    |test2() = append(Cons(A1, Cons(A2, Nil)), Cons(A3, Cons(A4, Nil)));
+    |test3() = reverse(Cons(A1, Cons(A2, Cons(A3, Nil))));
+    |append(Nil, vs) = vs;
+    |append(Cons(u, us), vs) = Cons(u, append(us, vs));
+    |reverse(Nil) = Nil;
+    |reverse(Cons(x, xs)) = append(reverse(xs), Cons(x, Nil));
     """
-    val expRes1Text = "Nil"
-    val expRes2Text = "Cons(A, Cons(A, Cons(A, Cons(A, Nil))))"
-    
-    val program = TestUtils.programFromString(programText.stripMargin)    
-    val interpreter = new Interpreter(program)
-    
-    val res1 = interpreter.eval(FCall("test1", Nil))
-    println(res1)
-    val exp1 = TestUtils.termFromString(expRes1Text) 
-    println(exp1)
-    assertEquals(exp1, res1)
-    
-    val res2 = interpreter.eval(FCall("test2", Nil))
-    println(res2)
-    val exp2 = TestUtils.termFromString(expRes2Text)
-    println(exp2)
-    assertEquals(exp2, res2)
+
+    runTest(program, "test1", "Nil")
+    runTest(program, "test2", "Cons(A1, Cons(A2, Cons(A3, Cons(A4, Nil))))")
+    runTest(program, "test3", "Cons(A3, Cons(A2, Cons(A1, Nil)))")
   }
 
 }
