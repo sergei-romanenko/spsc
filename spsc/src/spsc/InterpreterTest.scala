@@ -20,15 +20,15 @@ class InterpreterTest {
     val program = TestUtils.programFromString(programText.stripMargin)    
     val interpreter = new Interpreter(program)
     
-    val res1 = interpreter.eval(Call("test1", Nil, CallType.F))
+    val res1 = interpreter.eval(FCall("test1", Nil))
     println(res1)
     val exp1 = TestUtils.termFromString(expRes1Text) 
     println(exp1)
     assertEquals(exp1, res1)
     
-    val res2 = interpreter.eval(Call("test2", Nil, CallType.F))
+    val res2 = interpreter.eval(FCall("test2", Nil))
     println(res2)
-    val exp2 = TestUtils.termFromString(expRes1Text)
+    val exp2 = TestUtils.termFromString(expRes2Text)
     println(exp2)
     assertEquals(exp2, res2)
   }

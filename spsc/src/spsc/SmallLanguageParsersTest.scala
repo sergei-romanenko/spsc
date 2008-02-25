@@ -5,14 +5,14 @@ import org.junit.Assert._
 import SmallLanguage._
 
 class SmallLanguageParsersTest {
-  @Test def simple01(): Unit ={
+  @Test def simple01(): Unit = {
     val programText = 
     """
     |a(x) = x;
     """
     
     val expected = 
-      Definition(FPattern("a", List(Variable("x"))), Variable("x")) :: Nil
+      FFunction("a", List(Variable("x")), Variable("x")) :: Nil
     val result = TestUtils.parseResultFromString(programText.stripMargin)    
     println(result)
     assertTrue(result.successful)
@@ -26,7 +26,10 @@ class SmallLanguageParsersTest {
     """
     
     val expected = 
-      Definition(GPattern("a", List(Constructor("C", Nil))), Constructor("C", Nil)) :: Nil
+      GFunction("a",
+          Pattern("C", Nil),
+          Nil,
+          Constructor("C", Nil)) :: Nil
     val result = TestUtils.parseResultFromString(programText.stripMargin)
     println(result)
     assertTrue(result.successful)
@@ -41,9 +44,15 @@ class SmallLanguageParsersTest {
     """
         
     val expected = 
-      Definition(GPattern("a", List(Constructor("Nil", Nil), Variable("vs"))), Variable("vs")) ::
-      Definition(GPattern("a", List(Constructor("Cons", List(Variable("u"), Variable("us"))), Variable("vs"))), 
-          Constructor("Cons", List(Variable("u"), Call("a", List(Variable("us"), Variable("vs")), CallType.G)))) :: Nil
+      GFunction("a",
+          Pattern("Nil", Nil),
+          List(Variable("vs")),
+          Variable("vs")) ::
+      GFunction("a",
+          Pattern("Cons", List(Variable("u"), Variable("us"))),
+          List(Variable("vs")), 
+          Constructor("Cons", List(Variable("u"), GCall("a", Variable("us"), List( Variable("vs")))))) :: 
+      Nil
     val result = TestUtils.parseResultFromString(programText.stripMargin)
     println(result)
     assertTrue(result.successful)

@@ -13,34 +13,34 @@ object SmallLanguage {
   case class Constructor(name: String, args: List[Term]) extends Term {
     override def toString = name + args.mkString("(", ", " ,")")
   }
+  
   // function call
-  case class Call(name: String, args: List[Term], var callType: CallType.Value) extends Term {
-    override def toString = name + "_" + callType + args.mkString("(", ", ", ")")
+  sealed abstract class Call extends Term
+  case class FCall(name: String, args: List[Term]) extends Call {
+    override def toString = name + args.mkString("(", ", " ,")")
+  }
+  case class GCall(name: String, arg0: Term, args: List[Term]) extends Call {
+    override def toString = name + "(" + arg0 + (args match {case Nil => ""; case _ => ", " + args.mkString(", ")})  + ")"
+  }
+  
+  // pattern is used in g-function
+  case class Pattern(name: String, args: List[Variable]) {
+    override def toString = name + args.mkString("(", ", " ,")")
+  }
+  
+  sealed abstract class Definition
+  case class FFunction(name: String, args: List[Variable], term: Term) extends Definition {
+    override def toString = name + args.mkString("(", ", " ,")") + " = " + term
+  }
+  case class GFunction(name: String, arg0: Pattern, args: List[Variable], term: Term) extends Definition {
+    override def toString = 
+      name + "(" + arg0 + (args match {case Nil => ""; case _ => ", " + args.mkString(", ")})  + ") = " + term  
   }
   
   // Auxilary entity used for supercompilation.
   case class LetExpression(term: Term, substitution: Map[Variable, Term]) extends Expression {
     override def toString = "let " + substitution + " in " + term
-  }
+  }  
   
-  // Used in order to classify function calls.
-  object CallType extends Enumeration(0, "F", "G", "Unknown") {
-    val F, G, Unknown = Value
-  }
-  
-  // base class for patterns
-  sealed abstract class Pattern
-  // really args contains only simple variable
-  case class FPattern(name: String, args: List[Term]) extends Pattern {
-    override def toString = name + args.mkString("(", ", ", ")")
-  }
-  // the first arg is constructor, the other ones are simple variables
-  case class GPattern(name: String, args: List[Term]) extends Pattern {
-    override def toString = name + args.mkString("(", ", ", ")")
-  }
-  
-  case class Definition(pattern: Pattern, term: Term) {
-    override def toString() = pattern + " = " + term 
-  }
 }
 

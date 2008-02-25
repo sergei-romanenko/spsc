@@ -25,24 +25,25 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
   private def variable: Parser[Variable] = 
     (ident ^? startsWithLowerCase) ^^ {Variable(_)}
   
-  private def constructorDefinition: Parser[Constructor] = 
+  private def pattern: Parser[Pattern] = 
     (ident ^? (startsWithUpperCase, x => "Expected constructor, found " + x)) ~ (("(" ~> repsep(variable, ",") <~ ")")?) ^^
       {case name ~ args => args match {
-        case None => Constructor(name, Nil)
-        case Some(args) => Constructor(name, args)}}
+        case None => Pattern(name, Nil)
+        case Some(args) => Pattern(name, args)}}
   
-  private def fPattern: Parser[FPattern] =
-    (ident ^? (startsWithLowerCase, x => "Expected def, found " + x)) ~ ("(" ~> repsep(variable, ",") <~ ")") ^^
-      {case name ~ args => FPattern(name, args)}
+  private def fFunction: Parser[FFunction] =
+    (ident ^? (startsWithLowerCase, x => "Expected def, found " + x)) ~ ("(" ~> repsep(variable, ",") <~ ")") ~ 
+       "=" ~ term ~ ";" ^^
+      {case name ~ args ~ "=" ~ t ~ ";" => FFunction(name, args, t)}
   
-  private def gPattern: Parser[GPattern] =
+  private def gFunction: Parser[GFunction] =
     (ident ^? (startsWithLowerCase, x => "Expected def, found " + x)) ~  
-      ("(" ~> constructorDefinition  ~ ((("," ~ variable)^^{case x ~ y => y})*) <~ ")") ^^
-        {case name ~ (p ~ args) => GPattern(name, p :: args)}
+      ("(" ~> pattern  ~ ((("," ~ variable)^^{case x ~ y => y})*) <~ ")") ~ "=" ~ term ~ ";"^^
+        {case name ~ (p ~ args) ~ "=" ~ t ~ ";" => GFunction(name, p, args, t)}
   
   private def call: Parser[Call] =
     (ident ^? (startsWithLowerCase, x => "Expected fun name, found " + x)) ~ ("(" ~> repsep(term, ",") <~ ")") ^^
-      {case fName ~ args => Call(fName, args, CallType.Unknown)}
+      {case fName ~ args => FCall(fName, args)}
 
   private def constructor: Parser[Constructor] =
     (ident ^? (startsWithUpperCase, x => "Expected constructor, found " + x)) ~ (("(" ~> repsep(term, ",") <~ ")")?) ^^
@@ -52,8 +53,8 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
 
   private def term: Parser[Term] = call | constructor | variable
   
-  private def definition: Parser[Definition] =
-    (gPattern | fPattern) ~ "=" ~ term ~ ";" ^^ {case pattern ~ "=" ~ term ~ ";" => Definition(pattern, term)}
+  private def definition: Parser[Definition] = 
+    gFunction | fFunction
   
   // main parser
   private def program: Parser[List[Definition]] = strongRep1(definition)
@@ -80,6 +81,10 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
   
   // check semantic and correctness of raw program
   object Validator extends StrongParsers {
+    sealed abstract class TermProceedingResult
+    case class TermProceedingSuccess(term: Term) extends TermProceedingResult
+    case class TermProceedingFailure(errorMsg: String) extends TermProceedingResult
+    
     type Elem = Definition    
     def validate(rawProgram: List[Definition]): Parser[List[Definition]] = {
       
@@ -89,11 +94,11 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
       val fArity = Map[String, Int]()
       val gArity = Map[String, Int]()
       
-      for (definition <- rawProgram) definition.pattern match {
-        case FPattern(name, args) => 
+      for (definition <- rawProgram) definition match {
+        case FFunction(name, args, _) => 
           if (!fArity.contains(name) && !gArity.contains(name)) fArity + (name -> args.size)
-        case GPattern(name, args) => 
-          if (!fArity.contains(name) && !gArity.contains(name)) gArity + (name -> args.size)
+        case GFunction(name, _, args, _) => 
+          if (!fArity.contains(name) && !gArity.contains(name)) gArity + (name -> (args.size + 1))
       }
       
       val cInfo = Map[String, Int]() // arity for constructor
@@ -109,61 +114,71 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
       def validateDefinition: Parser[Definition] = new Parser[Definition]{
         def apply(in: Input):ParseResult[Definition] = {
           
-          val p = in.first
+          val definition = in.first
           val fVars = Set[Variable]()
           
-              def validateTerm(t: Term): Option[String] = t match {
-                case v @ Variable(name) => {
-                  if (fInfo.contains(name))
-                    Some(name + " is already defined as f-function ")
-                  else if (gInfo.contains(name))
-                    Some(name + " is already defined as g-function ")
-                  else if (!fVars.contains(v)){
-                    Some("undefined variable " + name)
-                  }
-                  else {
-                    varNames + name
-                    None
+          def validateTerm(t: Term): TermProceedingResult = t match {
+            case v @ Variable(name) => {
+              if (fInfo.contains(name))
+                TermProceedingFailure(name + " is already defined as f-function ")
+              else if (gInfo.contains(name))
+                TermProceedingFailure(name + " is already defined as g-function ")
+              else if (!fVars.contains(v)){
+                TermProceedingFailure("undefined variable " + name)
+              }
+              else {
+                varNames + name
+                TermProceedingSuccess(v)
+              }
+            }
+            case Constructor(name, args) => {
+              if (cInfo.contains(name) && cInfo(name) != args.size)
+                return TermProceedingFailure(name + " is already defined as constructor with arity " + cInfo(name))
+              else {
+                cInfo(name) = args.size
+                val proceededArgs = new scala.collection.mutable.ListBuffer[Term]
+                for (arg <- args) {
+                  val subResult = validateTerm(arg)
+                  subResult match {
+                    case r: TermProceedingFailure => return r
+                    case TermProceedingSuccess(t) => proceededArgs += t 
                   }
                 }
-                case Constructor(name, args) => {
-                  if (cInfo.contains(name) && cInfo(name) != args.size)
-                    return Some(name + " is already defined as constructor with arity " + cInfo(name))
-                  else {
-                    cInfo(name) = args.size
-                    for (arg <- args) {
-                      val subError = validateTerm(arg)
-                      if (!subError.isEmpty){
-                        return subError
-                      }
-                    }
-                    None
-                  }
-                }
-                case c @ Call (name, args, _) => {
-                  if (fArity.contains(name)) {
-                    c.callType = CallType.F
-                    if (fArity(name) != args.size)
-                      return Some("Wrong numbers of arguments for function " + name) 
-                  } else if (gArity.contains(name)) {
-                    c.callType = CallType.G
-                    if (gArity(name) != args.size)
-                      return Some("Wrong numbers of arguments for function " + name) 
-                  } else {
-                    return Some("Call to undefined function " + name)
-                  }
-                  for (arg <- args) {
-                    val subError = validateTerm(arg)
-                    if (!subError.isEmpty){
-                      return subError
-                    }
-                  }
-                  None
+                TermProceedingSuccess(Constructor(name, proceededArgs.toList))
+              }
+            }
+            case FCall (name, args) => {
+              var fCall = true
+              if (fArity.contains(name)) {
+                if (fArity(name) != args.size)
+                  return TermProceedingFailure("Wrong numbers of arguments for function " + name) 
+              } else if (gArity.contains(name)) {
+                fCall = false
+                if (gArity(name) != args.size)
+                  return TermProceedingFailure("Wrong numbers of arguments for function " + name) 
+              } else {
+                return TermProceedingFailure("Call to undefined function " + name)
+              }
+              val proceededArgs = new scala.collection.mutable.ListBuffer[Term]
+              for (arg <- args) {
+                val subResult = validateTerm(arg)
+                subResult match {
+                  case r: TermProceedingFailure => return r
+                  case TermProceedingSuccess(t) => proceededArgs += t 
                 }
               }
+              val proceededArgsList = proceededArgs.toList
+              if (fCall) {
+                TermProceedingSuccess(FCall(name, proceededArgsList))
+              } else {
+                TermProceedingSuccess(GCall(name, proceededArgsList.head, proceededArgsList.tail))
+              }
+            }
+            case g: GCall => TermProceedingFailure("Internal error: g-call encountered at the second parse stage")
+          }
           
-          p.pattern match {
-            case FPattern(name, args) => {
+          definition match {
+            case FFunction(name, args, rawTerm) => {
               // 1. name of f-function must be unique.
               if (varNames.contains(name)) return Failure(name + " is already defined as variable " + name, in);
               if (fInfo.contains(name)) return Failure(name + " is already defined as f-function " + name, in);
@@ -171,8 +186,7 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
               fInfo += (name -> args.size)
               // 2.a No variable occurs more than once in a left side
               // 2.b Name of variable must be unique in global context
-              for (arg <- args){
-                val v = arg.asInstanceOf[Variable]
+              for (v <- args){
                 if (fVars.contains(v)){
                   return Failure("Variable " + v.name + " occurs more than once in a left side", in);
                 }
@@ -184,25 +198,29 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
                 }
                 fVars + v
                 varNames + v.name
-              }              
+              }
+              validateTerm(rawTerm) match {
+                case TermProceedingSuccess(term: Term) => return Success(FFunction(name, args, term), in.rest)
+                case TermProceedingFailure(errorMsg) => return Failure(errorMsg, in)
+              }
             }
-            case GPattern(name, args) => {
+            
+            case GFunction(name, arg0, args, rawTerm) => {
               // 1. name of g-function must be unique
               if (varNames.contains(name)) return Failure(name + " is already defined as variable " + name, in);
               if (fInfo.contains(name)) return Failure(name + " is already defined as f-function " + name, in);
               
               // 2. fixed arity and constructor uniquness - also constructor global uniqueness
-              val constructor = args.head.asInstanceOf[Constructor]
-              val cName = constructor.name
+              val cName = arg0.name
               if (cInfo.contains(cName)){
                 val cArity = cInfo(cName)
-                if (cArity != constructor.args.size){
+                if (cArity != arg0.args.size){
                   return Failure(cName + " is already defined as constructor with arity " + cArity, in);
                 }
               }
               if (gInfo.contains(name)) {
                 val (arity, cNames) = gInfo(name)
-                if (arity != args.size){
+                if (arity != args.size + 1){
                   return Failure(name + " is already defined as g-function with arity " + arity, in);
                 }
                 if (cNames.contains(cName)) {
@@ -210,12 +228,11 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
                 }
                 cNames + cName
               } else {
-                gInfo(name) = (args.size, Set(cName))
+                gInfo(name) = (args.size + 1, Set(cName))
               }
               // 3.a No variable occurs more than once in a left side
               // 3.b Name of variable must be unique in global context
-              for (arg <- constructor.args ::: args.tail){
-                val v = arg.asInstanceOf[Variable]
+              for (v <- (arg0.args ::: args)){
                 if (fVars.contains(v)){
                   return Failure("Variable " + v.name + " occurs more than once in a left side", in);
                 }
@@ -228,14 +245,13 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
                 fVars + v
                 varNames + v.name
               }
-            } 
-          }
-          
-          validateTerm(p.term) match {
-            case None => return Success(p, in.rest)
-            case Some(errorMsg) => return Failure(errorMsg, in)
-          }       
-          
+              validateTerm(rawTerm) match {
+                case TermProceedingSuccess(term: Term) => return Success(GFunction(name, arg0, args, term), in.rest)
+                case TermProceedingFailure(errorMsg) => return Failure(errorMsg, in)
+              }
+            }
+            
+          }          
         }
       }
       
