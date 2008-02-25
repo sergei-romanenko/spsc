@@ -4,42 +4,45 @@ import SmallLanguage._
 
 // The operational semantics of interpreter is
 // normal-order graph reduction to weak head normal form.
-class Interpreter (program: List[Definition]) {
+class Interpreter (program: Program) {
   
   def eval(t: Term): Term = t match {
-    // C(...)
+
     case Constructor(name, args) => 
       Constructor(name, args.map(eval))
     
-    // f(...)
-    case fCall: FCall  => 
-      eval(reduceFCall(fCall))
-    
-    // g(C(..), ...)
-    case GCall(name, Constructor(cname, cargs), args) => {
-      val gFunction = program.find(_ match {
-        case GFunction(gname, Pattern(gcname, _),  _, _) if (gname == name && gcname == cname) => true; 
-        case _ => false}).get.asInstanceOf[GFunction]     
-      val substitution: Map[Variable, Term] = Map() ++  ((gFunction.arg0.args zip cargs) ::: (gFunction.args zip args))      
+    case FCall(name, args)  => 
+      eval(unfoldFCall(name, args))
+
+    case GCall(name, arg0, args) =>
+      evalGCall(name, arg0, args)
+
+    case t: Term =>
+      illegalTerm(t)
+  }
+
+  def evalGCall(name: String, t: Term, args: List[Term]) : Term = t match {
+
+    case Constructor(cname, cargs) => {
+      val gFunction = program.getGFunction(name, cname)
+      val substitution: Map[Variable, Term] =
+        Map() ++  ((gFunction.arg0.args zip cargs) ::: (gFunction.args zip args))      
       eval(apllySubstitution(gFunction.term, substitution))
     }
     
-    // g(f(...), ...)
-    case gCall @ GCall(gname, fCall: FCall, args) => 
-      eval(GCall(gname, reduceFCall(fCall), args))
-      
-    // g(g(...), ...)
-    case GCall(gname, gCall: GCall, args) =>
-      eval(GCall(gname, eval(gCall), args))
-      
-    case t: Term => throw new IllegalArgumentException(t + " is encoutered in passed expression. This term contains vars.")
+    case FCall(name1, args1) => 
+      evalGCall(name, unfoldFCall(name1, args1), args)
+
+    case GCall(name1, t1, args1) =>
+      evalGCall(name, evalGCall(name1, t1, args1), args)
+
+    case t : Term =>
+      illegalTerm(t)
   }
   
-  def reduceFCall(call: FCall): Term = {    
-    val fFunction = program.find(_ match {
-      case FFunction(fname, _, _) if (fname == call.name) => true; 
-      case _ => false}).get.asInstanceOf[FFunction]
-    val substitution: Map[Variable, Term] = Map() ++  (fFunction.args zip call.args)
+  def unfoldFCall(name: String, args: List[Term]): Term = {
+    val fFunction = program.getFFunction(name)
+    val substitution: Map[Variable, Term] = Map() ++  (fFunction.args zip args)
     apllySubstitution(fFunction.term, substitution)    
   }
   
@@ -52,5 +55,9 @@ class Interpreter (program: List[Definition]) {
       FCall(name, args.map(apllySubstitution(_, map)))
     case GCall(name, arg0, args) => 
       GCall(name, apllySubstitution(arg0, map), args.map(apllySubstitution(_, map)))
+  }
+  
+  def illegalTerm(t: Term): Term = {
+    throw new IllegalArgumentException(t + " is encoutered in passed expression. This term contains vars.")
   }
 }

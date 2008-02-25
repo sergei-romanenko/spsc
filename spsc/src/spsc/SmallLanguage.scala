@@ -36,6 +36,24 @@ object SmallLanguage {
     override def toString = 
       name + "(" + arg0 + (args match {case Nil => ""; case _ => ", " + args.mkString(", ")})  + ") = " + term  
   }
+
+  // TODO: f-functions and g-functions should be kept as separate maps.
+  //       the map of g-functions should return maps that map constructor
+  //       names to the corresponding FFunctions.
+  
+  sealed case class Program(definitions : List[Definition]) {
+
+    def getFFunction(name: String) =
+      definitions.find(_ match {
+        case FFunction(fname, _, _) if (fname == name) => true; 
+        case _ => false}).get.asInstanceOf[FFunction]
+
+    def getGFunction(name: String, cname: String) =
+      definitions.find(_ match {
+        case GFunction(gname, Pattern(gcname, _),  _, _)
+          if (gname == name && gcname == cname) => true; 
+        case _ => false}).get.asInstanceOf[GFunction]
+  }
   
   // Auxilary entity used for supercompilation.
   case class LetExpression(term: Term, substitution: Map[Variable, Term]) extends Expression {
