@@ -13,15 +13,20 @@ class Interpreter (program: List[Definition]) {
     
     // f(...)
     case fCall: FCall  => 
-      eval(reduce(fCall))
+      eval(reduceFCall(fCall))
     
     // g(C(..), ...)
-    case gCall @ GCall(gname, (c: Constructor), args) =>
-      eval(reduce(gCall))
+    case GCall(name, Constructor(cname, cargs), args) => {
+      val gFunction = program.find(_ match {
+        case GFunction(gname, Pattern(gcname, _),  _, _) if (gname == name && gcname == cname) => true; 
+        case _ => false}).get.asInstanceOf[GFunction]     
+      val substitution: Map[Variable, Term] = Map() ++  ((gFunction.arg0.args zip cargs) ::: (gFunction.args zip args))      
+      eval(apllySubstitution(gFunction.term, substitution))
+    }
     
     // g(f(...), ...)
     case gCall @ GCall(gname, fCall: FCall, args) => 
-      eval(GCall(gname, reduce(fCall), args))
+      eval(GCall(gname, reduceFCall(fCall), args))
       
     // g(g(...), ...)
     case GCall(gname, gCall: GCall, args) =>
@@ -30,32 +35,22 @@ class Interpreter (program: List[Definition]) {
     case t: Term => throw new IllegalArgumentException(t + " is encoutered in passed expression. This term contains vars.")
   }
   
-  def reduce(call: Call): Term = call match {
-    case FCall(name, args) => {
-      val fFunction = program.find(_ match {
-        case FFunction(fname, _, _) if (fname == name) => true; 
-        case _ => false}).get.asInstanceOf[FFunction]
-      val substitution: Map[Variable, Term] = Map() ++  (fFunction.args zip args)
-      performSubstitution(fFunction.term, substitution)
-    }
-    case GCall(name, Constructor(cname, cargs), args) => {
-      val gFunction = program.find(_ match {
-        case GFunction(gname, Pattern(gcname, _),  _, _) if (gname == name && gcname == cname) => true; 
-        case _ => false}).get.asInstanceOf[GFunction]     
-      val substitution: Map[Variable, Term] = Map() ++  ((gFunction.arg0.args zip cargs) ::: (gFunction.args zip args))
-      performSubstitution(gFunction.term, substitution)
-    }
-    case c: Call => throw new IllegalArgumentException("Internal Error. Interpreter tried to reduce following call: " + c)
+  def reduceFCall(call: FCall): Term = {    
+    val fFunction = program.find(_ match {
+      case FFunction(fname, _, _) if (fname == call.name) => true; 
+      case _ => false}).get.asInstanceOf[FFunction]
+    val substitution: Map[Variable, Term] = Map() ++  (fFunction.args zip call.args)
+    apllySubstitution(fFunction.term, substitution)    
   }
   
-  def performSubstitution(term: Term, map: Map[Variable, Term]): Term = term match {
+  def apllySubstitution(term: Term, map: Map[Variable, Term]): Term = term match {
     case v: Variable => 
       map(v)
     case Constructor(name, args) => 
-      Constructor(name, args.map(performSubstitution(_, map)))
+      Constructor(name, args.map(apllySubstitution(_, map)))
     case FCall(name, args) => 
-      FCall(name, args.map(performSubstitution(_, map)))
+      FCall(name, args.map(apllySubstitution(_, map)))
     case GCall(name, arg0, args) => 
-      GCall(name, performSubstitution(arg0, map), args.map(performSubstitution(_, map)))
+      GCall(name, apllySubstitution(arg0, map), args.map(apllySubstitution(_, map)))
   }
 }
