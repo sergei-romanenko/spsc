@@ -56,8 +56,8 @@ object SmallLanguage {
   }
   
   // Auxilary entity used for supercompilation.
-  case class LetExpression(term: Term, substitution: Map[Variable, Term]) extends Expression {
-    override def toString = "let " + substitution + " in " + term
+  case class LetExpression(term: Term, bindings: Map[Variable, Term]) extends Expression {
+    override def toString = "let " + bindings + " in " + term
   }  
   
 }
