@@ -36,23 +36,26 @@ object SmallLanguage {
     override def toString = 
       name + "(" + arg0 + (args match {case Nil => ""; case _ => ", " + args.mkString(", ")})  + ") = " + term  
   }
-
-  // TODO: f-functions and g-functions should be kept as separate maps.
-  //       the map of g-functions should return maps that map constructor
-  //       names to the corresponding FFunctions.
   
-  sealed case class Program(definitions : List[Definition]) {
+  case class Program(definitions : List[Definition]) {
+    
+    private var fMap = scala.collection.mutable.Map[String, FFunction]()        
+    private var gMap = scala.collection.mutable.Map[(String, String), GFunction]()
+    
+    for (d <- definitions) d match {
+      case f @ FFunction(name, _, _) => fMap += (name -> f)
+      case g @ GFunction(name, arg0, _, _) => gMap += ((name, arg0.name) -> g)
+    }
+    
+    def getFFunction(name: String) = fMap.get(name) match {
+      case Some(f) => f
+      case None => throw new IllegalArgumentException("f-function " + name + " is undefined")
+    }
 
-    def getFFunction(name: String) =
-      definitions.find(_ match {
-        case FFunction(fname, _, _) if (fname == name) => true; 
-        case _ => false}).get.asInstanceOf[FFunction]
-
-    def getGFunction(name: String, cname: String) =
-      definitions.find(_ match {
-        case GFunction(gname, Pattern(gcname, _),  _, _)
-          if (gname == name && gcname == cname) => true; 
-        case _ => false}).get.asInstanceOf[GFunction]
+    def getGFunction(name: String, cname: String) = gMap.get((name, cname)) match {
+      case Some(g) => g
+      case None => throw new IllegalArgumentException("g-function " + name + " with constructor " + cname + " is undefined")
+    }
   }
   
   // Auxilary entity used for supercompilation.
