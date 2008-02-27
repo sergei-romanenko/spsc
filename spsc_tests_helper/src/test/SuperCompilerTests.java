@@ -12,6 +12,7 @@ public class SuperCompilerTests {
 		suite.addTest(new JUnit4TestAdapter(spsc.SmallLanguageParsersTest.class));
 		suite.addTest(new JUnit4TestAdapter(spsc.InterpreterTest.class));
 		suite.addTest(new JUnit4TestAdapter(spsc.LazinessTest.class));
+		suite.addTest(new JUnit4TestAdapter(spsc.SuperCompilerTest.class));
 		//$JUnit-END$
 		return suite;
 	}
