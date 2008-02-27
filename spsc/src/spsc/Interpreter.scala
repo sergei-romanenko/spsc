@@ -6,14 +6,12 @@ import SmallLanguage._
 // normal-order graph reduction to weak head normal form.
 class Interpreter (program: Program) {
   
-  def eval(t: Term): Term = lazyEval(t) match {
-    case Constructor(name, args) => 
-      Constructor(name, args.map(eval))
-    // TODO: assertion failed?
-    case _ => throw new RuntimeException("Internal Error")
+  def eval(t: Term): Term = {
+    val lazyResult = lazyEval(t) 
+    Constructor(lazyResult.name, lazyResult.args.map(eval))
   }
   
-  private def lazyEval(t: Term): Term = t match {
+  private def lazyEval(t: Term): Constructor = t match {
 
     case c: Constructor => c
     
@@ -27,7 +25,7 @@ class Interpreter (program: Program) {
       illegalTerm(t)
   }
 
-  def lazyEvalGCall(name: String, t: Term, args: List[Term]) : Term = t match {
+  def lazyEvalGCall(name: String, t: Term, args: List[Term]) : Constructor = t match {
 
     case Constructor(cname, cargs) => {
       val gFunction = program.getGFunction(name, cname)
@@ -63,7 +61,7 @@ class Interpreter (program: Program) {
       GCall(name, apllySubstitution(arg0, map), args.map(apllySubstitution(_, map)))
   }
   
-  def illegalTerm(t: Term): Term = {
+  def illegalTerm(t: Term): Constructor = {
     throw new IllegalArgumentException(t + " is encoutered in passed expression. This term contains vars.")
   }
 }
