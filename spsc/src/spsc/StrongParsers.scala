@@ -5,7 +5,7 @@ import scala.util.parsing.combinator.Parsers
 trait StrongParsers extends Parsers{
   
   // A parser generator that corresponds to p+~EOF
-  // but instead of returning "EOF expected" at the middle of the file it explains where p failed
+  // but instead of returning "EOF expected" at the middle of the file it reports where p has failed.
   def strongRep1[T](p: => Parser[T]): Parser[List[T]] = new Parser[List[T]]{
     def apply(in0: Input)  = {
       val xs = new scala.collection.mutable.ListBuffer[T]

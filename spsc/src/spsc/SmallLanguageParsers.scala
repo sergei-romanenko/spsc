@@ -56,11 +56,11 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
   private def definition: Parser[Definition] = 
     gFunction | fFunction
   
-  // main parser
+  // The main parser.
   private def program: Parser[List[Definition]] = strongRep1(definition)
   
   
-  // utility class for iterating over "definition stream"
+  // A utility class for iterating over "definition stream".
   class DefinitionScanner(definitions: List[Definition]) extends Reader[Definition]{
     val (first, restDefinitions) = definitions match {
       case Nil => (null, Nil)
@@ -79,7 +79,7 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
     def lineContents(lnum: Int) = ""
   }
   
-  // check semantic and correctness of raw program
+  // The checker of context-dependent restrictions.
   object Validator extends StrongParsers {
     sealed abstract class TermProceedingResult
     case class TermProceedingSuccess(term: Term) extends TermProceedingResult
@@ -106,11 +106,11 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
       val gInfo = Map[String, Pair[Int, Set[String]]]() // name -> (arity, constructor names)
       val varNames = Set[String]()
       
-      // name belongs to one set of {g, f, v, c}
-      // arity is constant
-      // different constructors for g-functions
-      // single occurence of variable in pattern
-      // on variables on the right side of definition must be present in ints left side
+      // A name belongs to one and only one of the sets {g, f, v, c}.
+      // The arity of constructors and functions must be consistent.
+      // All constructors in the definition of a g-functions must be different.
+      // A variable in a pattern can appear only once.
+      // A variable appearing in the right hand side must appear in the left hand side.
       def validateDefinition: Parser[Definition] = new Parser[Definition]{
         def apply(in: Input):ParseResult[Definition] = {
           
@@ -230,8 +230,8 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
               } else {
                 gInfo(name) = (args.size + 1, Set(cName))
               }
-              // 3.a No variable occurs more than once in a left side
-              // 3.b Name of variable must be unique in global context
+              // 3.a A variable can appear in a left side no more than once.
+              // 3.b A variable name must be unique in the global context.
               for (v <- (arg0.args ::: args)){
                 if (fVars.contains(v)){
                   return Failure("Variable " + v.name + " occurs more than once in a left side", in);
@@ -267,8 +267,8 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
       result0
   }
   
-  // parse term without context
-  // so there is no call classification.
+  // Since the term is parsed without a context,
+  // all calls are temporary classified as f-calls.
   def parseTerm(r: Reader[Char]): ParseResult[Term] = term(new lexical.Scanner(r))
   
 }

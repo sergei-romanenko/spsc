@@ -2,8 +2,8 @@ package spsc
 
 import SmallLanguage._
 
-// The operational semantics of interpreter is
-// normal-order graph reduction to weak head normal form.
+// The operational semantics of the interpreter is
+// the normal-order graph reduction to the weak head normal form.
 class Interpreter (program: Program) {
   
   def eval(t: Term): Term = {
@@ -31,7 +31,7 @@ class Interpreter (program: Program) {
       val gFunction = program.getGFunction(name, cname)
       val substitution: Map[Variable, Term] =
         Map() ++  ((gFunction.arg0.args zip cargs) ::: (gFunction.args zip args))      
-      lazyEval(apllySubstitution(gFunction.term, substitution))
+      lazyEval(applySubstitution(gFunction.term, substitution))
     }
     
     case FCall(name1, args1) => 
@@ -47,18 +47,18 @@ class Interpreter (program: Program) {
   def unfoldFCall(name: String, args: List[Term]): Term = {
     val fFunction = program.getFFunction(name)
     val substitution: Map[Variable, Term] = Map() ++  (fFunction.args zip args)
-    apllySubstitution(fFunction.term, substitution)    
+    applySubstitution(fFunction.term, substitution)    
   }
   
-  def apllySubstitution(term: Term, map: Map[Variable, Term]): Term = term match {
+  def applySubstitution(term: Term, map: Map[Variable, Term]): Term = term match {
     case v: Variable => 
       map(v)
     case Constructor(name, args) => 
-      Constructor(name, args.map(apllySubstitution(_, map)))
+      Constructor(name, args.map(applySubstitution(_, map)))
     case FCall(name, args) => 
-      FCall(name, args.map(apllySubstitution(_, map)))
+      FCall(name, args.map(applySubstitution(_, map)))
     case GCall(name, arg0, args) => 
-      GCall(name, apllySubstitution(arg0, map), args.map(apllySubstitution(_, map)))
+      GCall(name, applySubstitution(arg0, map), args.map(applySubstitution(_, map)))
   }
   
   def illegalTerm(t: Term): Constructor = {

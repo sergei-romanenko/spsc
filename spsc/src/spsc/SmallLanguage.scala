@@ -3,18 +3,18 @@ package spsc
 object SmallLanguage {
   
   abstract class Expression
-  // base class for term
+  // The base class for terms.
   sealed abstract class Term extends Expression
-  // variable begins with lower case letter and has no args
+  // Variables start with a lower case letter and have no args.
   case class Variable(name: String) extends Term {
     override def toString() = name
   }
-  // constructor begins with upper case letter and optionally has args
+  // Constructors start with an upper case letter and have optional args.
   case class Constructor(name: String, args: List[Term]) extends Term {
     override def toString = name + args.mkString("(", ", " ,")")
   }
   
-  // function call
+  // Function calls.
   sealed abstract class Call extends Term
   case class FCall(name: String, args: List[Term]) extends Call {
     override def toString = name + args.mkString("(", ", " ,")")
@@ -23,7 +23,7 @@ object SmallLanguage {
     override def toString = name + "(" + arg0 + (args match {case Nil => ""; case _ => ", " + args.mkString(", ")})  + ")"
   }
   
-  // pattern is used in g-function
+  // Patterns are used in g-functions.
   case class Pattern(name: String, args: List[Variable]) {
     override def toString = name + args.mkString("(", ", " ,")")
   }
@@ -58,10 +58,9 @@ object SmallLanguage {
     }
   }
   
-  // Auxilary entity used for supercompilation.
+  // An auxilary entity used for supercompilation.
   case class LetExpression(term: Term, bindings: Map[Variable, Term]) extends Expression {
     override def toString = "let " + bindings + " in " + term
   }  
   
 }
-
