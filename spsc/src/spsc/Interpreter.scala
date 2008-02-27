@@ -6,35 +6,41 @@ import SmallLanguage._
 // normal-order graph reduction to weak head normal form.
 class Interpreter (program: Program) {
   
-  def eval(t: Term): Term = t match {
-
+  def eval(t: Term): Term = lazyEval(t) match {
     case Constructor(name, args) => 
       Constructor(name, args.map(eval))
+    // TODO: assertion failed?
+    case _ => throw new RuntimeException("Internal Error")
+  }
+  
+  private def lazyEval(t: Term): Term = t match {
+
+    case c: Constructor => c
     
     case FCall(name, args)  => 
-      eval(unfoldFCall(name, args))
+      lazyEval(unfoldFCall(name, args))
 
     case GCall(name, arg0, args) =>
-      evalGCall(name, arg0, args)
+      lazyEvalGCall(name, arg0, args)
 
     case t: Term =>
       illegalTerm(t)
   }
 
-  def evalGCall(name: String, t: Term, args: List[Term]) : Term = t match {
+  def lazyEvalGCall(name: String, t: Term, args: List[Term]) : Term = t match {
 
     case Constructor(cname, cargs) => {
       val gFunction = program.getGFunction(name, cname)
       val substitution: Map[Variable, Term] =
         Map() ++  ((gFunction.arg0.args zip cargs) ::: (gFunction.args zip args))      
-      eval(apllySubstitution(gFunction.term, substitution))
+      lazyEval(apllySubstitution(gFunction.term, substitution))
     }
     
     case FCall(name1, args1) => 
-      evalGCall(name, unfoldFCall(name1, args1), args)
+      lazyEvalGCall(name, unfoldFCall(name1, args1), args)
 
     case GCall(name1, t1, args1) =>
-      evalGCall(name, evalGCall(name1, t1, args1), args)
+      lazyEvalGCall(name, lazyEvalGCall(name1, t1, args1), args)
 
     case t : Term =>
       illegalTerm(t)
