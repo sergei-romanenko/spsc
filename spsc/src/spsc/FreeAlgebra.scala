@@ -1,6 +1,6 @@
 package spsc;
 
-object FreeAlgebra {
+object TermAlgebra {
   sealed abstract class ATerm
   case class AVar(name: String) extends ATerm {
     override def toString = name

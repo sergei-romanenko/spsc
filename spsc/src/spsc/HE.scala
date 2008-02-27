@@ -1,6 +1,6 @@
 package spsc
 
-import FreeAlgebra._
+import TermAlgebra._
 
 // Homeomorphic embedding checker
 object HE {  
