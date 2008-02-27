@@ -1,5 +1,5 @@
-Currently scala eclipse plug-in doesn't allow to mix scala and java code inside one project.
-As workaround I have created this project. 
+Currently the Scala Eclipse plug-in doesn't allow Scala and Java code to be mixed inside one project.
+As a workaround this project has been created. 
 You can run test.SuperCompilerTests via eclipse UI.
-The aim of this eclipse project is to facilitate 
-launch of unit tests (written in scala an compiled to byte code) from eclipse.
+The aim of this Eclipse project is to facilitate 
+launching unit tests (written in Scala and compiled to byte-code) from Eclipse.
