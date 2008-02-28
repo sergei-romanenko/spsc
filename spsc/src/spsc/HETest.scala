@@ -3,7 +3,6 @@ package spsc;
 import org.junit.Test
 import org.junit.Assert._
 import TermAlgebra._
-import HE.he
 
 // TODO : via parser
 class HETest {  
