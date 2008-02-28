@@ -5,7 +5,7 @@ import org.junit.Assert._
 import TermAlgebra._
 
 // TODO : via parser
-class HETest {  
+class TermAlgebraTest {  
   
   @Test def simpleHE() : Unit = {
     assertTrue(he(AVar("x"), AVar("y"))) //true: x<y
