@@ -76,7 +76,7 @@ class TermAlgebraTest {
     assertTrue(instanceOf(ASym("A", AVar("x") :: Nil),
                           ASym("A", ASym("B", Nil) :: Nil)))
                           
-    // A(x) !<~ A(b);
+    // A(b) !<~ A(x);
     assertFalse(instanceOf(ASym("A", ASym("B", Nil) :: Nil),
                            ASym("A", AVar("x") :: Nil)))
   }
