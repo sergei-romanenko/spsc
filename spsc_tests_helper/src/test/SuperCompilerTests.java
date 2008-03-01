@@ -14,6 +14,7 @@ public class SuperCompilerTests {
 		suite.addTest(new JUnit4TestAdapter(spsc.LazinessTest.class));
 		suite.addTest(new JUnit4TestAdapter(spsc.SuperCompilerTest.class));
 		suite.addTest(new JUnit4TestAdapter(spsc.TermAlgebraTest.class));
+		suite.addTest(new JUnit4TestAdapter(spsc.SmallLanguageTermAlgebraTest.class));
 		//$JUnit-END$
 		return suite;
 	}
