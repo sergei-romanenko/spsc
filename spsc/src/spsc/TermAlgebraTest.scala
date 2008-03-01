@@ -71,6 +71,38 @@ class TermAlgebraTest {
     assertTrue(equivalent(msg2.term, ASym("D", AVar("x") :: AVar("x") :: Nil)))
   }
   
+  @Test def strongMSG(): Unit = {
+    // A(B)^B = x
+    val msg0 = strongMsg(ASym("A", ASym("B", Nil) :: Nil), 
+                   ASym("B", Nil))
+    println(msg0)
+    assertTrue(equivalent(msg0.term, AVar("x")))
+    
+    // C(B)^C(F(B)) = C(x)
+    val msg1 = strongMsg(ASym("C", ASym("B", Nil) :: Nil), 
+        ASym("C", ASym("F", ASym("B", Nil)::Nil) :: Nil))
+    println(msg1)
+    assertTrue(equivalent(msg1.term, ASym("C", AVar("x") :: Nil)))
+
+    // D(B, B)^D(F(B), F(B)) = D(x, x)
+    val msg2 = strongMsg(ASym("D", ASym("B", Nil) :: ASym("B", Nil) :: Nil), 
+                   ASym("D", ASym("F", ASym("B", Nil) :: Nil) :: ASym("F", ASym("B", Nil) :: Nil) :: Nil))
+    println(msg2)
+    assertTrue(equivalent(msg2.term, ASym("D", AVar("x") :: AVar("x") :: Nil)))
+    
+    // C(x)^C(F(B)) = C(x)
+    val msg3 = strongMsg(ASym("C", AVar("x") :: Nil), 
+        ASym("C", ASym("F", ASym("B", Nil)::Nil) :: Nil))
+    println(msg3)
+    assertEquals(msg3.term, ASym("C", AVar("x") :: Nil))
+    
+    // C(F(B))^C(x) = C(x)
+    val msg4 = strongMsg(ASym("C", ASym("F", ASym("B", Nil)::Nil) :: Nil),
+                         ASym("C", AVar("x") :: Nil))
+    println(msg4)
+    assertEquals(msg4.term, ASym("C", AVar("x") :: Nil))
+  }
+  
   @Test def simpleInstanceOf(): Unit = {
     // A(x) <~ A(b); A(x){x:=b)=A(b)
     assertTrue(instanceOf(ASym("A", AVar("x") :: Nil),

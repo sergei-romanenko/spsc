@@ -31,7 +31,7 @@ object TermAlgebra {
   type Substitution = Tuple2[AVar, ATerm]
   type DoubleSubstitution = Tuple3[AVar, ATerm, ATerm]
   
-  //case class Generalization(term: ATerm, sub1: List[Substitution], sub2: List[Substitution])
+  case class Generalization(term: ATerm, sub1: List[Substitution], sub2: List[Substitution])
   case class Generalization2(term: ATerm, dSub: List[DoubleSubstitution])
   
   def msg(term1: ATerm, term2: ATerm): Generalization2 = {
@@ -44,6 +44,23 @@ object TermAlgebra {
       g = applyCommonSubExpressionRule(g)
     } while (exp != g.term)
     g
+  }
+  
+  def strongMsg(term1: ATerm, term2: ATerm): Generalization = {
+    val g = msg(term1, term2)
+    if (equivalent(g.term, term1)){
+      val term = g.dSub.foldLeft(g.term)((t, s) => applySubstitution(t, (s._1, s._2)))
+      val newS = g.dSub.map(triple => (triple._2.asInstanceOf[AVar], triple._3))
+      Generalization(term, Nil, newS)
+    } else  if (equivalent(g.term, term2)){
+      val term = g.dSub.foldLeft(g.term)((t, s) => applySubstitution(t, (s._1, s._3)))
+      val newS = g.dSub.map(triple => (triple._3.asInstanceOf[AVar], triple._2))
+      Generalization(term, newS, Nil)
+    } else {
+      val s1 = g.dSub.map(triple => (triple._1, triple._2))
+      val s2 = g.dSub.map(triple => (triple._1, triple._3))
+      Generalization(g.term, s1, s2)
+    }
   }
   
   private def applyCommonFunctorRule(g: Generalization2): Generalization2 = {
