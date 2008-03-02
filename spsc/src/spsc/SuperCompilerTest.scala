@@ -58,18 +58,37 @@ class SuperCompilerTest {
     |append(Cons(u, us), vs) = Cons(u, append(us, vs));
     |reverse(Nil) = Nil;
     |reverse(Cons(x, xs)) = append(reverse(xs), Cons(x, Nil));
+    |from(n) = Cons(n, from(S(n)));
+    |take(Z, xs) = Nil;
+    |take(S(n), xs) = Cons(head(xs), take(n, tail(xs)));
+    |mapAdd1(Nil) = Nil;
+    |mapAdd1(Cons(x, xs)) = Cons(S(x), mapAdd1(xs));
+    |head(Cons(x, xs)) = x;
+    |tail(Cons(x, xs)) = xs;
+    |test4() = mapAdd1(from(Z));
+    |test5(n, start) = take(n, mapAdd1(from(start)));
     """
 
     val program = programFromString(programText.stripMargin)
     val sc = new SuperCompiler(program)
 
-    buildProcessTree(sc, FCall("test1", Nil)) 
+    buildProcessTree(sc,
+        FCall("test1", Nil)) 
     
-    buildProcessTree(sc, GCall("append", Variable("xs"), Variable("ys")::Nil))
+    buildProcessTree(sc,
+        GCall("append", Variable("xs"), Variable("ys")::Nil))
     
-    buildProcessTree(sc, GCall("append", GCall("append", Variable("xs"), Variable("ys")::Nil), Variable("zs")::Nil))
+    buildProcessTree(sc,
+        GCall("append", GCall("append", Variable("xs"), Variable("ys")::Nil), Variable("zs")::Nil))
     
-    buildProcessTree(sc, GCall("append", GCall("append", Variable("xs"), Variable("ys")::Nil), Variable("xs")::Nil))
+    buildProcessTree(sc,
+        GCall("append", GCall("append", Variable("xs"), Variable("ys")::Nil), Variable("xs")::Nil))
+        
+    buildProcessTree(sc,
+        FCall("test4", Nil))
+        
+    buildProcessTree(sc,
+        FCall("test5", Variable("n")::Variable("start")::Nil))
   }
 
 }

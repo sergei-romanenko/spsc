@@ -13,9 +13,9 @@ class LazinessTest {
     |test1() = take(S(S(Z)), from(Z));
     |from(n) = Cons(n, from(S(n)));
     |take(Z, xs) = Nil;
-    |take(S(n), xs) = Cons(hd(xs), take(n, tl(xs)));
-    |hd(Cons(x, xs)) = x;
-    |tl(Cons(x, xs)) = xs;
+    |take(S(n), xs) = Cons(head(xs), take(n, tail(xs)));
+    |head(Cons(x, xs)) = x;
+    |tail(Cons(x, xs)) = xs;
     """
 
     runTest(program, "test1", "Cons(Z, Cons(S(Z), Nil))")
