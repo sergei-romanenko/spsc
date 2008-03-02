@@ -62,6 +62,7 @@ class SmallLanguageTermAlgebraTest {
     assertTrue(equivalent(msg2.term, __("D(x, x)")))
   }
   
+  /*
   @Test def strongMSG(): Unit = {
     // A(B)^B = x
     val msg0 = strongMsg(__("A(B)"), __("B"))
@@ -94,6 +95,7 @@ class SmallLanguageTermAlgebraTest {
     assertTrue(msg5.sub2.isEmpty)
     assertEquals(msg5.sub1.size, 1)
   }
+  */
   
   @Test def simpleInstanceOf(): Unit = {
     // A(x) <~ A(B); A(x){x:=B)=A(B)
