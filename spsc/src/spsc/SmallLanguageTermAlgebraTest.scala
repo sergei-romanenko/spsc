@@ -87,6 +87,12 @@ class SmallLanguageTermAlgebraTest {
     val msg4 = strongMsg( __("C(F(B))"), __("C(x)"))
     println(msg4)
     assertEquals(msg4.term, __("C(x)"))
+    
+    val msg5 = strongMsg( __("a(a(xs, ys), xs)"), __("a(a(xs, ys), zs)"))
+    println(msg5)
+    assertEquals(msg5.term, __("a(a(xs, ys), zs)"))
+    assertTrue(msg5.sub2.isEmpty)
+    assertEquals(msg5.sub1.size, 1)
   }
   
   @Test def simpleInstanceOf(): Unit = {

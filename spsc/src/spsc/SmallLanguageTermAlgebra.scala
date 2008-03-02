@@ -51,11 +51,11 @@ object SmallLanguageTermAlgebra {
     val g = msg(term1, term2)
     if (equivalent(g.term, term1)){
       val term = g.dSub.foldLeft(g.term)((t, s) => applySubstitution(t, (s._1, s._2)))
-      val newS = g.dSub.map(triple => (triple._2.asInstanceOf[Variable], triple._3))
+      val newS = g.dSub.map(triple => (triple._2.asInstanceOf[Variable], triple._3)).remove(pair => pair._1 == pair._2)
       Generalization(term, Nil, newS)
     } else  if (equivalent(g.term, term2)){
       val term = g.dSub.foldLeft(g.term)((t, s) => applySubstitution(t, (s._1, s._3)))
-      val newS = g.dSub.map(triple => (triple._3.asInstanceOf[Variable], triple._2))
+      val newS = g.dSub.map(triple => (triple._3.asInstanceOf[Variable], triple._2)).remove(pair => pair._1 == pair._2)
       Generalization(term, newS, Nil)
     } else {
       val s1 = g.dSub.map(triple => (triple._1, triple._2))
