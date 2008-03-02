@@ -88,7 +88,7 @@ class SuperCompiler(program: Program){
   
   def nextVar = {
     varIndex += 1
-    Variable("x$" + varIndex)
+    Variable("$" + varIndex)
   }
   
   def applySubstitution(term: Term, map: Map[Variable, Term]): Term = term match {
