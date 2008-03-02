@@ -13,7 +13,7 @@ object ProcessTree {
     def toString(indent: String): String = {
       val sb = new StringBuilder(indent + "|__" + expr)
       for (edge <- outs) {
-        sb.append("\n  " + indent + "|" + edge.substitution)
+        sb.append("\n  " + indent + "|" + edge.substitution.toList.map(kv => kv._1 + ":=" + kv._2).mkString("", ", ", ""))
         sb.append("\n" + edge.child.toString(indent + "  "))
       }
       sb.toString
