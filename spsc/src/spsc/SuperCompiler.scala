@@ -103,7 +103,7 @@ class SuperCompiler(program: Program){
   }
   
   // heart of supercompiler
-  def superCompile(e: Expression): ProcessTree = {
+  def buildProcessTree(e: Expression): ProcessTree = {
     val p = ProcessTree(e)
     while (!p.isClosed) {
       val beta = p.leafs.find(!_.isProcessed).get
