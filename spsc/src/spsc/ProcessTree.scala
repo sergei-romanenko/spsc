@@ -25,6 +25,7 @@ object ProcessTree {
     def isProcessed: Boolean = expr match {
       case Constructor(_, Nil) => true
       case v : Variable => true
+      case l: LetExpression => false
       case _ => {
         var edge = in
         while (edge != null) {
