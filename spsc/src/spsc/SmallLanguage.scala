@@ -73,7 +73,7 @@ object SmallLanguage {
   
   // An auxilary entity used for supercompilation.
   case class LetExpression(term: Term, bindings: Map[Variable, Term]) extends Expression {
-    override def toString = "let " + bindings + " in " + term
+    override def toString = "let " + bindings.toList.map(kv => kv._1 + "=" + kv._2).mkString("", ", ", "") + " in " + term
   }  
   
 }
