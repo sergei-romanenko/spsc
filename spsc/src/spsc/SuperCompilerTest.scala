@@ -67,6 +67,12 @@ class SuperCompilerTest {
     |tail(Cons(x, xs)) = xs;
     |test4() = mapAdd1(from(Z));
     |test5(n, start) = take(n, mapAdd1(from(start)));
+    |ab(A(x)) = B(ab(x));
+    |ab(B(x)) = A(ab(x));
+    |test6(x) = ab(ab(x));
+    |reva(Nil, ys) = ys;
+    |reva(Cons(x, xs), ys) = reva(xs, Cons(x, ys));
+    |test7(xs) = reva(xs, Nil);
     """
 
     val program = programFromString(programText.stripMargin)
@@ -89,6 +95,11 @@ class SuperCompilerTest {
         
     buildProcessTree(sc,
         FCall("test5", Variable("n")::Variable("start")::Nil))
-  }
+        
+    buildProcessTree(sc,
+        FCall("test6", Variable("x")::Nil))
 
+    buildProcessTree(sc,
+        FCall("test7", Variable("xs")::Nil))
+  }
 }
