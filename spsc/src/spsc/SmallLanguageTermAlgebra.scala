@@ -156,9 +156,9 @@ object SmallLanguageTermAlgebra {
   }
   
   private var counter = 0
-  private def nextVar(): Variable = {
+  def nextVar(): Variable = {
     counter += 1
-    Variable("x_" + counter)
+    Variable("$" + counter)
   }
 
 }

@@ -70,25 +70,13 @@ class SuperCompiler(program: Program){
   }
   
   def renameVarsInFFunction(f: FFunction): FFunction = {
-    val renaming = Map() ++ f.args.map(v => (v, renameVar(v))) 
+    val renaming = Map() ++ f.args.map(v => (v, nextVar())) 
     FFunction(f.name, f.args.map(renaming(_)), applySubstitution(f.term, renaming))    
   }
   
   def renameVarsInGFunction(g: GFunction): GFunction = {
-    val renaming = Map() ++ (g.args.map(v => (v, renameVar(v))) ::: g.arg0.args.map(v => (v, renameVar(v)))) 
+    val renaming = Map() ++ (g.args.map(v => (v, nextVar())) ::: g.arg0.args.map(v => (v, nextVar()))) 
     GFunction(g.name, Pattern(g.arg0.name, g.arg0.args.map(renaming(_))), g.args.map(renaming(_)), applySubstitution(g.term, renaming))    
-  }
-  
-  var varIndex: Int = 0
-  
-  def renameVar(v: Variable): Variable = {
-    varIndex += 1
-    Variable("$" + varIndex)
-  }
-  
-  def nextVar = {
-    varIndex += 1
-    Variable("$" + varIndex)
   }
   
   def applySubstitution(term: Term, map: Map[Variable, Term]): Term = term match {
