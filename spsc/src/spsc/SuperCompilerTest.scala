@@ -38,6 +38,14 @@ class SuperCompilerTest {
     assertEquals(expected, childNode2.expr)
   }
   
+  def buildProcessTree(sc: SuperCompiler, initial: Expression) {
+    val result1 = sc.buildProcessTree(initial)
+    println("--------")
+    println(initial)
+    println()
+    println(result1)
+  }
+  
   // currently only prints final process tree to console
   @Test def simpleDrive1(): Unit =
   {
@@ -54,37 +62,14 @@ class SuperCompilerTest {
 
     val program = programFromString(programText.stripMargin)
     val sc = new SuperCompiler(program)
+
+    buildProcessTree(sc, FCall("test1", Nil)) 
     
-    val initial1 = FCall("test1", Nil)
-    val result1 = sc.buildProcessTree(initial1)
-    println("--------")
-    println(initial1)
-    println()
-    println(result1)
+    buildProcessTree(sc, GCall("append", Variable("xs"), Variable("ys")::Nil))
     
-    val initial2 = GCall("append", Variable("xs"), Variable("ys")::Nil)
-    val result2 = sc.buildProcessTree(initial2)
-    println("--------")
-    println(initial2)
-    println()
-    println(result2)
+    buildProcessTree(sc, GCall("append", GCall("append", Variable("xs"), Variable("ys")::Nil), Variable("zs")::Nil))
     
-    val initial3 = GCall("append", GCall("append", Variable("xs"), Variable("ys")::Nil), Variable("zs")::Nil)
-    val result3 = sc.buildProcessTree(initial3)
-    println("--------")
-    println(initial3)
-    println()
-    println(result3)
-    
-    val initial4 = GCall("append", GCall("append", Variable("xs"), Variable("ys")::Nil), Variable("xs")::Nil)
-    val result4 = sc.buildProcessTree(initial4)
-    println("--------")
-    println(initial4)
-    println()
-    println(result4)
-    
-    println("--------")
-    
+    buildProcessTree(sc, GCall("append", GCall("append", Variable("xs"), Variable("ys")::Nil), Variable("xs")::Nil))
   }
 
 }
