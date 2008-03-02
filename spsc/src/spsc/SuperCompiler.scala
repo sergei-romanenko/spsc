@@ -83,7 +83,7 @@ class SuperCompiler(program: Program){
   
   def renameVar(v: Variable): Variable = {
     varIndex += 1
-    Variable(v.name + "_" + varIndex)
+    Variable("$" + varIndex)
   }
   
   def nextVar = {
