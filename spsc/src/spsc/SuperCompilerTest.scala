@@ -63,6 +63,8 @@ class SuperCompilerTest {
     |take(S(n), xs) = Cons(head(xs), take(n, tail(xs)));
     |mapAdd1(Nil) = Nil;
     |mapAdd1(Cons(x, xs)) = Cons(S(x), mapAdd1(xs));
+    |null(Nil) = True;
+    |null(Cons(x, xs)) = False;
     |head(Cons(x, xs)) = x;
     |tail(Cons(x, xs)) = xs;
     |test4() = mapAdd1(from(Z));
@@ -73,7 +75,28 @@ class SuperCompilerTest {
     |reva(Nil, ys) = ys;
     |reva(Cons(x, xs), ys) = reva(xs, Cons(x, ys));
     |test7(xs) = reva(xs, Nil);
+    |eq(Z, y) = eqZ(y);
+    |eq(S(x), y) = eqS(y, x);
+    |eqZ(Z) = True;
+    |eqZ(S(x)) = False;
+    |eqS(Z, x) = False;
+    |eqS(S(y), x) = eq(x, y);
+    |test8(x) = eq(x, x);
+    |test9(x) = eq(x, S(x));
+    |test10(x) = eq(S(x), x);
+    |test11(x) = eq(S(Z), x);
+    |if(True, x, y) = x;
+    |if(False, x, y) = y;
+    |not(x) = if(x, False, True);
+    |or(x, y) = if(x, True, y);
+    |and(x, y) = if(x, y, False);
+    |test12(x, y) = not(or(not(x), not(y)));
+    |member(x, list) = or(and(not(null(list)), eq(x, head(list))), member(x, tail(list)));
+    |test13(x, list) = member(x, list);
     """
+/*  
+    """
+     */
 
     val program = programFromString(programText.stripMargin)
     val sc = new SuperCompiler(program)
@@ -101,5 +124,23 @@ class SuperCompilerTest {
 
     buildProcessTree(sc,
         FCall("test7", Variable("xs")::Nil))
+
+    buildProcessTree(sc,
+        FCall("test8", Variable("x")::Nil))
+            
+    buildProcessTree(sc,
+        FCall("test9", Variable("x")::Nil))
+
+    buildProcessTree(sc,
+        FCall("test10", Variable("x")::Nil))
+
+    buildProcessTree(sc,
+        FCall("test11", Variable("x")::Nil))
+        
+    buildProcessTree(sc,
+        FCall("test12", Variable("x")::Variable("y")::Nil))
+
+    buildProcessTree(sc,
+        FCall("test13", Variable("x")::Variable("list")::Nil))
   }
 }
