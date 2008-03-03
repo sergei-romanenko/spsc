@@ -128,13 +128,20 @@ class SuperCompiler(program: Program){
   }
   
   def split(t: ProcessTree, n: Node): Unit = n.expr match {
-    case c @ Constructor(_, args) => {
-      t.replace(n, LetExpression(c, Map() ++ args.map(arg => (nextVar, arg))))
+    case c @ Constructor(name, args) => {
+      val vars = args.map(a => nextVar())
+      val sub = Map() ++ (vars zip args)
+      t.replace(n, LetExpression(Constructor(name, vars), sub))
     }
-    case f @ FCall(_, args) => 
-      t.replace(n, LetExpression(f, Map() ++ args.map(arg => (nextVar, arg))))
-    case g @ GCall(_, arg0, args) =>
-      t.replace(n, LetExpression(g, Map() ++ (arg0 :: args).map(arg => (nextVar, arg))))
+    case f @ FCall(name, args) =>
+      val vars = args.map(a => nextVar())
+      val sub = Map() ++ (vars zip args)
+      t.replace(n, LetExpression(FCall(name, vars), sub))
+    case g @ GCall(name, arg0, args) =>
+      val arg0Var = nextVar
+      val vars = args.map(a => nextVar())
+      val sub = Map() ++ ((arg0Var :: vars) zip (arg0 :: args))
+      t.replace(n, LetExpression(GCall(name, arg0Var, vars), sub))
     case _ => throw new IllegalArgumentException("Can not split " + n.expr)
   }
   
