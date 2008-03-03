@@ -61,12 +61,22 @@ class SuperCompilerTest {
     |and(x, y) = if(x, y, False);
     |test12(x, y) = not(or(not(x), not(y)));
     |member(x, list) = and(not(null(list)), or(eq(x, head(list)), member(x, tail(list))));
-    |testXXX(x, list) = member(x, list);
-    |test13(x, list) = if(True, test13(x, list), True);
+    |test13(x, list) = member(x, list);
+    |test14(list) = member(S(Z), list);
+    |test15(x) = member(x, Cons(Z, Cons(S(Z), Nil)));
+    |member2(Nil, x) = False;
+    |member2(Cons(y, ys), x) = if(eq(x, y), True, member2(ys, x));
+    |test16(x, list) = member2(list, x);
+    |test17(list) = member2(list, S(Z));
+    |test18(x) = member2(Cons(Z, Cons(S(Z), Nil)), x);
+    |member3(Nil, x) = False;
+    |member3(Cons(y, ys), x) = member3if(eq(x, y), x, ys);
+    |member3if(True, x, ys) = True;
+    |member3if(False, x, ys) = member3(ys, x);
+    |test19(x, list) = member3(list, x);
+    |test20(list) = member3(list, S(Z));
+    |test21(x) = member3(Cons(Z, Cons(S(Z), Nil)), x);
     """
-/*  
-    """
-     */
 
     val program = programFromString(programText.stripMargin)
     val sc = new SuperCompiler(program)
@@ -112,5 +122,29 @@ class SuperCompilerTest {
 
     buildProcessTree(sc,
         FCall("test13", Variable("x")::Variable("list")::Nil))
+
+    buildProcessTree(sc,
+        FCall("test14", Variable("list")::Nil))
+
+    buildProcessTree(sc,
+        FCall("test15", Variable("x")::Nil))
+
+    buildProcessTree(sc,
+        FCall("test16", Variable("x")::Variable("list")::Nil))
+
+    buildProcessTree(sc,
+        FCall("test17", Variable("list")::Nil))
+
+    buildProcessTree(sc,
+        FCall("test18", Variable("x")::Nil))
+
+    buildProcessTree(sc,
+        FCall("test19", Variable("x")::Variable("list")::Nil))
+
+    buildProcessTree(sc,
+        FCall("test20", Variable("list")::Nil))
+
+    buildProcessTree(sc,
+        FCall("test21", Variable("x")::Nil))
   }
 }
