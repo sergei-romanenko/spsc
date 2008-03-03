@@ -6,25 +6,6 @@ import ProcessTree._
 
 class SuperCompiler(program: Program){
   
-  def driveNode(node: Tree.Node): Unit = {
-    driveExp(node.expr) match {
-      case Nil => node
-      case l @ _ :: _ => {
-        val edges = new scala.collection.mutable.ListBuffer[Tree.Edge]
-        for (pair <- l) {
-          val edge = Tree.Edge(node, null, pair._2)
-          val childNode = new Tree.Node(pair._1, edge, Nil)
-          edge.child = childNode
-          edges += edge
-        }
-        node.outs = edges.toList
-        for (edge <- node.outs) {
-          driveNode(edge.child)
-        }
-      }
-    }
-  }
-  
   def driveExp(expr: Expression): List[Pair[Term, Map[Variable, Term]]] = expr match {
     case v: Variable => Nil
     
