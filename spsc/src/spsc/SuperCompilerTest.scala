@@ -91,8 +91,9 @@ class SuperCompilerTest {
     |or(x, y) = if(x, True, y);
     |and(x, y) = if(x, y, False);
     |test12(x, y) = not(or(not(x), not(y)));
-    |member(x, list) = or(and(not(null(list)), eq(x, head(list))), member(x, tail(list)));
-    |test13(x, list) = member(x, list);
+    |member(x, list) = and(not(null(list)), or(eq(x, head(list)), member(x, tail(list))));
+    |testXXX(x, list) = member(x, list);
+    |test13(x, list) = if(True, test13(x, list), True);
     """
 /*  
     """
