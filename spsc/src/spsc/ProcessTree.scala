@@ -27,6 +27,7 @@ object ProcessTree {
           val child = out.child
           children += 
             <line x1={"" + (trX+width/2)} y1={""+(trY+30)} x2={"" + (trX+trChX+child.width/2)} y2={""+(trY+100)}/>
+          if (!out.substitution.isEmpty)
           children +=
             <text x={"" + (trX + trChX + child.width/2)} y = {"" + (80 + trY)}>{out.substitution.toList.map(kv => kv._1 + "=" + kv._2).mkString("", ", ", "")}</text>
           children ++= child.toSVG(trX + trChX, trY + 100)
