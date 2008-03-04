@@ -17,54 +17,7 @@ object ProcessTree {
         sb.append("\n" + edge.child.toString(indent + "  "))
       }
       sb.toString
-    }
-      
-    def toSVG(trX: Int, trY: Int): scala.xml.NodeBuffer = {
-      def childrenToSVG() = {
-        val children = new scala.xml.NodeBuffer
-        var trChX = (width - childrenWidth)/2
-        for (out<-outs) {
-          val child = out.child
-          children += 
-            <line x1={"" + (trX+width/2)} y1={""+(trY+30)} x2={"" + (trX+trChX+child.width/2)} y2={""+(trY+100)}/>
-          if (!out.substitution.isEmpty)
-          children +=
-            <text x={"" + (trX + trChX + child.width/2)} y = {"" + (80 + trY)}>{out.substitution.toList.map(kv => kv._1 + "=" + kv._2).mkString("", ", ", "")}</text>
-          children ++= child.toSVG(trX + trChX, trY + 100)
-          trChX += child.width
-        }
-        children
-      }
-    <rect x={"" + (trX + (width - rectWidth)/2)} y={"" + trY} width={"" + rectWidth} height="30" />
-    <text x={"" + (trX + width/2)} y ={"" + (trY + 15)}>{expr.toString}</text> 
-    &+ childrenToSVG
-    }
-    
-    
-    
-      
-    lazy val width: Int = {
-      val myWidth = rectWidth + 40
-      Math.max(myWidth, childrenWidth)
-    }
-    
-    lazy val height: Int = {
-      var childrenHeight = 0
-      for (out <- outs) childrenHeight = Math.max(out.child.height, childrenHeight)
-      if (childrenHeight > 0) childrenHeight + 100 else 30
-    }
-    
-    lazy val childrenWidth: Int = {
-      var childrenWidth = 0
-      for (out <- outs){
-        childrenWidth += out.child.width
-      }
-      childrenWidth
-    }
-    
-    
-    lazy val rectWidth: Int = expr.toString.length*6 + 10
-    
+    }    
 
     def ancestors(): List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
 
@@ -133,18 +86,6 @@ class ProcessTree {
   def isClosed = leafs_.forall(_.isProcessed)
   
   override def toString = rootNode.toString
-  
-  def toSVG = 
-   <svg xmlns="http://www.w3.org/2000/svg" width={"" + rootNode.width} height={"" + rootNode.height} >
-   <defs>
-   <style type="text/css">
-   <![CDATA[
-   rect {fill: none;stroke: black; stroke-width: 1;}
-   text {text-anchor: middle; font-family: monospace; font-size: 10px;}
-   line {stroke: black; stroke-width: 1}]]></style>
-   </defs>
-   {rootNode.toSVG(0, 0)}
-   </svg>
 }
 
 

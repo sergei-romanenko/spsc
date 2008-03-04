@@ -21,7 +21,7 @@ class SuperCompilerTest {
     if (!f.exists){
       f.createNewFile()
     }    
-    scala.xml.XML.save(fname, result1.toSVG)
+    scala.xml.XML.save(fname, ProcessTreeSVG.treeToSVG(result1))
   }
   
   // currently only prints final process tree to console
