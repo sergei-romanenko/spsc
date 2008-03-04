@@ -156,4 +156,10 @@ class SuperCompilerTest {
     buildProcessTree(sc,
         FCall("test21", Variable("x")::Nil))
   }
+  
+  @Test def processExamples(): Unit =
+  {
+    SuperCompilerApp.main(Array("-i", "examples/append.sl", "-f", "append2", "-o", "build/test_results/append2.svg"))
+    SuperCompilerApp.main(Array("-i", "examples/append.sl", "-f", "append3", "-o", "build/test_results/append3.svg"))
+  }
 }
