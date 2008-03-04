@@ -7,12 +7,21 @@ import TestUtils._
 
 class SuperCompilerTest {
   
+  var index = 0
+  
   def buildProcessTree(sc: SuperCompiler, initial: Expression) {
+    index += 1
     val result1 = sc.buildProcessTree(initial)
     println("--------")
     println(initial)
     println()
     println(result1)
+    val fname = "./build/test_results/"+index+".svg"
+    val f = new java.io.File(fname)
+    if (!f.exists){
+      f.createNewFile()
+    }    
+    scala.xml.XML.save(fname, result1.toSVG)
   }
   
   // currently only prints final process tree to console

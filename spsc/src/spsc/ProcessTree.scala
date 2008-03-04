@@ -19,6 +19,50 @@ object ProcessTree {
       sb.toString
     }
       
+    def toSVG(): scala.xml.NodeBuffer =
+    <rect x={"" + ((width - rectWidth)/2)} y="0" width={"" + rectWidth} height="30" fill="none" stroke="black" />
+    <text x={"" + width/2} y = "15" style = "text-anchor: middle; font-family:monospace; font-size:10px;">{expr.toString}</text> 
+    &+ childrenToSVG      
+    
+    
+    def childrenToSVG() = {
+      val children = new scala.xml.NodeBuffer
+      var trx = (width - childrenWidth)/2
+      for (out<-outs) {
+        val child = out.child
+        children += 
+          <line x1={"" + width/2} y1="30" x2={"" + (trx + child.width/2)} y2="100" stroke="black" stroke-width="1"/>
+        children +=
+          <text x={"" + (trx + child.width/2)} y = "80" style = "text-anchor: middle; font-family:monospace;font-size:10px;">{out.substitution.toList.map(kv => kv._1 + "=" + kv._2).mkString("", ", ", "")}</text>
+        children += 
+          <g transform={"translate(" + trx + ", 100)"}>{child.toSVG}</g>
+        trx += child.width
+      }
+      children
+    }
+      
+    lazy val width: Int = {
+      val myWidth = rectWidth + 40
+      Math.max(myWidth, childrenWidth)
+    }
+    
+    lazy val height: Int = {
+      var childrenHeight = 0
+      for (out <- outs) childrenHeight = Math.max(out.child.height, childrenHeight)
+      if (childrenHeight > 0) childrenHeight + 100 else 30
+    }
+    
+    lazy val childrenWidth: Int = {
+      var childrenWidth = 0
+      for (out <- outs){
+        childrenWidth += out.child.width
+      }
+      childrenWidth
+    }
+    
+    
+    lazy val rectWidth: Int = expr.toString.length*6 + 10
+    
 
     def ancestors(): List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
 
@@ -87,6 +131,11 @@ class ProcessTree {
   def isClosed = leafs_.forall(_.isProcessed)
   
   override def toString = rootNode.toString
+  
+  def toSVG = 
+   <svg xmlns="http://www.w3.org/2000/svg" width={"" + rootNode.width} height={"" + rootNode.height} >
+   {rootNode.toSVG}
+   </svg>
 }
 
 
