@@ -19,27 +19,28 @@ object ProcessTree {
       sb.toString
     }
       
-    def toSVG(): scala.xml.NodeBuffer =
-    <rect x={"" + ((width - rectWidth)/2)} y="0" width={"" + rectWidth} height="30" fill="none" stroke="black" />
-    <text x={"" + width/2} y = "15" style = "text-anchor: middle; font-family:monospace; font-size:10px;">{expr.toString}</text> 
-    &+ childrenToSVG      
-    
-    
-    def childrenToSVG() = {
-      val children = new scala.xml.NodeBuffer
-      var trx = (width - childrenWidth)/2
-      for (out<-outs) {
-        val child = out.child
-        children += 
-          <line x1={"" + width/2} y1="30" x2={"" + (trx + child.width/2)} y2="100" stroke="black" stroke-width="1"/>
-        children +=
-          <text x={"" + (trx + child.width/2)} y = "80" style = "text-anchor: middle; font-family:monospace;font-size:10px;">{out.substitution.toList.map(kv => kv._1 + "=" + kv._2).mkString("", ", ", "")}</text>
-        children += 
-          <g transform={"translate(" + trx + ", 100)"}>{child.toSVG}</g>
-        trx += child.width
+    def toSVG(trX: Int, trY: Int): scala.xml.NodeBuffer = {
+      def childrenToSVG() = {
+        val children = new scala.xml.NodeBuffer
+        var trChX = (width - childrenWidth)/2
+        for (out<-outs) {
+          val child = out.child
+          children += 
+            <line x1={"" + (trX+width/2)} y1={""+(trY+30)} x2={"" + (trX+trChX+child.width/2)} y2={""+(trY+100)}/>
+          children +=
+            <text x={"" + (trX + trChX + child.width/2)} y = {"" + (80 + trY)}>{out.substitution.toList.map(kv => kv._1 + "=" + kv._2).mkString("", ", ", "")}</text>
+          children ++= child.toSVG(trX + trChX, trY + 100)
+          trChX += child.width
+        }
+        children
       }
-      children
+    <rect x={"" + (trX + (width - rectWidth)/2)} y={"" + trY} width={"" + rectWidth} height="30" />
+    <text x={"" + (trX + width/2)} y ={"" + (trY + 15)}>{expr.toString}</text> 
+    &+ childrenToSVG
     }
+    
+    
+    
       
     lazy val width: Int = {
       val myWidth = rectWidth + 40
@@ -134,7 +135,14 @@ class ProcessTree {
   
   def toSVG = 
    <svg xmlns="http://www.w3.org/2000/svg" width={"" + rootNode.width} height={"" + rootNode.height} >
-   {rootNode.toSVG}
+   <defs>
+   <style type="text/css">
+   <![CDATA[
+   rect {fill: none;stroke: black; stroke-width: 1;}
+   text {text-anchor: middle; font-family: monospace; font-size: 10px;}
+   line {stroke: black; stroke-width: 1}]]></style>
+   </defs>
+   {rootNode.toSVG(0, 0)}
    </svg>
 }
 
