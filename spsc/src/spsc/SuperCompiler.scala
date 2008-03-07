@@ -47,7 +47,7 @@ class SuperCompiler(program: Program){
     }
     
     case LetExpression(term, bindings) => 
-      (for (pair <- bindings) yield Pair(pair._2, Map[Variable, Term]())).toList ::: (term, Map[Variable, Term]()) :: Nil
+      (term, Map[Variable, Term]()) :: (for (pair <- bindings) yield Pair(pair._2, Map[Variable, Term]())).toList
   }
   
   def renameVarsInFFunction(f: FFunction): FFunction = {
