@@ -2,7 +2,7 @@ package spsc
 
 object SmallLanguage {
   
-  abstract class Expression
+  sealed abstract class Expression
   // The base class for terms.
   sealed abstract class Term extends Expression
   // Variables start with a lower case letter and have no args.
@@ -72,7 +72,7 @@ object SmallLanguage {
   }
   
   // An auxilary entity used for supercompilation.
-  case class LetExpression(term: Term, bindings: Map[Variable, Term]) extends Expression {
+  case class LetExpression(term: Term, bindings: List[Pair[Variable, Term]]) extends Expression {
     override def toString = "let " + bindings.toList.map(kv => kv._1 + "=" + kv._2).mkString("", ", ", "") + " in " + term
   }  
   

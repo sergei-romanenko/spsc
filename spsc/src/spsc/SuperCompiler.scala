@@ -103,7 +103,7 @@ class SuperCompiler(program: Program){
     if (g.sub1.isEmpty){
       t.replace(alpha, g.term)
     } else {
-      t.replace(alpha, LetExpression(g.term, Map() ++ g.sub1))
+      t.replace(alpha, LetExpression(g.term, (Map() ++ g.sub1).toList))
     }
     
   }
@@ -112,17 +112,17 @@ class SuperCompiler(program: Program){
     case c @ Constructor(name, args) => {
       val vars = args.map(a => nextVar())
       val sub = Map() ++ (vars zip args)
-      t.replace(n, LetExpression(Constructor(name, vars), sub))
+      t.replace(n, LetExpression(Constructor(name, vars), sub.toList))
     }
     case f @ FCall(name, args) =>
       val vars = args.map(a => nextVar())
       val sub = Map() ++ (vars zip args)
-      t.replace(n, LetExpression(FCall(name, vars), sub))
+      t.replace(n, LetExpression(FCall(name, vars), sub.toList))
     case g @ GCall(name, arg0, args) =>
       val arg0Var = nextVar
       val vars = args.map(a => nextVar())
       val sub = Map() ++ ((arg0Var :: vars) zip (arg0 :: args))
-      t.replace(n, LetExpression(GCall(name, arg0Var, vars), sub))
+      t.replace(n, LetExpression(GCall(name, arg0Var, vars), sub.toList))
     case _ => throw new IllegalArgumentException("Can not split " + n.expr)
   }
   
