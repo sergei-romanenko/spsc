@@ -28,7 +28,9 @@ object SmallLanguage {
     override def toString = name + args.mkString("(", ", " ,")")
   }
   
-  sealed abstract class Definition
+  sealed abstract class Definition {
+    def name: String
+  }
   case class FFunction(name: String, args: List[Variable], term: Term) extends Definition {
     override def toString = name + args.mkString("(", ", " ,")") + " = " + term + ";"
   }
