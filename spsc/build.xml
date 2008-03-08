@@ -60,7 +60,7 @@
 	</target>
 
 	<target name="test" depends="compile" description="run junit tests">
-		<junit printsummary="true" haltonfailure="yes" filtertrace="true" showoutput="true">
+		<junit printsummary="true" haltonfailure="yes" filtertrace="true" showoutput="false">
 			<classpath>
 				<pathelement location="${classes.dir}" />
 				<path refid="project.classpath" />
