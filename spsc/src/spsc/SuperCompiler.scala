@@ -3,6 +3,7 @@ package spsc;
 import SmallLanguage._
 import SmallLanguageTermAlgebra._
 import ProcessTree._
+import Util.applySubstitution
 
 class SuperCompiler(program: Program){
   
@@ -58,17 +59,6 @@ class SuperCompiler(program: Program){
   def renameVarsInGFunction(g: GFunction): GFunction = {
     val renaming = Map() ++ (g.args.map(v => (v, nextVar())) ::: g.arg0.args.map(v => (v, nextVar()))) 
     GFunction(g.name, Pattern(g.arg0.name, g.arg0.args.map(renaming(_))), g.args.map(renaming(_)), applySubstitution(g.term, renaming))    
-  }
-  
-  def applySubstitution(term: Term, map: Map[Variable, Term]): Term = term match {
-    case v: Variable => 
-      if (map.contains(v)) map(v) else v
-    case Constructor(name, args) => 
-      Constructor(name, args.map(applySubstitution(_, map)))
-    case FCall(name, args) => 
-      FCall(name, args.map(applySubstitution(_, map)))
-    case GCall(name, arg0, args) => 
-      GCall(name, applySubstitution(arg0, map), args.map(applySubstitution(_, map)))
   }
   
   // heart of supercompiler

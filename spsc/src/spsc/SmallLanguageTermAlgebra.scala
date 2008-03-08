@@ -64,6 +64,23 @@ object SmallLanguageTermAlgebra {
     //}
   }
   
+  def strongMsgForResudial(term1: Term, term2: Term): Generalization = {
+    val g = msg(term1, term2)
+    if (equivalent(g.term, term1)){
+      val term = g.dSub.foldLeft(g.term)((t, s) => applySubstitution(t, (s._1, s._2)))
+      val newS = g.dSub.map(triple => (triple._2.asInstanceOf[Variable], triple._3)).remove(pair => pair._1 == pair._2)
+      Generalization(term, Nil, newS)
+    } else  if (equivalent(g.term, term2)){
+      val term = g.dSub.foldLeft(g.term)((t, s) => applySubstitution(t, (s._1, s._3)))
+      val newS = g.dSub.map(triple => (triple._3.asInstanceOf[Variable], triple._2)).remove(pair => pair._1 == pair._2)
+      Generalization(term, newS, Nil)
+    } else {
+      val s1 = g.dSub.map(triple => (triple._1, triple._2))
+      val s2 = g.dSub.map(triple => (triple._1, triple._3))
+      Generalization(g.term, s1, s2)
+    }
+  }
+  
   private def applyCommonFunctorRule(g: Generalization2): Generalization2 = {
     val l2 = new scala.collection.mutable.ListBuffer[DoubleSubstitution]()
     var t = g.term;
@@ -132,6 +149,23 @@ object SmallLanguageTermAlgebra {
       case _ => false
     }
     eq1(term1, term2)
+  }
+  
+  def renaming(term1: Term, term2: Term) = {
+    assume(equivalent(term1, term2))
+    var map1to2 = scala.collection.mutable.Map[Variable, Variable]()
+    def proceed(t1: Term, t2: Term): Unit = (t1, t2) match {
+      case (v1: Variable, v2: Variable) => map1to2(v1) = v2
+      case (Constructor(_, args1), Constructor(_, args2)) =>
+        ((args1 zip args2) map (args => proceed(args._1, args._2)))
+      case (FCall(_, args1), FCall(_, args2)) =>
+        ((args1 zip args2) map (args => proceed(args._1, args._2)))
+      case (GCall(_, arg01, args1), GCall(_, arg02, args2)) =>
+        proceed(arg01, arg02)
+        ((args1 zip args2) map (args => proceed(args._1, args._2)))
+      case _ => 
+    }
+    map1to2
   }
   
   // tests whether t2 is instance of t1

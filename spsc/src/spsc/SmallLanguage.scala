@@ -30,11 +30,11 @@ object SmallLanguage {
   
   sealed abstract class Definition
   case class FFunction(name: String, args: List[Variable], term: Term) extends Definition {
-    override def toString = name + args.mkString("(", ", " ,")") + " = " + term
+    override def toString = name + args.mkString("(", ", " ,")") + " = " + term + ";"
   }
   case class GFunction(name: String, arg0: Pattern, args: List[Variable], term: Term) extends Definition {
     override def toString = 
-      name + "(" + arg0 + (args match {case Nil => ""; case _ => ", " + args.mkString(", ")})  + ") = " + term  
+      name + "(" + arg0 + (args match {case Nil => ""; case _ => ", " + args.mkString(", ")})  + ") = " + term + ";"  
   }
   
   case class Program(definitions : List[Definition]) {
@@ -69,6 +69,8 @@ object SmallLanguage {
       case Some(l) => l
       case None => throw new IllegalArgumentException("g-function " + name + " is undefined")
     }
+    
+    override def toString = definitions.mkString("\n")
   }
   
   // An auxilary entity used for supercompilation.

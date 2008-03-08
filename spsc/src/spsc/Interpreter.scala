@@ -1,6 +1,7 @@
 package spsc
 
 import SmallLanguage._
+import Util._
 
 // The operational semantics of the interpreter is
 // the normal-order graph reduction to the weak head normal form.
@@ -48,17 +49,6 @@ class Interpreter (program: Program) {
     val fFunction = program.getFFunction(name)
     val substitution: Map[Variable, Term] = Map() ++  (fFunction.args zip args)
     applySubstitution(fFunction.term, substitution)    
-  }
-  
-  def applySubstitution(term: Term, map: Map[Variable, Term]): Term = term match {
-    case v: Variable => 
-      map(v)
-    case Constructor(name, args) => 
-      Constructor(name, args.map(applySubstitution(_, map)))
-    case FCall(name, args) => 
-      FCall(name, args.map(applySubstitution(_, map)))
-    case GCall(name, arg0, args) => 
-      GCall(name, applySubstitution(arg0, map), args.map(applySubstitution(_, map)))
   }
   
   def illegalTerm(t: Term): Constructor = {
