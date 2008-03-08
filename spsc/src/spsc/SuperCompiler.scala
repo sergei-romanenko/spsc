@@ -44,7 +44,7 @@ class SuperCompiler(program: Program){
     // g(f(...), ...) or g(g(...), ...)
     case GCall(name, call : Call, args) => {
       val subDrive = driveExp(call)
-      subDrive.map(pair => (GCall(name, pair._1, args), pair._2))
+      subDrive.map(pair => (GCall(name, pair._1, args.map(applySubstitution(_, pair._2))), pair._2))
     }
     
     case LetExpression(term, bindings) => 
