@@ -138,6 +138,7 @@ object SmallLanguageTermAlgebra {
         ((args1 zip args2) map (args => proceed(args._1, args._2)))
       case _ => 
     }
+    proceed(term1, term2)
     map1to2
   }
   
