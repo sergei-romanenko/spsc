@@ -48,7 +48,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
             signatures(node) = signature
             val result = unfold(node.outs.head.child)
             defs += FFunction(signature.name, signature.args, result)
-            result
+            FCall(signature.name, signature.args)
           }
         }
       }
