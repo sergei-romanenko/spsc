@@ -269,6 +269,6 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
   
   // Since the term is parsed without a context,
   // all calls are temporary classified as f-calls.
-  def parseTerm(r: Reader[Char]): ParseResult[Term] = term(new lexical.Scanner(r))
+  def parseTerm(r: Reader[Char]): ParseResult[Term] = strong(term)(new lexical.Scanner(r))
   
 }

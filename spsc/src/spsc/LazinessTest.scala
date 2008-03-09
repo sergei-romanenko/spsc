@@ -18,6 +18,6 @@ class LazinessTest {
     |tail(Cons(x, xs)) = xs;
     """
 
-    runTest(program, "test1", "Cons(Z, Cons(S(Z), Nil))")
+    runTest(program, "test1()", "Cons(Z, Cons(S(Z), Nil))")
   }
 }

@@ -18,13 +18,13 @@ object TestUtils {
     
   def runTest(
       programAsString: String,
-      startFuncName: String,
+      expr: String,
       expectedAsString: String): Unit =
   {
     val program = TestUtils.programFromString(programAsString.stripMargin)    
     val interpreter = new Interpreter(program)
     val expected = TestUtils.termFromString(expectedAsString) 
-    val actual = interpreter.eval(FCall(startFuncName, Nil))
+    val actual = interpreter.eval(expr)
 
     println(actual)
     println(expected)

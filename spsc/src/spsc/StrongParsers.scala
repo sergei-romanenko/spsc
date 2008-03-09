@@ -21,5 +21,16 @@ trait StrongParsers extends Parsers{
         case f : NoSuccess => res.asInstanceOf[NoSuccess]
       }
     }
-  } 
+  }
+  
+  def strong[T](p: => Parser[T]): Parser[T] = new Parser[T]{
+    def apply(in: Input)  = {
+      val res = p(in)
+      res match {
+        case Success(out, in1) if res.next.atEnd  => res
+        case Success(_, _) => Failure("<eof> expected", res.next)
+        case f : NoSuccess => res.asInstanceOf[NoSuccess]
+      }
+    }
+  }
 }

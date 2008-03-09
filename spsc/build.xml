@@ -4,7 +4,7 @@
 	<!-- ================================= 
 	          target: all              
 	         ================================= -->
-	<target name="all" depends="clean, prepare, compile, test" description="compile code and then run tests"/>
+	<target name="all" depends="clean, prepare, compile, test, make_jar" description="compile code and then run tests"/>
 
 	<!-- 1. Define common properties. -->
 
@@ -74,4 +74,14 @@
 			</batchtest>
 		</junit>
 	</target>
+	
+	<!-- ================================= 
+          target: make_jar              
+         ================================= -->
+    <target name="make_jar" depends="compile" description="create spsc_{version}.jar">
+    	<jar destfile="${build.dir}/spsc_${spsc.version}.jar">
+    	    <fileset dir="${classes.dir}" />
+        </jar>
+    </target>
+
 </project>

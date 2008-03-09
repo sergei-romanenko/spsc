@@ -1,5 +1,7 @@
 package spsc
 
+import scala.util.parsing.input.CharArrayReader
+
 import SmallLanguage._
 import Util._
 
@@ -7,9 +9,17 @@ import Util._
 // the normal-order graph reduction to the weak head normal form.
 class Interpreter (program: Program) {
   
+  def this(text: String) = this(Util.programFromString(text))
+  
   def eval(t: Term): Term = {
     val lazyResult = lazyEval(t) 
     Constructor(lazyResult.name, lazyResult.args.map(eval))
+  }
+  
+  def eval(input: String): Term = {
+    val pr = SmallLanguageParsers.parseTerm(new CharArrayReader(input.toCharArray))
+    if (pr.isEmpty) throw new IllegalArgumentException(pr.toString)
+    eval(correctCalls(pr.get, program))
   }
   
   private def lazyEval(t: Term): Constructor = t match {

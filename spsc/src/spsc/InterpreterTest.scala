@@ -19,9 +19,9 @@ class InterpreterTest {
     |reverse(Cons(x, xs)) = append(reverse(xs), Cons(x, Nil));
     """
 
-    runTest(program, "test1", "Nil")
-    runTest(program, "test2", "Cons(A1, Cons(A2, Cons(A3, Cons(A4, Nil))))")
-    runTest(program, "test3", "Cons(A3, Cons(A2, Cons(A1, Nil)))")
+    runTest(program, "test1()", "Nil")
+    runTest(program, "test2()", "Cons(A1, Cons(A2, Cons(A3, Cons(A4, Nil))))")
+    runTest(program, "test3()", "Cons(A3, Cons(A2, Cons(A1, Nil)))")
   }
 
 }
