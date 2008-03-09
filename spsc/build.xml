@@ -13,7 +13,6 @@
 	<property name="src.dir" value="src" />
 	<property name="build.dir" value="build" />
 	<property name="classes.dir" value="build/classes" />
-	<property name="test_res.dir" value="build/test_results" />
 
 	<property name="scala-compiler.jar" value="${scala.home}/lib/scala-compiler.jar" />
 	<property name="scala-library.jar" value="${scala.home}/lib/scala-library.jar" />
@@ -50,7 +49,6 @@
 	<target name="prepare" depends="clean">
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${classes.dir}" />
-		<mkdir dir="${test_res.dir}" />
 	</target>
 
 	<target name="compile" depends="prepare" description="compile code">
