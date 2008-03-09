@@ -18,7 +18,7 @@ object InterpreterApp {
   val help = """usage: spcs.InterpreterApp -i input_file -e expression_to_evaluate
   |Where:
   |input_file                  path to input file (relative or absolute)
-  |expression_to_evaluate      name of f-function to be supercompiled
+  |expression_to_evaluate      expression to evaluate
   |""".stripMargin
   def main(args : Array[String]) : Unit = {
     var fileName: String = null

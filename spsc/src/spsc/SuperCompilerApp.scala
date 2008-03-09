@@ -19,7 +19,7 @@ object SuperCompilerApp {
   |Where:
   |input_file            path to input file (relative or absolute)
   |function_name         name of f-function to be supercompiled
-  |tree_output_file      path to file where process tree will be placed
+  |tree_output_file      path to file where process tree will be placed (in SVG format)
   |program_output_file   path to file where residual program will be placed
   |
   |if output_dir is not specified supercompilation results will be placed 
