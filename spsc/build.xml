@@ -4,7 +4,7 @@
 	<!-- ================================= 
 	          target: all              
 	         ================================= -->
-	<target name="all" depends="clean, prepare, compile, test, make_jar" description="compile code and then run tests"/>
+	<target name="all" depends="clean, prepare, compile, make_jar" description="compile code and then run tests"/>
 
 	<!-- 1. Define common properties. -->
 
@@ -57,22 +57,6 @@
 		<scalac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="project.classpath" force="changed">
 			<include name="**/*.scala" />
 		</scalac>
-	</target>
-
-	<target name="test" depends="compile" description="run junit tests">
-		<junit printsummary="true" haltonfailure="yes" filtertrace="true" showoutput="false">
-			<classpath>
-				<pathelement location="${classes.dir}" />
-				<path refid="project.classpath" />
-			</classpath>
-
-			<batchtest todir="${test_res.dir}">
-				<fileset dir="${classes.dir}">
-					<include name="**/*Test.class" />
-				</fileset>
-				<formatter type="plain" />
-			</batchtest>
-		</junit>
 	</target>
 	
 	<!-- ================================= 

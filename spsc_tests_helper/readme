@@ -4,8 +4,8 @@ You can run test.SuperCompilerTests via eclipse UI.
 The aim of this Eclipse project is to facilitate 
 launching unit tests (written in Scala and compiled to byte-code) from Eclipse.
 
-SuperCompilerTest produces svg files and stores them into spsc/build/test_results folder.
-This location is relative to spsc project and hard coded.
+SuperCompilerTest produces svg files and stores them into spsc_tests/output folder.
+This location is relative to spsc_tests project and hard coded.
 Before running SuperCompilerTests suite from Eclipse, you need to set working directory 
-for junit launch configuration to spcs project
-(${workspace_loc:spsc}).
+for junit launch configuration to spsc_tests project
+(${workspace_loc:spsc_tests}).
