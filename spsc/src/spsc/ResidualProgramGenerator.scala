@@ -49,7 +49,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
         (n.expr match {case fc_ : FCall => equivalent(fc, fc_); case _=>false})) match {
           case None => unfold(node.outs.head.child)
           case Some(fc1) => {
-            val newName = if (node == tree.rootNode) fc.name else rename(fc.name, fc.name != rootName)
+            val newName = if (node == tree.rootNode) fc.name else rename(fc.name, fc.name == rootName)
             val signature = Signature(newName, getVars(fc).toList)
             signatures(node) = signature
             val result = unfold(node.outs.head.child)
@@ -76,7 +76,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
         (n.expr match {case gc_ : GCall => equivalent(gc, gc_); case _=>false})) match {
           case None => unfold(node.outs.head.child)
           case Some(fc1) => {
-            val signature = Signature(rename(gc.name, true), getVars(gc).toList)
+            val signature = Signature(rename(gc.name, false), getVars(gc).toList)
             signatures(node) = signature
             val result = unfold(node.outs.head.child)
             defs += FFunction(signature.name, signature.args, result)
@@ -86,7 +86,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
       } else {
         val patternVar = node.outs.head.substitution.toList.head._1
         val vars = (getVars(gc) - patternVar).toList
-        val signature = Signature(rename(gc.name, true), patternVar :: vars)
+        val signature = Signature(rename(gc.name, false), patternVar :: vars)
         signatures(node) = signature
         for (edge <- node.outs){
           val e = edge.substitution(patternVar).asInstanceOf[Constructor]
