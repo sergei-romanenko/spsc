@@ -1,0 +1,12 @@
+This project is developed under Eclipse using Web Tools Platform (http://www.eclipse.org/webtools/).
+
+Because this project is open source one and of small size it seems to be illogical
+to place third-party libraries inside this project.
+
+In order to build/develop this project using Eclipse you need to place following libraries (jar-files)
+into /spsc_web/WebContent/WEB-INF/lib:
+
+scala-library.jar             (http://scala-lang.org)
+lift-core-{version>0.5}.jar   (http://liftweb.net)
+log4j-{version}.jar           (http://logging.apache.org/log4j/)
+spsc_{version}.jar            (http://code.google.com/p/spsc/downloads/list)
