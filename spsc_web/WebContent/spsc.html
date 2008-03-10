@@ -1,0 +1,12 @@
+<lift:surround with="default" at="content">
+    <h1>SPSC online</h1>
+    <form method="post" action="spsc_result">
+        <textarea name="program" rows="20" cols="100" />
+        <br/>
+        <label for="fname">Name of f-function to be supercompiled :</label>
+        <input type="text" name="fname"/>
+        <br/>
+        <input type="submit" value="supercompile"/>
+    </form>
+    <lift:SPSCForm.supercompile />
+</lift:surround>
