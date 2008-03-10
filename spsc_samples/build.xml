@@ -8,10 +8,13 @@
 
 	<target name="samples">
 		<java classname="spsc.SuperCompilerApp" classpathref="cp">
-			<arg line="-i success/append.sl -f append2 -t success/append2_.svg -p success/append2_.sl" />
+			<arg line="-i success/append.sl -f appendXYaZ -t success/appendXYaZ_.svg -p success/appendXYaZ_.sl" />
 		</java>
 		<java classname="spsc.SuperCompilerApp" classpathref="cp">
-			<arg line="-i success/append.sl -f append3 -t success/append3_.svg -p success/append3_.sl" />
+			<arg line="-i success/append.sl -f appendXYaX -t success/appendXYaX_.svg -p success/appendXYaX_.sl" />
+		</java>
+		<java classname="spsc.SuperCompilerApp" classpathref="cp">
+			<arg line="-i success/append.sl -f appendXaYZ -t success/appendXaYZ_.svg -p success/appendXaYZ_.sl" />
 		</java>
 		<java classname="spsc.SuperCompilerApp" classpathref="cp">
 			<arg line="-i fail/takenm.sl -f takenm -t fail/takenm_.svg -p fail/takenm_.sl" />
@@ -26,16 +29,22 @@
 			<arg line="-i fail/reverse.sl -f reverse -t fail/reverse_.svg -p fail/reverse_.sl" />
 		</java>
 		<java classname="spsc.SuperCompilerApp" classpathref="cp">
-			<arg line="-i success/eq.sl -f eqx -t success/eq_.svg -p success/eq_.sl" />
+			<arg line="-i success/eq.sl -f eqxx -t success/eqxx_.svg -p success/eqxx_.sl" />
 		</java>
 		<java classname="spsc.SuperCompilerApp" classpathref="cp">
-			<arg line="-i success/eq.sl -f eqx1 -t success/eqx1_.svg -p success/eqx1_.sl" />
+			<arg line="-i success/eq.sl -f eqxSx -t success/eqxSx_.svg -p success/eqxSx_.sl" />
 		</java>
 		<java classname="spsc.SuperCompilerApp" classpathref="cp">
-			<arg line="-i success/eq.sl -f eqx2 -t success/eqx2_.svg -p success/eqx2_.sl" />
+			<arg line="-i success/eq.sl -f eqSxx -t success/eqSxx_.svg -p success/eqSxx_.sl" />
 		</java>
 		<java classname="spsc.SuperCompilerApp" classpathref="cp">
-			<arg line="-i success/eq.sl -f eq1x -t success/eq1x_.svg -p success/eq1x_.sl" />
+			<arg line="-i success/eq.sl -f eqSZx -t success/eqSZx_.svg -p success/eqSZx_.sl" />
+		</java>
+		<java classname="spsc.SuperCompilerApp" classpathref="cp">
+			<arg line="-i success/mapnot.sl -f mapNotNot -t success/mapNotNot_.svg -p success/mapNotNot_.sl" />
+		</java>
+		<java classname="spsc.SuperCompilerApp" classpathref="cp">
+			<arg line="-i success/mapnot.sl -f mapNotNotNot -t success/mapNotNotNot_.svg -p success/mapNotNotNot_.sl" />
 		</java>
 		<java classname="spsc.SuperCompilerApp" classpathref="cp">
 			<arg line="-i success/notornot.sl -f notornot -t success/notornot_.svg -p success/notornot_.sl" />
