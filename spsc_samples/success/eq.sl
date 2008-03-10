@@ -7,3 +7,4 @@ eqS(S(y), x) = eq(x, y);
 eqx(x) = eq(x, x);
 eqx1(x) = eq(x, S(x));
 eqx2(x) = eq(S(x), x);
+eq1x(x) = eq(S(Z), x);

@@ -35,7 +35,7 @@
 			<arg line="-i success/eq.sl -f eqx2 -t success/eqx2_.svg -p success/eqx2_.sl" />
 		</java>
 		<java classname="spsc.SuperCompilerApp" classpathref="cp">
-			<arg line="-i fail/eq.sl -f eq1x -t fail/eq1x_.svg -p fail/eq1x_.sl" />
+			<arg line="-i success/eq.sl -f eq1x -t success/eq1x_.svg -p success/eq1x_.sl" />
 		</java>
 		<java classname="spsc.SuperCompilerApp" classpathref="cp">
 			<arg line="-i success/notornot.sl -f notornot -t success/notornot_.svg -p success/notornot_.sl" />
