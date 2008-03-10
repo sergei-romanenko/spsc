@@ -56,6 +56,9 @@
 			<arg line="-i success/member.sl -f memberZSZ -t success/memberZSZ_.svg -p success/memberZSZ_.sl" />
 		</java>
 		<java classname="spsc.SuperCompilerApp" classpathref="cp">
+			<arg line="-i fail/memberLazy.sl -f member -t fail/memberLazy_.svg -p fail/memberLazy_.sl" />
+		</java>
+		<java classname="spsc.SuperCompilerApp" classpathref="cp">
 			<arg line="-i success/notornot.sl -f notornot -t success/notornot_.svg -p success/notornot_.sl" />
 		</java>
 	</target>
