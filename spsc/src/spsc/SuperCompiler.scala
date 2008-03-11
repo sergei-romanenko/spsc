@@ -16,6 +16,9 @@ class SuperCompiler(program: Program){
     
     // f(...)
     case FCall(name, args)  => {
+      if (!program.isDefinedF(name)){
+        return Nil
+      }
       val originalDefinition = program.getFFunction(name)
       val renamedDefinition = renameVarsInFFunction(originalDefinition)
       val substitution: Map[Variable, Term] = 

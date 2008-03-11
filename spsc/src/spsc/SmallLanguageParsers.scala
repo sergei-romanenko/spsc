@@ -119,11 +119,7 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
           
           def validateTerm(t: Term): TermProceedingResult = t match {
             case v @ Variable(name) => {
-              if (fInfo.contains(name))
-                TermProceedingFailure(name + " is already defined as f-function ")
-              else if (gInfo.contains(name))
-                TermProceedingFailure(name + " is already defined as g-function ")
-              else if (!fVars.contains(v)){
+              if (!fVars.contains(v)){
                 TermProceedingFailure("undefined variable " + name)
               }
               else {
@@ -157,7 +153,8 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
                 if (gArity(name) != args.size)
                   return TermProceedingFailure("Wrong numbers of arguments for function " + name) 
               } else {
-                return TermProceedingFailure("Call to undefined function " + name)
+                // we assume that there is call to undefined f-function
+                fArity(name) = args.size
               }
               val proceededArgs = new scala.collection.mutable.ListBuffer[Term]
               for (arg <- args) {
@@ -180,7 +177,6 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
           definition match {
             case FFunction(name, args, rawTerm) => {
               // 1. name of f-function must be unique.
-              if (varNames.contains(name)) return Failure(name + " is already defined as variable " + name, in);
               if (fInfo.contains(name)) return Failure(name + " is already defined as f-function " + name, in);
               if (gInfo.contains(name)) return Failure(name + " is already defined as g-function " + name, in);
               fInfo += (name -> args.size)
@@ -189,12 +185,6 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
               for (v <- args){
                 if (fVars.contains(v)){
                   return Failure("Variable " + v.name + " occurs more than once in a left side", in);
-                }
-                if (fInfo.contains(v.name)){
-                  return Failure(name + " is already defined as f-function " + name, in);
-                }
-                if (gInfo.contains(v.name)){
-                  return Failure(name + " is already defined as g-function " + name, in);
                 }
                 fVars + v
                 varNames + v.name
@@ -207,9 +197,7 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
             
             case GFunction(name, arg0, args, rawTerm) => {
               // 1. name of g-function must be unique
-              if (varNames.contains(name)) return Failure(name + " is already defined as variable " + name, in);
               if (fInfo.contains(name)) return Failure(name + " is already defined as f-function " + name, in);
-              
               // 2. fixed arity and constructor uniquness - also constructor global uniqueness
               val cName = arg0.name
               if (cInfo.contains(cName)){
@@ -231,16 +219,9 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
                 gInfo(name) = (args.size + 1, Set(cName))
               }
               // 3.a A variable can appear in a left side no more than once.
-              // 3.b A variable name must be unique in the global context.
               for (v <- (arg0.args ::: args)){
                 if (fVars.contains(v)){
                   return Failure("Variable " + v.name + " occurs more than once in a left side", in);
-                }
-                if (fInfo.contains(v.name)){
-                  return Failure(name + " is already defined as f-function " + name, in);
-                }
-                if (gInfo.contains(v.name)){
-                  return Failure(name + " is already defined as g-function " + name, in);
                 }
                 fVars + v
                 varNames + v.name

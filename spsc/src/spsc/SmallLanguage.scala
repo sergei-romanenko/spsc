@@ -61,6 +61,11 @@ object SmallLanguage {
       case Some(f) => f
       case None => throw new IllegalArgumentException("f-function " + name + " is undefined")
     }
+    
+    def isDefinedF(name: String) = fMap.get(name) match {
+      case Some(g) => true
+      case None => false
+    }
 
     def getGFunction(name: String, cname: String) = gpMap.get((name, cname)) match {
       case Some(g) => g
