@@ -49,7 +49,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
         (n.expr match {case fc_ : FCall => equivalent(fc, fc_); case _=>false})) match {
           case None => unfold(node.outs.head.child)
           case Some(fc1) => {
-            val newName = if (node == tree.rootNode) fc.name else rename(fc.name, fc.name == rootName)
+            val newName = if (node == tree.rootNode) fc.name else rename(fc.name, node == tree.rootNode)
             val signature = Signature(newName, getVars(fc).toList)
             signatures(node) = signature
             val result = unfold(node.outs.head.child)
@@ -62,6 +62,9 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
     
     case gc @ GCall(name, arg0, args) => 
       if (node.outs.isEmpty){
+        if (node.ancestors.find(n => n.expr match {case gc_ : GCall => equivalent(gc, gc_); case _=>false}).isEmpty){
+          return gc
+        }
         val pNode = node.ancestors.find(n => n.expr match {case gc_ : GCall => equivalent(gc, gc_); case _=>false}).get
         val pGc = pNode.expr.asInstanceOf[GCall]
         val pSign = signatures(pNode)
@@ -125,7 +128,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
     } else {
       var index = 1
       var newName = name + index
-      while(fnames.contains(newName)){
+      while(rootName==newName || fnames.contains(newName)){
         index += 1
         newName = name + index
       }

@@ -26,6 +26,9 @@ class SuperCompiler(program: Program){
     
     // g(C(...), ...)
     case GCall(name, Constructor(cname, cargs), args) => {
+      if (!program.isDefinedG(name, cname)){
+        return Nil
+      }
       val originalDefinition = program.getGFunction(name, cname)
       val renamedDefinition = renameVarsInGFunction(originalDefinition)     
       val substitution: Map[Variable, Term] = 

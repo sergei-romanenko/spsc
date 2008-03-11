@@ -67,6 +67,11 @@ object SmallLanguage {
       case None => throw new IllegalArgumentException("g-function " + name + " with constructor " + cname + " is undefined")
     }
     
+    def isDefinedG(name: String, cname: String) = gpMap.get((name, cname)) match {
+      case Some(g) => true
+      case None => false
+    }
+    
     def getGFunctions(name: String) = gMap.get(name) match {
       case Some(l) => l
       case None => throw new IllegalArgumentException("g-function " + name + " is undefined")
