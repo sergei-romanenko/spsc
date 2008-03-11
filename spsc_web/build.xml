@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+
+<project name="spsc_web" default="all">
+
+	<description>
+    	Build spsc_web.jar 
+    </description>
+
+	<property file="../spsc/build_spsc.properties" />
+
+	<property name="scala-compiler.jar" value="${scala.home}/lib/scala-compiler.jar" />
+	<property name="scala-library.jar" value="${scala.home}/lib/scala-library.jar" />
+
+	<path id="scala.classpath">
+		<pathelement location="${scala-compiler.jar}" />
+		<pathelement location="${scala-library.jar}" />
+	</path>
+	<property name="src.dir" value="src" />
+	<property name="lib_dir" value="WebContent/WEB-INF/lib" />
+	<property name="webinf_dir" value="WebContent/WEB-INF" />
+	<property name="webxml_file" value="${webinf_dir}/web.xml" />
+
+	<property name="dist_dir" value="dist" />
+	<property name="classes_dir" value="dist/classes" />
+
+	<property name="warname" value="spsc_web.war" />
+
+	<taskdef resource="scala/tools/ant/antlib.xml">
+		<classpath refid="scala.classpath" />
+	</taskdef>
+
+	<target name="all" depends="clean, prepare, compile, war">
+		<echo>Build completed successfully</echo>
+	</target>
+
+	<target name="clean">
+		<delete dir="${dist_dir}" />
+	</target>
+
+	<target name="prepare" depends="clean">
+		<mkdir dir="${dist_dir}" />
+		<mkdir dir="${classes_dir}" />
+		<echo>Prepared</echo>
+	</target>
+
+	<target name="compile" depends="prepare" description="compile code">
+		<scalac srcdir="${src.dir}" destdir="${classes_dir}">
+			<classpath>
+				<fileset dir="${lib_dir}">
+					<include name="*.jar" />
+				</fileset>
+			</classpath>
+			<include name="**/*.scala" />
+		</scalac>
+	</target>
+
+	<target name="war" depends="compile">
+		<war destfile="${dist_dir}/${warname}" webxml="${webxml_file}">
+			<webinf dir="${webinf_dir}" excludes="web.xml" />
+			<classes dir="${classes_dir}" />
+			<fileset dir="WebContent" excludes="WEB-INF/**/*"/>
+		</war>
+		<echo>Created war file.</echo>
+	</target>
+
+</project>
