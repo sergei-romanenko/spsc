@@ -4,6 +4,7 @@ import SmallLanguage._
 import ProcessTree._
 import SmallLanguageTermAlgebra._
 import Util.applySubstitution
+import scala.collection.jcl.LinkedHashSet
 
 class ResidualProgramGenerator(val tree: ProcessTree) {
   import ResidualProgramGenerator._
@@ -101,24 +102,15 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
       }
   }
   
-  private def getVars(t: Term): Set[Variable] = t match {
-    case v: Variable => Set(v)
-    case c: Constructor => {
-      var vars = scala.collection.mutable.Set[Variable]()
-      c.args.map(arg => {vars ++ getVars(arg)})
-      Set() ++ vars
+  private def getVars(t: Term): LinkedHashSet[Variable] = {
+    val vars = new LinkedHashSet[Variable]()
+    t match {
+      case v: Variable => vars + v
+      case c: Constructor => c.args.map(arg => {vars ++ getVars(arg)})
+      case f: FCall => f.args.map(arg => {vars ++ getVars(arg)})
+      case g: GCall => (g.arg0 :: g.args).map(arg => {vars ++ getVars(arg)})
     }
-    case f: FCall => {
-      var vars = scala.collection.mutable.Set[Variable]()
-      f.args.map(arg => {vars ++ getVars(arg)})
-      Set() ++ vars
-    }
-    case g: GCall => {
-      var vars = scala.collection.mutable.Set[Variable]()
-      vars ++ getVars(g.arg0)
-      g.args.map(arg => {vars ++ getVars(arg)})
-      Set() ++ vars
-    }
+    vars
   }
   
   private def rename(name: String, isOriginalNameAllowed: Boolean) = {
