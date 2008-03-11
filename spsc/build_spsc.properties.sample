@@ -1,7 +1,5 @@
 # Directory where scala is located.
 # Here is possible location on Debian:
 scala.home=/usr/local/share/scala
-# Location of junit4:
-junit4.jar=/usr/share/java/junit4.jar
 # Version of spsc to build
 spsc.version = alpha

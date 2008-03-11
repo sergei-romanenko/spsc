@@ -24,13 +24,6 @@
 		<pathelement location="${scala-library.jar}" />
 	</path>
 
-	<!-- 3. Define project CLASSPATH. -->
-
-	<path id="project.classpath">
-		<path refid="scala.classpath" />
-		<pathelement location="${junit4.jar}" />
-	</path>
-
 	<path id="final.classpath">
 		<pathelement location="${basedir}/build/classes/" />
 		<path refid="project.classpath" />
@@ -52,7 +45,7 @@
 	</target>
 
 	<target name="compile" depends="prepare" description="compile code">
-		<scalac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="project.classpath" force="changed">
+		<scalac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="scala.classpath" force="changed">
 			<include name="**/*.scala" />
 		</scalac>
 	</target>

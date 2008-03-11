@@ -4,7 +4,7 @@ Build prerequisites:
   junit4 (http://junit.org )
   scala 2.7 (http://scala-lang.org )
   
-Set up junit4 and scala locations in build_spsc.properties file.  
+Set up scala location in build_spsc.properties file.  
 Use build_spsc.properties.sample as cheat sheet.
 Setup version number of spsc build.
 
