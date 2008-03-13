@@ -40,6 +40,9 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
     
     case fc @ FCall(name, args) =>
       if (node.outs.isEmpty){
+        if (node.ancestors.find(n => n.expr match {case fc_ : FCall => equivalent(fc, fc_); case _=>false}).isEmpty){
+          return fc
+        }
         val pNode = node.ancestors.find(n => n.expr match {case fc_ : FCall => equivalent(fc, fc_); case _=>false}).get
         val pFc = pNode.expr.asInstanceOf[FCall]
         val pSign = signatures(pNode)
