@@ -12,6 +12,10 @@ import Helpers._
   */
 class Boot {
   def boot {
+    ResponseInfo.docType = {
+      case _ if S.getDocType._1 => S.getDocType._2
+      case _ => Empty
+    }
     // where to search snippet
     LiftServlet.addToPackages("spsc")     
 

@@ -1,6 +1,23 @@
-<lift:surround with="default" at="content">
+<?xml version="1.0" ?>
+<!DOCTYPE html 
+      PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:lift="http://liftweb.net/" xmlns:svg="http://www.w3.org/2000/svg">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta name="description" content="" />
+		<meta name="keywords" content="" />
+		<object id="AdobeSVG" classid="clsid:78156a80-c6a1-4bbf-8e6a-3cd390eeb4e2">
+		</object>
+         <?import namespace="svg" implementation="#AdobeSVG" ?>
+		<title>spsc_web beta</title>
+	</head>
+	<body>
     <h2>Input code</h2>
     <lift:SPSC.input />
     <h2>Supercompiled code</h2>
     <lift:SPSC.output />
-</lift:surround>
+    <lift:Menu.builder />
+    <lift:error_report/>
+</body>
+</html>    

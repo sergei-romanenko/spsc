@@ -3,6 +3,8 @@ This project is developed under Eclipse using Web Tools Platform (http://www.ecl
 Because this project is open source one and of small size it seems to be illogical
 to place third-party libraries inside this project.
 
+You need to register Apache Tomcat 5.5 Server under name "tomcat5.5"
+
 In order to build/develop this project using Eclipse you need to place following libraries (jar-files)
 into /spsc_web/WebContent/WEB-INF/lib:
 

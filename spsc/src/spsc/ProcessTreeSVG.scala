@@ -2,16 +2,16 @@ package spsc;
 
 object ProcessTreeSVG {
   def treeToSVG(tree: ProcessTree) = 
-    <svg xmlns="http://www.w3.org/2000/svg" width={"" + width(tree.rootNode)} height={"" + height(tree.rootNode)} >
-    <defs>
-    <style type="text/css">
+    <svg:svg xmlns:svg="http://www.w3.org/2000/svg" width={"" + width(tree.rootNode)} height={"" + height(tree.rootNode)} >
+    <svg:defs>
+    <svg:style type="text/css">
     <![CDATA[
     rect {fill: none;stroke: black; stroke-width: 1;}
     text {text-anchor: middle; font-family: monospace; font-size: 10px;}
-    line {stroke: black; stroke-width: 1}]]></style>
-    </defs>
+    line {stroke: black; stroke-width: 1}]]></svg:style>
+    </svg:defs>
     {nodeToSVG(tree.rootNode,0, 0)}
-    </svg>
+    </svg:svg>
     
     def nodeToSVG(node: ProcessTree.Node, trX: Int, trY: Int): scala.xml.NodeBuffer = {
       def childrenToSVG() = {
@@ -20,17 +20,17 @@ object ProcessTreeSVG {
         for (out<-node.outs) {
           val child = out.child
           children += 
-            <line x1={"" + (trX+width(node)/2)} y1={""+(trY+30)} x2={"" + (trX+trChX+width(child)/2)} y2={""+(trY+100)}/>
+            <svg:line x1={"" + (trX+width(node)/2)} y1={""+(trY+30)} x2={"" + (trX+trChX+width(child)/2)} y2={""+(trY+100)}/>
           if (!out.substitution.isEmpty)
           children +=
-            <text x={"" + (trX + trChX + width(child)/2)} y = {"" + (80 + trY)}>{out.substitution.toList.map(kv => kv._1 + "=" + kv._2).mkString("", ", ", "")}</text>
+            <svg:text x={"" + (trX + trChX + width(child)/2)} y = {"" + (80 + trY)}>{out.substitution.toList.map(kv => kv._1 + "=" + kv._2).mkString("", ", ", "")}</svg:text>
           children ++= nodeToSVG(child, trX + trChX, trY + 100)
           trChX += width(child)
         }
         children
       }
-    <rect x={"" + (trX + (width(node) - rectWidth(node))/2)} y={"" + trY} width={"" + rectWidth(node)} height="30" />
-    <text x={"" + (trX + width(node)/2)} y ={"" + (trY + 15)}>{node.expr.toString}</text> 
+    <svg:rect x={"" + (trX + (width(node) - rectWidth(node))/2)} y={"" + trY} width={"" + rectWidth(node)} height="30" />
+    <svg:text x={"" + (trX + width(node)/2)} y ={"" + (trY + 15)}>{node.expr.toString}</svg:text> 
     &+ childrenToSVG
     }   
       
