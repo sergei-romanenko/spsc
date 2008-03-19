@@ -176,6 +176,16 @@ or(x, y) = if(x, True, y);\n\
 and(x, y) = if(x, y, False);\n\
 notornot(x, y) = not(or(not(x), not(y)));"
 
+programs["flip2"]=
+"flip(Leaf(z)) = Leaf(z);\n\
+flip(Branch(xt, yt)) = Branch(flip(yt), flip(xt));\n\
+flip2(zt) = flip(flip(zt));"
+
+programs["flip3"]=
+"flip(Leaf(z)) = Leaf(z);\n\
+flip(Branch(xt, yt)) = Branch(flip(yt), flip(xt));\n\
+flip3(zt) = flip(flip(flip(zt)));"
+
 function sample(sampleName){
   var fname = document.getElementById('fname');
   fname.value = sampleName;
