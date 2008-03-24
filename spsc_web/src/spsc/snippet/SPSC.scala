@@ -24,9 +24,8 @@ class SPSC {
           val function = program.getFFunction(fname)
           val sc = new SuperCompiler(program)
           val pt = sc.buildProcessTree(FCall(function.name, function.args))
-          <p><pre>{generateResidualProgram(pt).toString}</pre><br/>{treeToSVG(pt)}</p>
+          <div><pre>{generateResidualProgram(pt).toString}</pre><br/>{treeToSVG(pt)}</div>
       }      
     }
   }
-  def svg = <pre>{S.param("program").openOr("")}</pre>
 }

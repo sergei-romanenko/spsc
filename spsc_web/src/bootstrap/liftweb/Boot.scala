@@ -11,11 +11,18 @@ import Helpers._
   * to modify lift's environment
   */
 class Boot {
+  
+  val xhtmlSvgMathMl = """<?xml-stylesheet type="text/xsl" href="dummy.xsl"?>
+  <!DOCTYPE html PUBLIC 
+  "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" 
+  "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg.dtd">"""
   def boot {
+    
     ResponseInfo.docType = {
       case _ if S.getDocType._1 => S.getDocType._2
-      case _ => Empty
+      case _ => Full(xhtmlSvgMathMl)
     }
+    
     // where to search snippet
     LiftServlet.addToPackages("spsc")     
 
