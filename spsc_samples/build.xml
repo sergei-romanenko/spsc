@@ -72,6 +72,16 @@
 		</java>
 	</target>
 
+	<target name="samples2">
+		<java classname="spsc.SuperCompilerApp" classpathref="cp">
+			<arg line="-i input/kmpNestedCalls.sl -f matchAAB -t input/kmpNestedCalls_.svg -p input/kmpNestedCalls_.sl" />
+		</java>
+		<java classname="spsc.SuperCompilerApp" classpathref="cp">
+			<arg line="-i input/kmpTailCalls.sl -f matchAAB -t input/kmpTailCalls_.svg -p input/kmpTailCalls_.sl" />
+		</java>
+	</target>
+
+
 	<target name="clean" description="delete generated files">
 		<delete>
 			<fileset dir="." includes="**/*_.sl" />
