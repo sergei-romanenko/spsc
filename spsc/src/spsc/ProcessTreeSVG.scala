@@ -1,16 +1,19 @@
 package spsc;
 
-object ProcessTreeSVG {
-  def treeToSVG(tree: ProcessTree) = 
+class ProcessTreeSVG(tree: ProcessTree) {
+  var map = Map[ProcessTree.Node, Tuple4[Int, Int, Int, Int]]()
+  def treeToSVG() = 
     <svg:svg xmlns:svg="http://www.w3.org/2000/svg" width={"" + width(tree.rootNode)} height={"" + height(tree.rootNode)} >
     <svg:defs>
     <svg:style type="text/css">
     <![CDATA[
     rect {fill: none;stroke: black; stroke-width: 1;}
     text {text-anchor: middle; font-family: monospace; font-size: 10px;}
-    line {stroke: black; stroke-width: 1}]]></svg:style>
+    line {stroke: black; stroke-width: 1}
+    path {fill:none; stroke:black;stroke-width:1;stroke-dasharray: 4,4;}]]></svg:style>]]
     </svg:defs>
     {nodeToSVG(tree.rootNode,0, 0)}
+    {repeatEdges()}
     </svg:svg>
     
     def nodeToSVG(node: ProcessTree.Node, trX: Int, trY: Int): scala.xml.NodeBuffer = {
@@ -29,10 +32,35 @@ object ProcessTreeSVG {
         }
         children
       }
+    { 
+      val tw = width(node)
+      val w = rectWidth(node);
+      val x = (trX + (tw - w)/2) + w/2;
+      val y = trY + 15      
+      map = map + (node -> (x, y, w, tw))
+    }
     <svg:rect x={"" + (trX + (width(node) - rectWidth(node))/2)} y={"" + trY} width={"" + rectWidth(node)} height="30" />
     <svg:text x={"" + (trX + width(node)/2)} y ={"" + (trY + 15)}>{node.expr.toString}</svg:text> 
     &+ childrenToSVG
-    }   
+    }
+    
+    def repeatEdges() : scala.xml.NodeBuffer = {
+      val edges = new scala.xml.NodeBuffer
+      for (n <- tree.leafs) {
+        val pn = n.getRepParent
+        if (pn != null) {
+          val (cx, cy, cw, ctw) = map(n)
+          val (px, py, pw, ptw) = map(pn)
+          val s = if (cx > px) 1 else -1 
+          val d = "M " + (cx + s*cw/2) + ", " + cy + 
+                  " C " + (px + s*ptw/2) + ", " + cy + " " + 
+                  (px + s*ptw/2) + ", " + py + " " +
+                  (px + s*pw/2) + ", " + py;
+          edges += <svg:path d={d}/>        
+        }
+      }
+      edges
+    }
       
     def width(node: ProcessTree.Node): Int = {
       val myWidth = rectWidth(node) + 40

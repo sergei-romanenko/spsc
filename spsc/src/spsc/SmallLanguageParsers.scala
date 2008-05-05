@@ -77,6 +77,7 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
     override def toString = "Definition"
     override def longString = definition.toString
     def lineContents(lnum: Int) = ""
+    def lineContents = ""
   }
   
   // The checker of context-dependent restrictions.

@@ -62,7 +62,7 @@ object SuperCompilerApp {
     val function = program.getFFunction(funName)
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(FCall(function.name, function.args))    
-    val svg = ProcessTreeSVG.treeToSVG(pt)
+    val svg = new ProcessTreeSVG(pt).treeToSVG()
     
     val svgFile = new java.io.File(outFileName)
     if (!svgFile.exists){
