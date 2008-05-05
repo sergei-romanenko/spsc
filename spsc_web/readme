@@ -9,7 +9,7 @@ In order to build/develop this project using Eclipse you need to place following
 into /spsc_web/WebContent/WEB-INF/lib:
 
 scala-library.jar                  (http://scala-lang.org)
-lift-core-{version>0.5}.jar        (http://liftweb.net)
+lift-core-0.6.jar        (http://liftweb.net)
 log4j-{version}.jar                (http://logging.apache.org/log4j/)
 spsc_{version}.jar                 (http://code.google.com/p/spsc/downloads/list)
 commons-fileupload-{version}.jar   (http://commons.apache.org/fileupload/)
