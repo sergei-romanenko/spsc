@@ -10,7 +10,7 @@ class ProcessTreeSVG(tree: ProcessTree) {
     rect {fill: none;stroke: black; stroke-width: 1;}
     text {text-anchor: middle; font-family: monospace; font-size: 10px;}
     line {stroke: black; stroke-width: 1}
-    path {fill:none; stroke:black;stroke-width:1;stroke-dasharray: 4,4;}]]></svg:style>]]
+    path {fill:none; stroke:black;stroke-width:1;stroke-dasharray: 4,4;}]]></svg:style>
     </svg:defs>
     {nodeToSVG(tree.rootNode,0, 0)}
     {repeatEdges()}
