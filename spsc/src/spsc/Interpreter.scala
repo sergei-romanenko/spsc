@@ -2,7 +2,6 @@ package spsc
 
 import scala.util.parsing.input.CharArrayReader
 
-import SmallLanguage._
 import Util._
 
 // The operational semantics of the interpreter is

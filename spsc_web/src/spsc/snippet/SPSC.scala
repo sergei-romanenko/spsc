@@ -1,11 +1,9 @@
 package spsc.snippet;
 
 import net.liftweb.http.S
-import spsc.ProcessTreeSVG
-import spsc.ResidualProgramGenerator._
-import spsc.SmallLanguage._
-import spsc.SuperCompiler
 import scala.util.parsing.input.CharArrayReader
+
+import spsc._
 
 class SPSC {
   def input = <pre>{S.param("program").openOr("")}</pre>
@@ -27,7 +25,7 @@ class SPSC {
           val pt = sc.buildProcessTree(FCall(function.name, function.args))
           <div>
             <h2>Supercompiled code</h2>            
-            <pre>{generateResidualProgram(pt).toString}</pre>
+            <pre>{ResidualProgramGenerator.generateResidualProgram(pt).toString}</pre>
             <h2>Partial process tree</h2>
             {new ProcessTreeSVG(pt).treeToSVG()}
           </div>

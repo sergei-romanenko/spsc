@@ -2,7 +2,6 @@ package spsc;
 
 import org.junit.Test
 import org.junit.Assert._
-import SmallLanguage._
 
 class SmallLanguageParsersTest {
   @Test def simple01(): Unit = {

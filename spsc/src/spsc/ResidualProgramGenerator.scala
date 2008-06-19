@@ -1,6 +1,5 @@
 package spsc;
 
-import SmallLanguage._
 import ProcessTree._
 import SmallLanguageTermAlgebra._
 import Util.applySubstitution

@@ -10,7 +10,6 @@ import java.io.FileReader
 import java.io.FileWriter
 import java.io.BufferedReader
 
-import SmallLanguage._
 import SmallLanguageParsers._
 import ResidualProgramGenerator._
 

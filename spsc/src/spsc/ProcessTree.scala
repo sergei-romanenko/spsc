@@ -1,6 +1,5 @@
 package spsc;
 
-import SmallLanguage._
 import SmallLanguageTermAlgebra._
 
 object ProcessTree {

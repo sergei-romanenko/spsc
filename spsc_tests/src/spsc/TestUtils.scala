@@ -4,7 +4,6 @@ import scala.util.parsing.input.CharArrayReader
 
 import org.junit.Test
 import org.junit.Assert._
-import SmallLanguage._
 
 object TestUtils {
   def termFromString(input: String) =

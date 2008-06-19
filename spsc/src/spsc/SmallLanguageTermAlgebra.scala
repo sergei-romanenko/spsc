@@ -1,7 +1,5 @@
 package spsc
 
-import SmallLanguage._
-
 object SmallLanguageTermAlgebra {
   type Substitution = Tuple2[Variable, Term]
   type DoubleSubstitution = Tuple3[Variable, Term, Term]

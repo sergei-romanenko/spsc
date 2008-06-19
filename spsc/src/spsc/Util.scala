@@ -2,8 +2,6 @@ package spsc;
 
 import scala.util.parsing.input.CharArrayReader
 
-import SmallLanguage._
-
 object Util {
   def applySubstitution(term: Term, map: Map[Variable, Term]): Term = term match {
     case v: Variable => 

@@ -3,7 +3,6 @@ package spsc
 import org.junit.Test
 import org.junit.Assert._
 
-import SmallLanguage._
 import SmallLanguageTermAlgebra._
 import TestUtils.{termFromString => __}
 

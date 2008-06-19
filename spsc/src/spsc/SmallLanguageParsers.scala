@@ -1,250 +1,202 @@
-package spsc;
+package spsc
 
-import scala.util.parsing.input.Reader
-import scala.util.parsing.combinator.Parsers
-import scala.util.parsing.combinator.syntactical.StandardTokenParsers
-import scala.util.parsing.input.Position
-import scala.util.parsing.input.NoPosition
+import scala.util.parsing.combinator.ImplicitConversions
+import scala.util.parsing.combinator.syntactical.StdTokenParsers
+import scala.util.parsing.combinator.lexical.StdLexical
+import scala.util.parsing.input.{Positional, Reader, Position}
+import scala.util.parsing.syntax.StdTokens
+import scala.collection.mutable.{ListBuffer, Map, Set}
 
-import SmallLanguage._
-
-object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
-  
-  private object startsWithLowerCase extends PartialFunction[String, String] {
-    def isDefinedAt(s: String) = s.charAt(0).isLowerCase
-    def apply(s: String) = s
-  }
-  
-  private object startsWithUpperCase extends PartialFunction[String, String] {
-    def isDefinedAt(s: String) = s.charAt(0).isUpperCase
-    def apply(s: String) = s
-  }
+object SmallLanguageParsers extends STokenParsers with StrongParsers with ImplicitConversions {
+  def p[T <: Positional](p: => Parser[T]): Parser[T] = positioned(p)
   
   lexical.delimiters += ("(", ")", ",", "=", ";")
-    
+  
+  private def a[A](o: Option[List[A]]) : List[A] = null
+  
   private def variable: Parser[Variable] = 
-    (ident ^? startsWithLowerCase) ^^ {Variable(_)}
+    p(lident ^^ Variable)
   
   private def pattern: Parser[Pattern] = 
-    (ident ^? (startsWithUpperCase, x => "Expected constructor, found " + x)) ~ (("(" ~> repsep(variable, ",") <~ ")")?) ^^
-      {case name ~ args => args match {
-        case None => Pattern(name, Nil)
-        case Some(args) => Pattern(name, args)}}
+    p(uident ~ ((("(" ~> repsep(variable, ",") <~ ")")?) ^^ {case None => Nil; case Some(s) => s}) ^^ Pattern)
   
   private def fFunction: Parser[FFunction] =
-    (ident ^? (startsWithLowerCase, x => "Expected def, found " + x)) ~ ("(" ~> repsep(variable, ",") <~ ")") ~ 
-       "=" ~ term ~ ";" ^^
-      {case name ~ args ~ "=" ~ t ~ ";" => FFunction(name, args, t)}
+    p(lident ~ ("(" ~> repsep(variable, ",") <~ ")") ~ ("=" ~> term <~ ";") ^^ FFunction)
   
   private def gFunction: Parser[GFunction] =
-    (ident ^? (startsWithLowerCase, x => "Expected def, found " + x)) ~  
-      ("(" ~> pattern  ~ ((("," ~ variable)^^{case x ~ y => y})*) <~ ")") ~ "=" ~ term ~ ";"^^
-        {case name ~ (p ~ args) ~ "=" ~ t ~ ";" => GFunction(name, p, args, t)}
+    p(lident ~ ("(" ~> pattern)  ~ (( ("," ~> variable)*) <~ ")") ~ ("=" ~> term <~ ";") ^^ GFunction)
   
   private def call: Parser[Call] =
-    (ident ^? (startsWithLowerCase, x => "Expected fun name, found " + x)) ~ ("(" ~> repsep(term, ",") <~ ")") ^^
-      {case fName ~ args => FCall(fName, args)}
+    p(lident ~ ("(" ~> repsep(term, ",") <~ ")") ^^ FCall)
 
   private def constructor: Parser[Constructor] =
-    (ident ^? (startsWithUpperCase, x => "Expected constructor, found " + x)) ~ (("(" ~> repsep(term, ",") <~ ")")?) ^^
-      {case name ~ args => args match {
-        case None => Constructor(name, Nil)
-        case Some(args) => Constructor(name, args)}}
+    p(uident ~ ((("(" ~> repsep(term, ",") <~ ")")?) ^^ {case None => Nil; case Some(s) => s} ) ^^ Constructor)
 
   private def term: Parser[Term] = call | constructor | variable
   
-  private def definition: Parser[Definition] = 
-    gFunction | fFunction
+  private def definition: Parser[Definition] = gFunction | fFunction
   
   // The main parser.
-  private def program: Parser[List[Definition]] = strongRep1(definition)
-  
-  
-  // A utility class for iterating over "definition stream".
-  class DefinitionScanner(definitions: List[Definition]) extends Reader[Definition]{
-    val (first, restDefinitions) = definitions match {
-      case Nil => (null, Nil)
-      case p :: o => (p, o)
+  private def program: Parser[List[Definition]] = strongRep1(definition)  
+     
+  def validate(rawResult: ParseResult[List[Definition]]): ParseResult[List[Definition]] = {      
+    val rawProgram = rawResult.get      
+    val fArity = Map[String, Int]()
+    val gArity = Map[String, Int]()
+      
+    for (definition <- rawProgram) definition match {
+      case FFunction(name, args, _) => 
+        if (!fArity.contains(name) && !gArity.contains(name)) fArity + (name -> args.size)
+      case GFunction(name, _, args, _) => 
+        if (!fArity.contains(name) && !gArity.contains(name)) gArity + (name -> (args.size + 1))
     }
-    def atEnd = first == null
-    def pos = if (atEnd) NoPosition else new DefinitionPosition(first)
-    def rest = new DefinitionScanner(restDefinitions)
-  }
-  
-  class DefinitionPosition(definition: Definition) extends Position {
-    def line = 0
-    def column = 0
-    override def toString = "Definition"
-    override def longString = definition.toString
-    def lineContents(lnum: Int) = ""
-    def lineContents = ""
-  }
-  
-  // The checker of context-dependent restrictions.
-  object Validator extends StrongParsers {
-    sealed abstract class TermProceedingResult
-    case class TermProceedingSuccess(term: Term) extends TermProceedingResult
-    case class TermProceedingFailure(errorMsg: String) extends TermProceedingResult
-    
-    type Elem = Definition    
-    def validate(rawProgram: List[Definition]): Parser[List[Definition]] = {
       
-      import scala.collection.mutable.Map
-      import scala.collection.mutable.Set
+    val cInfo = Map[String, Int]() // arity for constructor
+    val fInfo = Map[String, Int]() // arity for f-function
+    val gInfo = Map[String, Pair[Int, Set[String]]]() // name -> (arity, constructor names)
+    val varNames = Set[String]()
       
-      val fArity = Map[String, Int]()
-      val gArity = Map[String, Int]()
-      
-      for (definition <- rawProgram) definition match {
-        case FFunction(name, args, _) => 
-          if (!fArity.contains(name) && !gArity.contains(name)) fArity + (name -> args.size)
-        case GFunction(name, _, args, _) => 
-          if (!fArity.contains(name) && !gArity.contains(name)) gArity + (name -> (args.size + 1))
-      }
-      
-      val cInfo = Map[String, Int]() // arity for constructor
-      val fInfo = Map[String, Int]() // arity for f-function
-      val gInfo = Map[String, Pair[Int, Set[String]]]() // name -> (arity, constructor names)
-      val varNames = Set[String]()
-      
-      // A name belongs to one and only one of the sets {g, f, v, c}.
-      // The arity of constructors and functions must be consistent.
-      // All constructors in the definition of a g-functions must be different.
-      // A variable in a pattern can appear only once.
-      // A variable appearing in the right hand side must appear in the left hand side.
-      def validateDefinition: Parser[Definition] = new Parser[Definition]{
-        def apply(in: Input):ParseResult[Definition] = {
-          
-          val definition = in.first
-          val fVars = Set[Variable]()
-          
-          def validateTerm(t: Term): TermProceedingResult = t match {
-            case v @ Variable(name) => {
-              if (!fVars.contains(v)){
-                TermProceedingFailure("undefined variable " + name)
-              }
-              else {
-                varNames + name
-                TermProceedingSuccess(v)
-              }
-            }
-            case Constructor(name, args) => {
-              if (cInfo.contains(name) && cInfo(name) != args.size)
-                return TermProceedingFailure(name + " is already defined as constructor with arity " + cInfo(name))
-              else {
-                cInfo(name) = args.size
-                val proceededArgs = new scala.collection.mutable.ListBuffer[Term]
-                for (arg <- args) {
-                  val subResult = validateTerm(arg)
-                  subResult match {
-                    case r: TermProceedingFailure => return r
-                    case TermProceedingSuccess(t) => proceededArgs += t 
-                  }
-                }
-                TermProceedingSuccess(Constructor(name, proceededArgs.toList))
-              }
-            }
-            case FCall (name, args) => {
-              var fCall = true
-              if (fArity.contains(name)) {
-                if (fArity(name) != args.size)
-                  return TermProceedingFailure("Wrong numbers of arguments for function " + name) 
-              } else if (gArity.contains(name)) {
-                fCall = false
-                if (gArity(name) != args.size)
-                  return TermProceedingFailure("Wrong numbers of arguments for function " + name) 
-              } else {
-                // we assume that there is call to undefined f-function
-                fArity(name) = args.size
-              }
-              val proceededArgs = new scala.collection.mutable.ListBuffer[Term]
-              for (arg <- args) {
-                val subResult = validateTerm(arg)
-                subResult match {
-                  case r: TermProceedingFailure => return r
-                  case TermProceedingSuccess(t) => proceededArgs += t 
-                }
-              }
-              val proceededArgsList = proceededArgs.toList
-              if (fCall) {
-                TermProceedingSuccess(FCall(name, proceededArgsList))
-              } else {
-                TermProceedingSuccess(GCall(name, proceededArgsList.head, proceededArgsList.tail))
-              }
-            }
-            case g: GCall => TermProceedingFailure("Internal error: g-call encountered at the second parse stage")
+    // A name belongs to one and only one of the sets {g, f, v, c}.
+    // The arity of constructors and functions must be consistent.
+    // All constructors in the definition of a g-functions must be different.
+    // A variable in a pattern can appear only once.
+    // A variable appearing in the right hand side must appear in the left hand side.
+    def validate(definition: Definition): ParseResult[Definition] =  {
+      val fVars = Set[Variable]()
+        
+      def validateTerm(t: Term): ParseResult[Term] = t match {
+        case v @ Variable(name) => {
+          if (!fVars.contains(v)){
+            error("undefined variable " + name, v)
           }
-          
-          definition match {
-            case FFunction(name, args, rawTerm) => {
-              // 1. name of f-function must be unique.
-              if (fInfo.contains(name)) return Failure(name + " is already defined as f-function " + name, in);
-              if (gInfo.contains(name)) return Failure(name + " is already defined as g-function " + name, in);
-              fInfo += (name -> args.size)
-              // 2.a No variable occurs more than once in a left side
-              // 2.b Name of variable must be unique in global context
-              for (v <- args){
-                if (fVars.contains(v)){
-                  return Failure("Variable " + v.name + " occurs more than once in a left side", in);
-                }
-                fVars + v
-                varNames + v.name
-              }
-              validateTerm(rawTerm) match {
-                case TermProceedingSuccess(term: Term) => return Success(FFunction(name, args, term), in.rest)
-                case TermProceedingFailure(errorMsg) => return Failure(errorMsg, in)
-              }
-            }
-            
-            case GFunction(name, arg0, args, rawTerm) => {
-              // 1. name of g-function must be unique
-              if (fInfo.contains(name)) return Failure(name + " is already defined as f-function " + name, in);
-              // 2. fixed arity and constructor uniquness - also constructor global uniqueness
-              val cName = arg0.name
-              if (cInfo.contains(cName)){
-                val cArity = cInfo(cName)
-                if (cArity != arg0.args.size){
-                  return Failure(cName + " is already defined as constructor with arity " + cArity, in);
-                }
-              }
-              if (gInfo.contains(name)) {
-                val (arity, cNames) = gInfo(name)
-                if (arity != args.size + 1){
-                  return Failure(name + " is already defined as g-function with arity " + arity, in);
-                }
-                if (cNames.contains(cName)) {
-                  return Failure("g-function " + name + " with constructor " + cName + " is already defined", in);
-                }
-                cNames + cName
-              } else {
-                gInfo(name) = (args.size + 1, Set(cName))
-              }
-              // 3.a A variable can appear in a left side no more than once.
-              for (v <- (arg0.args ::: args)){
-                if (fVars.contains(v)){
-                  return Failure("Variable " + v.name + " occurs more than once in a left side", in);
-                }
-                fVars + v
-                varNames + v.name
-              }
-              validateTerm(rawTerm) match {
-                case TermProceedingSuccess(term: Term) => return Success(GFunction(name, arg0, args, term), in.rest)
-                case TermProceedingFailure(errorMsg) => return Failure(errorMsg, in)
-              }
-            }
-            
-          }          
+          else {
+            varNames + name
+            Success(v, null)
+          }
         }
+        case c@Constructor(name, args) => {
+          if (cInfo.contains(name) && cInfo(name) != args.size)
+            return error(name + " is already defined as constructor with arity " + cInfo(name), c)
+          else {
+            cInfo(name) = args.size
+            val proceededArgs = new ListBuffer[Term]
+            for (arg <- args) {
+              val subResult = validateTerm(arg)
+              subResult match {
+                case r: NoSuccess => return r
+                case Success(t, _) => proceededArgs += t 
+              }
+            }
+            Success(Constructor(name, proceededArgs.toList), null)
+          }
+        }
+        case fc@FCall (name, args) => {
+          var fCall = true
+          if (fArity.contains(name)) {
+            if (fArity(name) != args.size)
+              return error("Wrong numbers of arguments for function " + name, fc) 
+          } else if (gArity.contains(name)) {
+            fCall = false
+            if (gArity(name) != args.size)
+              return error("Wrong numbers of arguments for function " + name, fc) 
+          } else {
+            // we assume that there is call to undefined f-function
+            fArity(name) = args.size
+          }
+          val proceededArgs = new ListBuffer[Term]
+          for (arg <- args) {
+            val subResult = validateTerm(arg)
+            subResult match {
+              case r: NoSuccess => return r
+              case Success(t, _) => proceededArgs += t 
+            }
+          }
+          val proceededArgsList = proceededArgs.toList
+          if (fCall) {
+            Success(FCall(name, proceededArgsList), null)
+          } else {
+            Success(GCall(name, proceededArgsList.head, proceededArgsList.tail), null)
+          }
+        }
+        case g: GCall => error("Internal error: g-call encountered at the second parse stage", g)
       }
       
-      strongRep1(validateDefinition)
+      definition match {
+        case FFunction(name, args, rawTerm) => {
+          // 1. name of f-function must be unique.
+          if (fInfo.contains(name)) return error(name + " is already defined as f-function " + name, definition);
+          if (gInfo.contains(name)) return error(name + " is already defined as g-function " + name, definition);
+          fInfo += (name -> args.size)
+          // 2.a No variable occurs more than once in a left side
+          // 2.b Name of variable must be unique in global context
+          for (v <- args){
+            if (fVars.contains(v)){
+              return error("Variable " + v.name + " occurs the second time in a left side", v);
+            }
+            fVars + v
+            varNames + v.name
+          }
+          validateTerm(rawTerm) match {
+            case Success(term: Term, _) => return Success(FFunction(name, args, term), null)
+            case r: NoSuccess => return r
+          }
+        }
+        
+        case GFunction(name, arg0, args, rawTerm) => {
+          // 1. name of g-function must be unique
+          if (fInfo.contains(name)) return error(name + " is already defined as f-function " + name, definition);
+          // 2. fixed arity and constructor uniquness - also constructor global uniqueness
+          val cName = arg0.name
+          if (cInfo.contains(cName)){
+            val cArity = cInfo(cName)
+            if (cArity != arg0.args.size){
+              return error(cName + " is already defined as constructor with arity " + cArity, arg0);
+            }
+          }
+          if (gInfo.contains(name)) {
+            val (arity, cNames) = gInfo(name)
+            if (arity != args.size + 1){
+              return error(name + " is already defined as g-function with arity " + arity, definition);
+            }
+            if (cNames.contains(cName)) {
+              return error("g-function " + name + " with constructor " + cName + " is already defined", definition);
+            }
+            cNames + cName
+          } else {
+            gInfo(name) = (args.size + 1, Set(cName))
+          }
+          // 3.a A variable can appear in a left side no more than once.
+          for (v <- (arg0.args ::: args)){
+            if (fVars.contains(v)){
+              return error("Variable " + v.name + " occurs the second time in a left side", v);
+            }
+            fVars + v
+            varNames + v.name
+          }
+          validateTerm(rawTerm) match {
+            case Success(term, _) => return Success(GFunction(name, arg0, args, term), null)
+            case r: NoSuccess => return r
+          }
+        }                
+      }      
     }
+    
+    val ds = new ListBuffer[Definition]()
+    for (d <- rawProgram) {
+      validate(d) match {
+        case r: NoSuccess => return r
+        case Success(vd, _) => ds + vd
+      }
+    }
+    
+    Success(ds.toList, rawResult.next)
+    
   }
   
   def parseProgram(r: Reader[Char]): ParseResult[List[Definition]] = {
     val result0 = program(new lexical.Scanner(r))
     if (result0.successful) 
-      Validator.validate(result0.get)(new DefinitionScanner(result0.get)).asInstanceOf[ParseResult[List[Definition]]]
+      validate(result0)
     else
       result0
   }
@@ -253,4 +205,25 @@ object SmallLanguageParsers extends StandardTokenParsers with StrongParsers {
   // all calls are temporary classified as f-calls.
   def parseTerm(r: Reader[Char]): ParseResult[Term] = strong(term)(new lexical.Scanner(r))
   
+  def error(msg: String, pos: Positional) = {
+    lastNoSuccess = null; val e = SError(msg, pos);  lastNoSuccess = null; e
+  }
+  
+  case class SError(override val msg: String, val pos: Positional) extends Error(msg, null) {
+    override def toString = "[" + pos.pos +"] error: "+msg+"\n\n"+pos.pos.longString
+  }
+  
+}
+
+class STokenParsers extends StdTokenParsers {  
+  type Tokens = StdTokens
+  val lexical = new StdLexical
+  
+  import lexical.Identifier
+  
+  def uident: Parser[String] = 
+    elem("uidentifier", x => x.isInstanceOf[Identifier] && x.chars.charAt(0).isUpperCase) ^^ (_.chars)
+    
+  def lident: Parser[String] = 
+    elem("lidentifier", x => x.isInstanceOf[Identifier] && x.chars.charAt(0).isLowerCase) ^^ (_.chars)  
 }

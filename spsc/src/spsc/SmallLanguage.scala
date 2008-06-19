@@ -1,10 +1,10 @@
 package spsc
 
-object SmallLanguage {
+import scala.util.parsing.input.Positional
   
   sealed abstract class Expression
   // The base class for terms.
-  sealed abstract class Term extends Expression
+  sealed abstract class Term extends Expression with Positional
   // Variables start with a lower case letter and have no args.
   case class Variable(name: String) extends Term {
     override def toString() = name
@@ -24,11 +24,11 @@ object SmallLanguage {
   }
   
   // Patterns are used in g-functions.
-  case class Pattern(name: String, args: List[Variable]) {
+  case class Pattern(name: String, args: List[Variable]) extends Positional{
     override def toString = name + args.mkString("(", ", " ,")")
   }
   
-  sealed abstract class Definition {
+  sealed abstract class Definition extends Positional {
     def name: String
   }
   case class FFunction(name: String, args: List[Variable], term: Term) extends Definition {
@@ -88,6 +88,4 @@ object SmallLanguage {
   // An auxilary entity used for supercompilation.
   case class LetExpression(term: Term, bindings: List[Pair[Variable, Term]]) extends Expression {
     override def toString = "let " + bindings.toList.map(kv => kv._1 + "=" + kv._2).mkString("", ", ", "") + " in " + term
-  }  
-  
-}
+  }

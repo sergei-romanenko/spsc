@@ -4,19 +4,14 @@ import net.liftweb.util.Full
 import net.liftweb.http.{ResponseInfo, LiftRules, S}
 import net.liftweb.sitemap.{Menu, SiteMap, Loc}
 import net.liftweb.sitemap.Loc.{strToLink, strToLinkText, Hidden}
- 
-/**
-  * A class that's instantiated early and run.  It allows the application
-  * to modify lift's environment
-  */
+
 class Boot {
   
   val xhtmlSvgMathMl = """<?xml-stylesheet type="text/xsl" href="dummy.xsl"?>
   <!DOCTYPE html PUBLIC 
   "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" 
   "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg.dtd">"""
-  def boot {
-    
+  def boot {    
     ResponseInfo.docType = {
       case _ if S.getDocType._1 => S.getDocType._2
       case _ => Full(xhtmlSvgMathMl)
