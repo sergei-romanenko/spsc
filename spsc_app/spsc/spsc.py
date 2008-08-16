@@ -146,11 +146,10 @@ class SLProgramEdit(webapp.RequestHandler):
         if not found:
             self.display_errors(no_f_function=True)
             return
-        
         try:
             key_name = self.request.get('key')
             slprogram = db.get(db.Key(key_name))
-            if slprogram and users.get_current_user() == slprogram.author:         
+            if slprogram and users.get_current_user() == slprogram.author:       
                 slprogram.code = self.request.get('code')
                 slprogram.name = self.request.get('name')        
                 slprogram.goal = self.request.get('goal')
@@ -173,7 +172,7 @@ class SLProgramEdit(webapp.RequestHandler):
                 template_values = {
                                    'navitems': navitems,
                                    'useritems':useritems,
-                                   'key'  : slprogram.key,
+                                   'key'  : slprogram.key(),
                                    'code' : slprogram.code,
                                    'name' : slprogram.name,
                                    'goal' : slprogram.goal,
@@ -208,9 +207,9 @@ class SLProgramDelete(webapp.RequestHandler):
     def get(self):
         key_name = self.request.get('key')
         try:
-            slProgram = db.get(db.Key(key_name))
+            slprogram = db.get(db.Key(key_name))
             if slprogram and users.get_current_user() == slprogram.author:
-                slProgram.delete()
+                slprogram.delete()
             self.redirect('/')
         except db.BadKeyError:
             self.redirect('/')
