@@ -35,7 +35,8 @@
   	</table>
   	</div>
   	<div class="mbh" ></div>
-  	<form action="/add" method="post">
+  	<form action="/edit" method="post">
+  	<input type="hidden" name="key" value="{{key}}"/>
     <table>
     	<tbody>
     	<tr><td>Sample name:</td><td width="100%">Target f-function:</td></tr>
@@ -54,7 +55,7 @@
     	{% endif %}
     	<tr><td>Description:</td><td></td></tr>
     	<tr><td colspan="2"><textarea id="description" cols="100" rows="5" name="description">{{description}}</textarea></td></tr>
-    	<tr><td><input value="Submit" type="submit" /></td><td></td></tr>
+    	<tr><td><input value="Save" type="submit" /></td><td></td></tr>
     	</tbody>
     </table>
     </form>

@@ -51,7 +51,8 @@ class SLProgramList(webapp.RequestHandler):
         template_values = {
                         'programs': programs,
                         'navitems':navitems,
-                        'useritems':useritems
+                        'useritems':useritems,
+                        'user':users.get_current_user()
                         }
 
         path = os.path.join(os.path.dirname(__file__), 'samples.html')
@@ -61,7 +62,7 @@ class SLProgramAdd(webapp.RequestHandler):
     def post(self):
         if not users.get_current_user():
             self.redirect(users.create_login_url(self.request.uri))
-        
+            return
         code = self.request.get('code')
         goal = self.request.get('goal')
         try:
@@ -120,13 +121,107 @@ class SLProgramAdd(webapp.RequestHandler):
 
         path = os.path.join(os.path.dirname(__file__), 'sample_add.html')
         self.response.out.write(template.render(path, template_values))
+        
+class SLProgramEdit(webapp.RequestHandler):
+    def post(self):
+        if not users.get_current_user():
+            self.redirect(users.create_login_url(self.request.uri))
+        
+        code = self.request.get('code')
+        goal = self.request.get('goal')
+        try:
+            funs = slparsing.parseAndValidate(code)
+        except pyparsing.ParseException, pe:
+            line = pyparsing.line(pe.loc, pe.pstr)
+            msg = str(pe)
+            self.display_errors(code_error=str(pe), code_line=line)
+            return
+        
+        found = False
+        for fun in funs:
+            if fun.fFun:
+                if fun.fFun.name == goal:
+                    found = True
+                    break
+        
+        if not found:
+            self.display_errors(no_f_function=True)
+            return
+        
+        try:
+            key_name = self.request.get('key')
+            slprogram = db.get(db.Key(key_name))
+            if slprogram:         
+                slprogram.code = self.request.get('code')
+                slprogram.name = self.request.get('name')        
+                slprogram.goal = self.request.get('goal')
+                slprogram.description = self.request.get('description')
+                slprogram.put()
+            self.redirect('/')
+        except db.BadKeyError:
+            self.redirect('/') 
+            return
+    def get(self):
+        if not users.get_current_user():
+            self.redirect(users.create_login_url(self.request.uri))
+            return
+        key_name = self.request.get('key')
+        try:
+            slprogram = db.get(db.Key(key_name))
+            if slprogram:
+                navitems = createNavItems("sample_edit")
+                useritems = createUserItems(self.request.uri, '/')
+                template_values = {
+                                   'navitems': navitems,
+                                   'useritems':useritems,
+                                   'key'  : slprogram.key,
+                                   'code' : slprogram.code,
+                                   'name' : slprogram.name,
+                                   'goal' : slprogram.goal,
+                                   'description' : slprogram.description,
+                                   }
+                path = os.path.join(os.path.dirname(__file__), 'sample_edit.html')
+                self.response.out.write(template.render(path, template_values))
+            else:
+                self.redirect('/')
+        except db.BadKeyError:
+            self.redirect('/') 
+    def display_errors(self, no_f_function=False, code_error=None, code_line=None):
+        navitems = createNavItems("sample_edit")
+        useritems = createUserItems(self.request.uri, '/')
+        template_values = {
+                        'no_f_function': no_f_function,
+                        'code_error': code_error,
+                        'code_line': code_line,
+                        'key': self.request.get('key'),
+                        'code' : self.request.get('code'),
+                        'name' : self.request.get('name'),
+                        'goal' : self.request.get('goal'),
+                        'description' : self.request.get('description'),
+                        'navitems':navitems,
+                        'useritems':useritems
+                        }
 
-
+        path = os.path.join(os.path.dirname(__file__), 'sample_edit.html')
+        self.response.out.write(template.render(path, template_values))
+        
+class SLProgramDelete(webapp.RequestHandler):
+    def get(self):
+        key_name = self.request.get('key')
+        try:
+            slProgram = db.get(db.Key(key_name))
+            if slProgram:
+                slProgram.delete()
+            self.redirect('/')
+        except db.BadKeyError:
+            self.redirect('/')
 
 application = webapp.WSGIApplication(
                                      [('/', SLProgramList),
-                                      ('/add', SLProgramAdd)],
-                                     debug=True)
+                                      ('/add', SLProgramAdd),
+                                      ('/delete', SLProgramDelete),
+                                      ('/edit', SLProgramEdit)]
+                                     )
 
 def main():
   run_wsgi_app(application)
