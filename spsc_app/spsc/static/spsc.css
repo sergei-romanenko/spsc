@@ -1,0 +1,56 @@
+@CHARSET "UTF-8";
+
+body {
+	background: #FFFFFF none repeat scroll 0 0;
+	color: #000000;
+	font-family: arial, sans-serif;
+	font-size: 84%;
+	margin: 3px 8px;
+}
+
+.program-date {
+	color: #666666;
+}
+
+.error {
+	color: red;
+}
+
+.summary {
+	background: #E7E7E7;
+	border-color: #C3D9FF /*-moz-use-text-color #CCCCCC*/;
+	border-style: solid none;
+	border-width: 2px 0 1px;
+	color: #333333;
+	font-weight: bold;
+	height: 1.4em;
+	padding: 3px;
+}
+
+.content {
+	background: #FFFFFF none repeat scroll 0 0;
+	padding: 8px;
+}
+
+.program {
+	background-color: #FFFFFF;
+	margin: 0 7px 7px 0;
+	padding: 8px;
+}
+
+pre.code {
+	border-left: 3px solid #CCCCCC;
+	/*margin-left: 2em;*/
+	padding: 0.5em;
+}
+
+.hidden-form {
+	margin: 10px 0px 0px 0px;
+}
+
+.mbh {
+	border-top: 1px solid #C9D7F1;
+	font-size: 1px;
+	height: 0;
+	width: 100%;
+}

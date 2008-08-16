@@ -1,0 +1,62 @@
+<html>
+  <head>
+    <link type="text/css" rel="stylesheet" href="/static/spsc.css" />
+    <title>SPSC samples</title>
+  </head>
+  <body>
+  	<div class="menu">
+  	<table width="100%">
+  	<tbody>
+  	<tr>
+  	<td>
+  		<nobr class="navbar">
+  		{% for navitem in navitems %}
+  			{% if navitem.link %}
+        		<a class="b1" href="{{ navitem.link }}">{{ navitem.text }}</a>
+      		{% else %}
+       			<b class="b1">{{ navitem.text }}</b>
+      		{% endif %}
+  		{% endfor %}
+  		</nobr>
+  		</td>
+  		<td align="right">
+  		<nobr class="user" >
+  		{% for useritem in useritems %}
+  			{% if useritem.link %}
+        		<a class="b1" href="{{ useritem.link }}">{{ useritem.text }}</a>
+      		{% else %}
+       			<b class="b1">{{ usertem.text }}</b>
+      		{% endif %}
+  		{% endfor %}
+  		</nobr>
+  		</td>
+  		</tr>
+  	</tbody>
+  	</table>
+  	</div>
+  	<div class="mbh" ></div>
+  	<form action="/add" method="post">
+    <table>
+    	<tbody>
+    	<tr><td>Program name:</td><td width="100%">Target f-function:</td></tr>
+    	<tr><td>
+    	<input id="name" name="name" type="text" value="{{name}}"/></td>
+    	<td><input id="goal" name="goal" type="text" value="{{goal}}"/><td></tr>
+    	{% if no_f_function %}
+    	<tr><td colspan="2"><div class="error">Error: there is no f-function <b>{{goal}}</b> in your input</div></td></tr>
+    	{% endif %}
+    	<tr><td>Code:</td><td></td></tr>
+    	<tr><td colspan="2"><textarea id="code" cols="100" rows="17" name="code">{{code}}</textarea></td></tr>
+    	{% if code_error %}
+    	<tr><td colspan="2"><div class="error">Incorrect input: {{code_error}}<br/>
+    	<nobr><b>{{code_line}}</b></nobr>
+    	</div></td></tr>
+    	{% endif %}
+    	<tr><td>Description:</td><td></td></tr>
+    	<tr><td colspan="2"><textarea id="description" cols="100" rows="5" name="description">{{description}}</textarea></td></tr>
+    	<tr><td><input value="Submit" type="submit" /></td><td></td></tr>
+    	</tbody>
+    </table>
+    </form>
+  </body>
+</html>

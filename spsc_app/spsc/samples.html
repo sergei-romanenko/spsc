@@ -1,0 +1,74 @@
+<html>
+  <head>
+    <link type="text/css" rel="stylesheet" href="/static/spsc.css" />
+    <title>SPSC samples</title>
+    <script>
+	function popupform(myform, windowname)
+	{
+		if (! window.focus)return true;
+			window.open('', windowname, 'height=500,width=700,scrollbars=yes');
+			myform.target=windowname;
+			return true;
+	}
+	</script>
+  </head>
+  <body>
+  	<div class="menu">
+  	<table width="100%">
+  	<tbody>
+  	<tr>
+  	<td>
+  		<nobr class="navbar">
+  		{% for navitem in navitems %}
+  			{% if navitem.link %}
+        		<a class="b1" href="{{ navitem.link }}">{{ navitem.text }}</a>
+      		{% else %}
+       			<b class="b1">{{ navitem.text }}</b>
+      		{% endif %}
+  		{% endfor %}
+  		</nobr>
+  		</td>
+  		<td align="right">
+  		<nobr class="user" >
+  		{% for useritem in useritems %}
+  			{% if useritem.link %}
+        		<a class="b1" href="{{ useritem.link }}">{{ useritem.text }}</a>
+      		{% else %}
+       			<b class="b1">{{ usertem.text }}</b>
+      		{% endif %}
+  		{% endfor %}
+  		</nobr>
+  		</td>
+  		</tr>
+  	</tbody>
+  	</table>
+  	</div>
+  	<div class="mbh" ></div>
+  	
+    {% for program in programs %}
+    <div class="program">
+		<div class="summary">
+			<span class="program-name">{{program.name}}</span> by 
+			<span class="program-author">{{ program.author.nickname }}</span> 
+			<span class="program-date">{{ program.date|date:"jS F Y H:i" }}</span> 
+		</div>
+		<div class="content">
+			<div class="program-goal">Target function: {{ program.goal }}</div>
+			<div class="code"><pre class="code">{{ program.code }}</pre></div>
+		<div class="description">{{ program.description }}</div>
+		<div class="hidden-form">
+			<form action="http://pat.keldysh.ru:8180/spsc_web/spsc_result" method="post" 
+				onSubmit="popupform(this, 'spsc-{{program.goal}}')">
+			<div>
+				<input name="program" type="hidden" value="{{ program.code }}" /> 
+        		<input name="fname" type="hidden" value="{{ program.goal}}"/>
+        		<input value="Run this sample" type="submit" />
+    		</div>
+    		</form>
+ 		</div>   
+
+		</div>
+	</div>
+    {% endfor %}
+  </body>
+</html>
