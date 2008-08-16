@@ -126,7 +126,6 @@ class SLProgramEdit(webapp.RequestHandler):
     def post(self):
         if not users.get_current_user():
             self.redirect(users.create_login_url(self.request.uri))
-        
         code = self.request.get('code')
         goal = self.request.get('goal')
         try:
@@ -151,7 +150,7 @@ class SLProgramEdit(webapp.RequestHandler):
         try:
             key_name = self.request.get('key')
             slprogram = db.get(db.Key(key_name))
-            if slprogram:         
+            if slprogram and users.get_current_user() == slprogram.author:         
                 slprogram.code = self.request.get('code')
                 slprogram.name = self.request.get('name')        
                 slprogram.goal = self.request.get('goal')
@@ -210,7 +209,7 @@ class SLProgramDelete(webapp.RequestHandler):
         key_name = self.request.get('key')
         try:
             slProgram = db.get(db.Key(key_name))
-            if slProgram:
+            if slprogram and users.get_current_user() == slprogram.author:
                 slProgram.delete()
             self.redirect('/')
         except db.BadKeyError:
