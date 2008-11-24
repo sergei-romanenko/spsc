@@ -3,6 +3,7 @@
 	<name>spsc_web</name>
 	<comment></comment>
 	<projects>
+		<project>spsc</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

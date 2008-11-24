@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-modules id="moduleCoreId" project-version="1.5.0">
 	<wb-module deploy-name="spsc_web">
-		<wb-resource deploy-path="/" source-path="/WebContent" />
-		<wb-resource deploy-path="/WEB-INF/classes" source-path="/src" />
-		<property name="java-output-path" value="build/classes" />
-		<property name="context-root" value="spsc_web" />
+		<wb-resource deploy-path="/" source-path="/WebContent"/>
+		<wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/spsc/spsc">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+		<property name="java-output-path" value="build/classes"/>
+		<property name="context-root" value="spsc_web"/>
 	</wb-module>
 </project-modules>

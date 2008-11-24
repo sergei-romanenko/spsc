@@ -3,7 +3,7 @@ package bootstrap.liftweb
 import net.liftweb.util.Full
 import net.liftweb.http.{ResponseInfo, LiftRules, S}
 import net.liftweb.sitemap.{Menu, SiteMap, Loc}
-import net.liftweb.sitemap.Loc.{strToLink, strToLinkText, Hidden}
+import net.liftweb.sitemap.Loc._
 
 class Boot {
   
@@ -21,9 +21,9 @@ class Boot {
     LiftRules.addToPackages("spsc")     
 
     // Build SiteMap
-    val entries = Menu(Loc("Home", "/", "Home")) :: 
-                  Menu(Loc("spsc1", "/spsc", "SPSC online")) ::
-                  Menu(Loc("spsc2", "/spsc_result", "SPSC result", Hidden)) ::
+    val entries = Menu(Loc("Home", List("index"), "Home")) :: 
+                  Menu(Loc("spsc1", List("spsc"), "SPSC online")) ::
+                  Menu(Loc("spsc2", List("spsc_result"), "SPSC result", Hidden)) ::
                   Nil 
     LiftRules.setSiteMap(SiteMap(entries:_*))
   }
