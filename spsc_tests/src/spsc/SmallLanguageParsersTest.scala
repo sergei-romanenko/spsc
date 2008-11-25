@@ -126,4 +126,18 @@ class SmallLanguageParsersTest {
     assertFalse("Input is incorrect. Validator should find error.", result.successful)    
   }
   
+  @Test def syntaxError04(): Unit ={
+    val programText = 
+    """
+    append(Nil, vs) = vs;
+    append1(Nil(w), vs) = vs;
+    append(Cons(u, us), vs) = Cons(u, append(us, vs));
+    appendXYaZ(xs, ys, zs) = append(append(xs, ys), zs);
+    """
+    
+    val result = TestUtils.parseResultFromString(programText.stripMargin)
+    println(result)
+    assertFalse("Input is incorrect. Validator should find error.", result.successful)    
+  }
+  
 }
