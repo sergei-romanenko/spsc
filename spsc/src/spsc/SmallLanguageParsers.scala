@@ -54,7 +54,6 @@ object SmallLanguageParsers extends STokenParsers with StrongParsers with Implic
     val cInfo = Map[String, Int]() // arity for constructor
     val fInfo = Map[String, Int]() // arity for f-function
     val gInfo = Map[String, Pair[Int, Set[String]]]() // name -> (arity, constructor names)
-    val varNames = Set[String]()
       
     // A name belongs to one and only one of the sets {g, f, v, c}.
     // The arity of constructors and functions must be consistent.
@@ -70,7 +69,6 @@ object SmallLanguageParsers extends STokenParsers with StrongParsers with Implic
             error("undefined variable " + name, v)
           }
           else {
-            varNames + name
             Success(v, null)
           }
         }
@@ -134,7 +132,6 @@ object SmallLanguageParsers extends STokenParsers with StrongParsers with Implic
               return error("Variable " + v.name + " occurs the second time in a left side", v);
             }
             fVars + v
-            varNames + v.name
           }
           validateTerm(rawTerm) match {
             case Success(term: Term, _) => return Success(FFunction(name, args, term), null)
@@ -152,6 +149,8 @@ object SmallLanguageParsers extends STokenParsers with StrongParsers with Implic
             if (cArity != arg0.args.size){
               return error(cName + " is already defined as constructor with arity " + cArity, arg0);
             }
+          } else {
+            cInfo(cName) = arg0.args.size
           }
           if (gInfo.contains(name)) {
             val (arity, cNames) = gInfo(name)
@@ -171,7 +170,6 @@ object SmallLanguageParsers extends STokenParsers with StrongParsers with Implic
               return error("Variable " + v.name + " occurs the second time in a left side", v);
             }
             fVars + v
-            varNames + v.name
           }
           validateTerm(rawTerm) match {
             case Success(term, _) => return Success(GFunction(name, arg0, args, term), null)
