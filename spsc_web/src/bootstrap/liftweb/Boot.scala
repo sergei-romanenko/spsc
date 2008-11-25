@@ -26,6 +26,8 @@ class Boot {
                   Menu(Loc("spsc2", List("spsc_result"), "SPSC result", Hidden)) ::
                   Nil 
     LiftRules.setSiteMap(SiteMap(entries:_*))
+    
+    LiftRules.addDispatchAfter(spsc.service.AppService.dispatcher)
   }
 }
 
