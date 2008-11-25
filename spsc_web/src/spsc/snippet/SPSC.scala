@@ -14,7 +14,7 @@ class SPSC {
       (<div><pre>{result.toString}</pre></div>)
     } else {
       val program = new Program(result.get)
-      val fname = S.param("f").openOr("")
+      val fname = S.param("fname").openOr("")
       program.definitions.find(d => d match {case f:FFunction if f.name == fname => true; case _ => false;}) match {
         case None => (<pre>Error: f-function with name {fname} is not defined.</pre>)
         case Some(f) =>
