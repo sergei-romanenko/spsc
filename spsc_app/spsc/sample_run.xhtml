@@ -1,4 +1,9 @@
-<html>
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/static/dummy.xsl"?>
+<!DOCTYPE html PUBLIC 
+  "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" 
+  "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <link type="text/css" rel="stylesheet" href="/static/spsc.css" />
     <title>SPSC samples</title>
@@ -12,7 +17,7 @@
   		<div class="navbar">
   		{% for navitem in navitems %}
   			{% if navitem.link %}
-        		<a class="b1" href="{{ navitem.link }}">{{ navitem.text }}</a>
+        		<a class="b1" href="{{ navitem.link|escape }}">{{ navitem.text }}</a>
       		{% else %}
        			<b class="b1">{{ navitem.text }}</b>
       		{% endif %}
@@ -23,7 +28,7 @@
   		<div class="user" >
   		{% for useritem in useritems %}
   			{% if useritem.link %}
-        		<a class="b1" href="{{ useritem.link|escape }}">{{ useritem.text }}</a>
+        		<a class="b1" href='{{ useritem.link|escape }}'>{{ useritem.text }}</a>
       		{% else %}
        			<b class="b1">{{ usertem.text }}</b>
       		{% endif %}
@@ -36,7 +41,6 @@
   	</div>
   	<div class="mbh" ></div>
   	
-    {% for program in programs %}
     <div class="program">
 		<div class="summary">
 			<span class="program-name">{{program.name}}</span> by 
@@ -46,35 +50,10 @@
 		<div class="content">
 			<div class="program-goal">Goal: {{ program.goal }}</div>
 			<div class="code"><pre class="code">{{ program.code }}</pre></div>
-		<div class="description">{{ program.description }}</div>
-		<div class="hidden-form">
-			<table>
-			<tr>
-			<td>
-			<form action="run" method="get">
-			<div>
-				<input name="key" type="hidden" value="{{ program.key }}" /> 
-        		<input value="Run" type="submit" />
-    		</div>
-    		</form>
-    		</td>
-    		{% ifequal program.author user %}
-    		<td>
-			<form action="/edit">
-			<input name="key" type="hidden" value="{{ program.key }}"/>
-			<input type="submit" value="Edit" /></form>
-			</td>
-			<td>
-			<form action="/delete">
-			<input name="key" type="hidden" value="{{ program.key }}"/>
-			<input type="submit" value="Delete" /></form>
-			</td>
-    		{% endifequal %}
-    		</tr>
-    		</table>
- 		</div>
+			<div class="description">{{ program.description }}</div>
+			<div class="code"><pre class="code">{{ scpResult.residualCode }}</pre></div>
+			{{scpResult.svgTree}}
 		</div>
 	</div>
-    {% endfor %}
   </body>
 </html>

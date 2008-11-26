@@ -9,7 +9,7 @@
   	<tbody>
   	<tr>
   	<td>
-  		<nobr class="navbar">
+  		<div class="navbar">
   		{% for navitem in navitems %}
   			{% if navitem.link %}
         		<a class="b1" href="{{ navitem.link }}">{{ navitem.text }}</a>
@@ -17,10 +17,10 @@
        			<b class="b1">{{ navitem.text }}</b>
       		{% endif %}
   		{% endfor %}
-  		</nobr>
+  		</div>
   		</td>
   		<td align="right">
-  		<nobr class="user" >
+  		<div class="user" >
   		{% for useritem in useritems %}
   			{% if useritem.link %}
         		<a class="b1" href="{{ useritem.link }}">{{ useritem.text }}</a>
@@ -28,7 +28,7 @@
        			<b class="b1">{{ usertem.text }}</b>
       		{% endif %}
   		{% endfor %}
-  		</nobr>
+  		</div>
   		</td>
   		</tr>
   	</tbody>

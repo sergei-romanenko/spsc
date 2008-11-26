@@ -7,6 +7,5 @@ handlers:
 - url: /static
   static_dir: static
 
-- url: (/|/add|/edit|/delete)
+- url: (/|/add|/edit|/delete|/run)
   script: spsc.py
-

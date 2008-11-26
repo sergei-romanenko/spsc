@@ -54,3 +54,7 @@ pre.code {
 	height: 0;
 	width: 100%;
 }
+
+.user, navbar {
+	white-space: nowrap;
+}
