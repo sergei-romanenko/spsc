@@ -13,7 +13,7 @@ from google.appengine.api import urlfetch
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
-from google.appengine.ext.webapp.util import run_wsgi_app
+from google.appengine.ext.webapp import util
 
 OK = 'ok'
 UNKNOWN_FUNCTION = 'unknownFunction'
@@ -311,7 +311,7 @@ application = webapp.WSGIApplication(
                                      )
 
 def main():
-  run_wsgi_app(application)
+  util.run_wsgi_app(application)
 
 if __name__ == "__main__":
   main()
