@@ -1,0 +1,48 @@
+{%extends "base.html"%}
+{%block title%}title{%endblock%}
+{%block content%}
+    {% for program in programs %}
+    <div class="program">
+		<div class="summary">
+			<span class="program-name">{{program.name}}</span> by 
+			<span class="program-author">{{ program.author.user.nickname }}</span> 
+			<span class="program-date">{{ program.date|date:"jS F Y H:i" }}</span> 
+		</div>
+		<div class="content">
+			<div class="program-goal">Goal: {{ program.goal }}</div>
+			<div class="code"><pre class="code">{{ program.code }}</pre></div>
+			<div class="description">{{ program.description }}</div>
+			<div class="code"><pre class="code">{{ program.scp_code }}</pre></div>
+			{%if program.svg_tree%}
+			<object type="image/svg+xml" data="svg?key={{program.key}}">SVG</object>
+			{%endif%}
+		<div class="hidden-form">
+			<table>
+			<tr>
+			<td>
+			<form action="run" method="get">
+			<div>
+				<input name="key" type="hidden" value="{{ program.key }}" /> 
+        		<input value="Run" type="submit" />
+    		</div>
+    		</form>
+    		</td>
+    		{% ifequal program.author.user user %}
+    		<td>
+			<form action="/edit">
+			<input name="key" type="hidden" value="{{ program.key }}"/>
+			<input type="submit" value="Edit" /></form>
+			</td>
+			<td>
+			<form action="/delete">
+			<input name="key" type="hidden" value="{{ program.key }}"/>
+			<input type="submit" value="Delete" /></form>
+			</td>
+    		{% endifequal %}
+    		</tr>
+    		</table>
+ 		</div>
+		</div>
+	</div>
+    {% endfor %}
+{%endblock%}

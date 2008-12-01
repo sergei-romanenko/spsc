@@ -1,5 +1,9 @@
 from google.appengine.ext import db
 
+class Author(db.Model):
+    user = db.UserProperty()
+    n_programs = db.IntegerProperty()
+
 class Program(db.Model):
     name = db.StringProperty()
     author = db.ReferenceProperty(Author) # ==parent
@@ -10,24 +14,17 @@ class Program(db.Model):
     scp_code = db.TextProperty()
     svg_tree = db.TextProperty()
     
-class Author(db.Model):
-    user = db.UserProperty()
-    n_programs = db.IntegerProperty()
-    
-def get_author_for_user(cls, user):
-    author = db.Query(Author).filter('user=', user).get()
+def get_author_for_user(user):
+    author = db.Query(Author).filter('user =', user).get()
+    author = Author.get_by_key_name(user.email())
     if author is not None:
         return author
     else:
-        author = Author()
-        author.user = user
-        author.n_programs = 0
-        author.put()
-        return author
+        return Author.get_or_insert(user.email(), user=user, n_programs=0)
         
     
-def _add_program_for_user(user, name=None, code=None, goal=None, description=None, scp_code=None, svg_tree=None):
-    author = db.Query(Author).filter('user=', user).get()
+def _add_program_for_author(author_key, name=None, code=None, goal=None, description=None, scp_code=None, svg_tree=None):
+    author = db.get(author_key)
     author.n_programs = author.n_programs + 1
     program = Program(parent=author)
     program.name = name
@@ -40,8 +37,8 @@ def _add_program_for_user(user, name=None, code=None, goal=None, description=Non
     program.put()
     author.put()
     
-def add_program_for_user(user, name=None, code=None, goal=None, description=None, scp_code=None, svg_tree=None):
-    db.run_in_transaction(_add_program_for_user, user, name, code, goal, description, scp_code, svg_tree)
+def add_program_for_user(author_key, name=None, code=None, goal=None, description=None, scp_code=None, svg_tree=None):
+    db.run_in_transaction(_add_program_for_author, author_key, name, code, goal, description, scp_code, svg_tree)
 
 def _delete_program(program):
     author = program.author

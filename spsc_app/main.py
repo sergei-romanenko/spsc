@@ -1,13 +1,14 @@
-
-from spsc import spsc
+from spsc import views
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
 application = webapp.WSGIApplication(
-                                     [('/', spsc.SLProgramList),
-                                      ('/new', spsc.SLProgramAdd),
-                                      ('/delete', spsc.SLProgramDelete),
-                                      ('/edit', spsc.SLProgramEdit)]
+                                     [('/', views.Recent),
+                                      ('/new', views.New),
+                                      ('/edit', views.Edit),
+                                      ('/delete', views.Delete),
+                                      ('/svg', views.Svg),
+                                      ('/users', views.Authors)]
                                      )
 
 def main():

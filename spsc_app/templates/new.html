@@ -1,41 +1,7 @@
-<html>
-  <head>
-    <link type="text/css" rel="stylesheet" href="/static/spsc.css" />
-    <title>SPSC samples</title>
-  </head>
-  <body>
-  	<div class="menu">
-  	<table width="100%">
-  	<tbody>
-  	<tr>
-  	<td>
-  		<div class="navbar">
-  		{% for navitem in navitems %}
-  			{% if navitem.link %}
-        		<a class="b1" href="{{ navitem.link|escape }}">{{ navitem.text }}</a>
-      		{% else %}
-       			<b class="b1">{{ navitem.text }}</b>
-      		{% endif %}
-  		{% endfor %}
-  		</div>
-  		</td>
-  		<td align="right">
-  		<div class="user" >
-  		{% for useritem in useritems %}
-  			{% if useritem.link %}
-        		<a class="b1" href="{{ useritem.link|escape }}">{{ useritem.text }}</a>
-      		{% else %}
-       			<b class="b1">{{ usertem.text }}</b>
-      		{% endif %}
-  		{% endfor %}
-  		</div>
-  		</td>
-  		</tr>
-  	</tbody>
-  	</table>
-  	</div>
-  	<div class="mbh" ></div>
-  	<form action="/add" method="post">
+{%extends "base.html"%}
+{%block title%}new{%endblock%}
+{%block content%}
+  	<form action="/new" method="post">
     <table>
     	<tbody>
     	<tr><td>Sample name:</td><td width="100%">Target f-function:</td></tr>
@@ -58,5 +24,4 @@
     	</tbody>
     </table>
     </form>
-  </body>
-</html>
+{%endblock%}

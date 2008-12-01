@@ -1,40 +1,6 @@
-<html>
-  <head>
-    <link type="text/css" rel="stylesheet" href="/static/spsc.css" />
-    <title>SPSC samples</title>
-  </head>
-  <body>
-  	<div class="menu">
-  	<table width="100%">
-  	<tbody>
-  	<tr>
-  	<td>
-  		<div class="navbar">
-  		{% for navitem in navitems %}
-  			{% if navitem.link %}
-        		<a class="b1" href="{{ navitem.link }}">{{ navitem.text }}</a>
-      		{% else %}
-       			<b class="b1">{{ navitem.text }}</b>
-      		{% endif %}
-  		{% endfor %}
-  		</div>
-  		</td>
-  		<td align="right">
-  		<div class="user" >
-  		{% for useritem in useritems %}
-  			{% if useritem.link %}
-        		<a class="b1" href="{{ useritem.link }}">{{ useritem.text }}</a>
-      		{% else %}
-       			<b class="b1">{{ usertem.text }}</b>
-      		{% endif %}
-  		{% endfor %}
-  		</div>
-  		</td>
-  		</tr>
-  	</tbody>
-  	</table>
-  	</div>
-  	<div class="mbh" ></div>
+{%extends "base.html"%}
+{%block title%}edit{%endblock%}
+{%block content%}
   	<form action="/edit" method="post">
   	<input type="hidden" name="key" value="{{key}}"/>
     <table>
@@ -59,5 +25,4 @@
     	</tbody>
     </table>
     </form>
-  </body>
-</html>
+{%endblock%}
