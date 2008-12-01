@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>
+    {%block title%}
+    {%endblock%}
+  </title>
+  <link rel="icon" href="/favicon.ico" />
+  <link type="text/css" rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  	<div class="menu">
+  	<table width="100%">
+  	<tbody>
+  	<tr>
+  	<td>
+  		<div class="navbar">
+        <a class="b1" href="/new">Create Program</a>
+        <a class="b1" href="/">Recent Programs</a>
+        <a class="b1" href="/mine">My Programs</a>
+        <a class="b1" href="/users">Users</a>
+  		</div>
+  		</td>
+  		<td align="right">
+  		<div class="user" >
+  			{%if user%}
+				<a class="b1" href="{{sign_out|escape}}">Sign out</a>
+			{% else %}
+				<a class="b1" href="{{sign_in|escape}}">Sign in</a>
+			{%endif%}
+      	</div>
+  		</td>
+  		</tr>
+  	</tbody>
+  	</table>
+  	</div>
+  	<div class="mbh" ></div>
+  	{%block content%}
+    {%endblock%}
+</body>

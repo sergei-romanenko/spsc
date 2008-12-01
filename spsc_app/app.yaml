@@ -11,5 +11,5 @@ handlers:
   static_files: static/favicon.ico
   upload: static/favicon.ico
 
-- url: (/|/add|/edit|/delete|/run)
-  script: spsc.py
+- url: (/|/new|/edit|/delete|/mine|/users|/user|/view)
+  script: main.py
