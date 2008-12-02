@@ -324,7 +324,7 @@ class Mine(webapp.RequestHandler):
                         'programs': programs,
                         'user': users.get_current_user(),
                         'sign_in': users.create_login_url(self.request.uri),
-                        'sign_out': users.create_logout_url(self.request.uri),
+                        'sign_out': users.create_logout_url(self.request.host_url),
                         'author':author
                         }
         path = os.path.join(os.path.dirname(__file__), '../templates/mine.html')
