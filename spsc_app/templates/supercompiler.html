@@ -1,0 +1,38 @@
+{%extends "base.html"%}
+{%block title%}SPSC: Supercompiler{%endblock%}
+{%block content%}
+  	<form action="/supercompiler" method="post">
+    <table>
+    	<tbody>
+    	<tr><td>Input code:</td></tr>
+    	<tr><td><textarea id="code" cols="100" rows="17" name="code">{{code}}</textarea></td></tr>
+    	{% if code_error %}
+    	<tr><td><div class="error">Incorrect input: {{code_error}}<br/>
+    	<nobr><b>{{code_line}}</b></nobr>
+    	</div></td></tr>
+    	{% endif %}
+    	<tr><td>Start function:</td></tr>
+    	<tr><td><input id="goal" name="goal" type="text" value="{{goal}}"/><td></tr>
+    	{% if no_f_function %}
+    	<tr><td><div class="error">Error: there is no f-function <b>{{goal}}</b> in your input</div></td></tr>
+    	{% endif %}
+    	<tr><td><input value="Supercompile" type="submit" name="action"/></td><td></td></tr>
+    	{% if scp_code %}
+    	<tr><td>Supercompiled code:</td></tr>
+    	<tr><td><div class="code"><pre class="code">{{ scp_code }}</pre></div></td></tr>
+    	<tr><td>Process tree:</td></tr>
+    	<tr><td><object type="image/svg+xml" data="svgpreview?key={{key}}">SVG</object></td></tr>
+    	{%if user%}
+    	<tr><td>Name:</td></tr>
+    	<tr><td><input id="name" name="name" type="text" /><td></tr>
+    	<tr><td>Summary:</td></tr>
+    	<tr><td><input id="summary" name="summary" type="text"/><td></tr>
+    	<tr><td>Notes:</td></tr>
+    	<tr><td><textarea id="notes" cols="100" rows="5" name="notes" ></textarea></td></tr>
+    	<tr><td><input value="Save" type="submit" name="action"/></td><td></td></tr>
+    	{% endif %}
+    	{% endif %}
+    	</tbody>
+    </table>
+    </form>
+{%endblock%}

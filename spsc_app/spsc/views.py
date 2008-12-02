@@ -2,11 +2,13 @@ import cgi
 import os
 import sys
 import urllib
+import uuid
 
 from xml.dom.minidom import parse, parseString
 
 from google.appengine.api import users
 from google.appengine.api import urlfetch
+from google.appengine.api import memcache
 
 from google.appengine.ext import db
 from google.appengine.ext import webapp
@@ -19,7 +21,6 @@ UNKNOWN_FUNCTION = 'unknownFunction'
 PARSE_ERROR = 'parseError'
 NETWORK_ERROR = 'networkError'
 
-VALIDATION_URL = 'http://pat.keldysh.ru/spsc_web/validate'
 RUN_URL = 'http://pat.keldysh.ru/spsc_web/run'
     
 class SupercompilationResult(object):
@@ -70,10 +71,18 @@ class Svg(webapp.RequestHandler):
         if program:
             self.response.out.write(program.svg_tree)
             self.response.headers.add_header('Content-Type', 'image/svg+xml; charset=utf-8')
+            
+class SvgPreview(webapp.RequestHandler):
+    def get(self):
+        key = self.request.get('key')
+        svg = memcache.get(key)
+        if svg:
+            self.response.out.write(svg)
+            self.response.headers.add_header('Content-Type', 'image/svg+xml; charset=utf-8')
         
 class Recent(webapp.RequestHandler):
     def get(self):
-        programs = models.Program.all().order('-date').fetch(20)
+        programs = models.Program.all().order('-date')
         template_values = {
                         'programs': programs,
                         'user': users.get_current_user(),
@@ -83,10 +92,8 @@ class Recent(webapp.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), '../templates/recent.html')
         self.response.out.write(template.render(path, template_values))
         
-class New(webapp.RequestHandler):
+class Supercompiler(webapp.RequestHandler):
     def post(self):
-        if not users.get_current_user():
-            self.redirect(users.create_login_url(self.request.uri))
         code = self.request.get('code')
         goal = self.request.get('goal')
         
@@ -97,76 +104,39 @@ class New(webapp.RequestHandler):
         elif validationResult.status == PARSE_ERROR:
             self.display_errors(code_error=validationResult.message, code_line=validationResult.code_line)
             return
+        action = self.request.get('action')
         
         user = users.get_current_user()
-        author = models.get_author_for_user(user)
-        program = models.Program()
-        program.code = self.request.get('code')
-        program.author = author
-        program.name = self.request.get('name')        
-        program.goal = self.request.get('goal')
-        program.description = self.request.get('description')
-        program.scp_code = validationResult.residualCode
-        program.svg_tree = validationResult.svgTree
-        program.put()
-        self.redirect('/')
-    def get(self):
-        if not users.get_current_user():
-            self.redirect(users.create_login_url(self.request.uri))
-        template_values = {
-            'user': users.get_current_user(),
-            'sign_in': users.create_login_url(self.request.uri),
-            'sign_out': users.create_logout_url(self.request.uri)
-            }
-        path = os.path.join(os.path.dirname(__file__), '../templates/new.html')
-        self.response.out.write(template.render(path, template_values))
-    def display_errors(self, no_f_function=False, code_error=None, code_line=None):
-        template_values = {
-                        'user': users.get_current_user(),
-                        'sign_in': users.create_login_url(self.request.uri),
-                        'sign_out': users.create_logout_url(self.request.uri),
-                        'no_f_function': no_f_function,
-                        'code_error': code_error,
-                        'code_line': code_line,
-                        'code' : self.request.get('code'),
-                        'name' : self.request.get('name'),
-                        'goal' : self.request.get('goal'),
-                        'description' : self.request.get('description')
-                        }
-
-        path = os.path.join(os.path.dirname(__file__), '../templates/new.html')
-        self.response.out.write(template.render(path, template_values))
-        
-class New(webapp.RequestHandler):
-    def post(self):
-        user = users.get_current_user()
-        if not user:
-            self.redirect(users.create_login_url(self.request.uri))
-        code = self.request.get('code')
-        goal = self.request.get('goal')
-        
-        validationResult = supercompileProgram(code, goal)
-        if validationResult.status == UNKNOWN_FUNCTION:
-            self.display_errors(no_f_function=True)
-            return
-        elif validationResult.status == PARSE_ERROR:
-            self.display_errors(code_error=validationResult.message, code_line=validationResult.code_line)
+        scp_code = validationResult.residualCode
+        svg_tree = validationResult.svgTree
+        if action == 'Supercompile':
+            key = uuid.uuid1().hex
+            memcache.set(key, svg_tree, time=60)
+            template_values = {
+                               'user': users.get_current_user(),
+                               'sign_in': users.create_login_url(self.request.uri),
+                               'sign_out': users.create_logout_url(self.request.uri),
+                               'code':code,
+                               'goal':goal,
+                               'scp_code':scp_code,
+                               'key':key
+                               }
+            path = os.path.join(os.path.dirname(__file__), '../templates/supercompiler.html')
+            self.response.out.write(template.render(path, template_values))
             return
         author = models.get_author_for_user(user)
-        models.add_program_for_user(author.key(), name=self.request.get('name'), 
+        models.add_program_for_user(author.key(), name=self.request.get('name'), summary=self.request.get('summary'), 
                                     code=self.request.get('code'), goal=self.request.get('goal'), 
-                                    description=self.request.get('description'), scp_code=validationResult.residualCode, 
+                                    notes=self.request.get('notes'), scp_code=validationResult.residualCode, 
                                     svg_tree=validationResult.svgTree)
         self.redirect('/')
     def get(self):
-        if not users.get_current_user():
-            self.redirect(users.create_login_url(self.request.uri))
         template_values = {
             'user': users.get_current_user(),
             'sign_in': users.create_login_url(self.request.uri),
             'sign_out': users.create_logout_url(self.request.uri)
             }
-        path = os.path.join(os.path.dirname(__file__), '../templates/new.html')
+        path = os.path.join(os.path.dirname(__file__), '../templates/supercompiler.html')
         self.response.out.write(template.render(path, template_values))
     def display_errors(self, no_f_function=False, code_error=None, code_line=None):
         template_values = {
@@ -179,10 +149,11 @@ class New(webapp.RequestHandler):
                         'code' : self.request.get('code'),
                         'name' : self.request.get('name'),
                         'goal' : self.request.get('goal'),
-                        'description' : self.request.get('description')
+                        'summary' : self.request.get('summary'),
+                        'notes' : self.request.get('notes')
                         }
 
-        path = os.path.join(os.path.dirname(__file__), '../templates/new.html')
+        path = os.path.join(os.path.dirname(__file__), '../templates/supercompiler.html')
         self.response.out.write(template.render(path, template_values))
         
 class Edit(webapp.RequestHandler):
@@ -199,6 +170,28 @@ class Edit(webapp.RequestHandler):
         elif scp_result.status == PARSE_ERROR:
             self.display_errors(code_error=scp_result.message, code_line=scp_result.code_line)
             return
+        action = self.request.get('action')
+        if action == 'Preview':
+            scp_code = scp_result.residualCode
+            svg_tree = scp_result.svgTree
+            key = uuid.uuid1().hex
+            memcache.set(key, svg_tree, time=60)
+            template_values = {
+                               'user': users.get_current_user(),
+                               'sign_in': users.create_login_url(self.request.uri),
+                               'sign_out': users.create_logout_url(self.request.uri),
+                               'code':code,
+                               'goal':goal,
+                               'scp_code':scp_code,
+                               'tmp_key':key,
+                               'name':self.request.get('name'),
+                               'summary':self.request.get('summary'),
+                               'notes':self.request.get('notes'),
+                               'key':self.request.get('key')
+                               }
+            path = os.path.join(os.path.dirname(__file__), '../templates/edit.html')
+            self.response.out.write(template.render(path, template_values))
+            return
         try:
             key_name = self.request.get('key')
             program = db.get(db.Key(key_name))
@@ -206,7 +199,8 @@ class Edit(webapp.RequestHandler):
                 program.code = self.request.get('code')
                 program.name = self.request.get('name')        
                 program.goal = self.request.get('goal')
-                program.description = self.request.get('description')
+                program.notes = self.request.get('notes')
+                program.summary = self.request.get('summary')
                 program.scp_code = scp_result.residualCode
                 program.svg_tree = scp_result.svgTree
                 program.put()
@@ -222,6 +216,8 @@ class Edit(webapp.RequestHandler):
         try:
             program = db.get(db.Key(key_name))
             if program:
+                svg_key = uuid.uuid1().hex
+                memcache.set(svg_key, program.svg_tree, time=60)
                 template_values = {
                                    'program': program,
                                    'user': users.get_current_user(),
@@ -231,7 +227,10 @@ class Edit(webapp.RequestHandler):
                                    'code' : program.code,
                                    'name' : program.name,
                                    'goal' : program.goal,
-                                   'description' : program.description,
+                                   'notes' : program.notes,
+                                   'summary' : program.summary,
+                                   'scp_code' : program.scp_code,
+                                   'tmp_key' : svg_key
                                    }
                 path = os.path.join(os.path.dirname(__file__), '../templates/edit.html')
                 self.response.out.write(template.render(path, template_values))
@@ -250,12 +249,31 @@ class Edit(webapp.RequestHandler):
                         'code' : self.request.get('code'),
                         'name' : self.request.get('name'),
                         'goal' : self.request.get('goal'),
-                        'description' : self.request.get('description')
+                        'summary' : self.request.get('summary'),
+                        'notes' : self.request.get('notes'),
+                        'key':self.request.get('key')
                         }
 
         path = os.path.join(os.path.dirname(__file__), '../templates/edit.html')
         self.response.out.write(template.render(path, template_values))
-        
+
+class Get(webapp.RequestHandler):
+    def get(self):
+        key_name = self.request.get('key')
+        try:
+            program = models.Program.get(db.Key(key_name))
+            if program:
+                template_values = {
+                                   'program': program,
+                                   'user': users.get_current_user(),
+                                   'sign_in': users.create_login_url(self.request.uri),
+                                   'sign_out': users.create_logout_url(self.request.uri)
+                                   }
+                path = os.path.join(os.path.dirname(__file__), '../templates/program.html')
+                self.response.out.write(template.render(path, template_values))
+        except db.BadKeyError:
+            self.redirect('/')
+
 class Delete(webapp.RequestHandler):
     def get(self):
         key_name = self.request.get('key')
@@ -277,4 +295,37 @@ class Authors(webapp.RequestHandler):
                         'sign_out': users.create_logout_url(self.request.uri)
                         }
         path = os.path.join(os.path.dirname(__file__), '../templates/authors.html')
+        self.response.out.write(template.render(path, template_values))
+        
+class Author(webapp.RequestHandler):
+    def get(self):
+        author_key = self.request.get('key')
+        author = db.get(db.Key(author_key))
+        programs = models.Program.all().ancestor(author).order('-date')
+        template_values = {
+                        'programs': programs,
+                        'user': users.get_current_user(),
+                        'sign_in': users.create_login_url(self.request.uri),
+                        'sign_out': users.create_logout_url(self.request.uri),
+                        'author':author
+                        }
+        path = os.path.join(os.path.dirname(__file__), '../templates/author.html')
+        self.response.out.write(template.render(path, template_values))
+        
+class Mine(webapp.RequestHandler):
+    def get(self):
+        user = users.get_current_user()
+        if not user:
+            self.redirect(users.create_login_url(self.request.uri))
+            return
+        author = models.get_author_for_user(user)
+        programs = models.Program.all().ancestor(author).order('-date')
+        template_values = {
+                        'programs': programs,
+                        'user': users.get_current_user(),
+                        'sign_in': users.create_login_url(self.request.uri),
+                        'sign_out': users.create_logout_url(self.request.uri),
+                        'author':author
+                        }
+        path = os.path.join(os.path.dirname(__file__), '../templates/mine.html')
         self.response.out.write(template.render(path, template_values))

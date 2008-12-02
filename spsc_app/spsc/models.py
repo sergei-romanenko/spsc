@@ -6,10 +6,11 @@ class Author(db.Model):
 
 class Program(db.Model):
     name = db.StringProperty()
+    summary = db.StringProperty()
     author = db.ReferenceProperty(Author) # ==parent
     code = db.TextProperty()
     goal = db.StringProperty()
-    description = db.TextProperty()
+    notes = db.TextProperty()
     date = db.DateTimeProperty(auto_now_add=True)
     scp_code = db.TextProperty()
     svg_tree = db.TextProperty()
@@ -23,22 +24,23 @@ def get_author_for_user(user):
         return Author.get_or_insert(user.email(), user=user, n_programs=0)
         
     
-def _add_program_for_author(author_key, name=None, code=None, goal=None, description=None, scp_code=None, svg_tree=None):
+def _add_program_for_author(author_key, name=None, summary=None, code=None, goal=None, notes=None, scp_code=None, svg_tree=None):
     author = db.get(author_key)
     author.n_programs = author.n_programs + 1
     program = Program(parent=author)
     program.name = name
+    program.summary = summary
     program.author = author
     program.code = code
     program.goal = goal
-    program.description = description
+    program.notes = notes
     program.scp_code = scp_code
     program.svg_tree = svg_tree
     program.put()
     author.put()
     
-def add_program_for_user(author_key, name=None, code=None, goal=None, description=None, scp_code=None, svg_tree=None):
-    db.run_in_transaction(_add_program_for_author, author_key, name, code, goal, description, scp_code, svg_tree)
+def add_program_for_user(author_key, name=None, summary=None, code=None, goal=None, notes=None, scp_code=None, svg_tree=None):
+    db.run_in_transaction(_add_program_for_author, author_key, name, summary, code, goal, notes, scp_code, svg_tree)
 
 def _delete_program(program):
     author = program.author

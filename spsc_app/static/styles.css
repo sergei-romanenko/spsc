@@ -38,9 +38,12 @@ body {
 	padding: 8px;
 }
 
+.program_summary {
+	font-style: italic;	
+}
+
 pre.code {
 	border-left: 3px solid #CCCCCC;
-	/*margin-left: 2em;*/
 	padding: 0.5em;
 }
 
@@ -57,4 +60,12 @@ pre.code {
 
 .user, navbar {
 	white-space: nowrap;
+}
+
+h2 {
+	font-size: large;
+}
+
+h3 {
+	font-size: larger;
 }

@@ -4,11 +4,15 @@ from google.appengine.ext.webapp import util
 
 application = webapp.WSGIApplication(
                                      [('/', views.Recent),
-                                      ('/new', views.New),
+                                      ('/supercompiler', views.Supercompiler),
                                       ('/edit', views.Edit),
                                       ('/delete', views.Delete),
+                                      ('/view', views.Get),
                                       ('/svg', views.Svg),
-                                      ('/users', views.Authors)]
+                                      ('/svgpreview', views.SvgPreview),
+                                      ('/authors', views.Authors),
+                                      ('/author', views.Author),
+                                      ('/mine', views.Mine)]
                                      )
 
 def main():

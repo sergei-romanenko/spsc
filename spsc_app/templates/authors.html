@@ -1,9 +1,9 @@
 {%extends "base.html"%}
-{%block title%}authors{%endblock%}
+{%block title%}SPSC: Authors{%endblock%}
 {%block content%}
     {% for author in authors %}
     <div class="author">
-		<a href="/user?key={{author.key}}">{{author.user.nickname}}</a> ({{author.n_programs}})
+		<a href="/author?key={{author.key}}">{{author.user.nickname}}</a>({{author.n_programs}})
 	</div>
     {% endfor %}
 {%endblock%}

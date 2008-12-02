@@ -1,12 +1,12 @@
 {%extends "base.html"%}
-{%block title%}SPSC: Programs{%endblock%}
+{%block title%}SPSC: Programs by {{ author.user.nickname }}{%endblock%}
 {%block content%}
     {% for program in programs %}
     <div class="program">
 		<div class="summary">
 			<a href ="/view?key={{program.key}}"/> {{ program.name }}</a> 
 			by 
-			<a href ="/author?key={{program.author.key}}"/> {{ program.author.user.nickname }}</a> 
+			<a href ="/authors?key={{program.author.key}}"/> {{ program.author.user.nickname }}</a> 
 			<span class="program-date">{{ program.date|date:"jS F Y H:i" }}</span> 
 		</div>
 		<div class="content">

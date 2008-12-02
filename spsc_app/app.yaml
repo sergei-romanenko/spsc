@@ -1,5 +1,5 @@
 application: spsc
-version: 1
+version: 2
 runtime: python
 api_version: 1
 
@@ -11,5 +11,5 @@ handlers:
   static_files: static/favicon.ico
   upload: static/favicon.ico
 
-- url: (/|/new|/edit|/delete|/mine|/users|/user|/view|/svg)
+- url: (/|/new|/edit|/delete|/mine|/authors|/author|/view|/svg|/supercompiler|/svgpreview|/view)
   script: main.py
