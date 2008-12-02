@@ -70,7 +70,7 @@ class Svg(webapp.RequestHandler):
         program = db.get(db.Key(key_name))
         if program:
             self.response.out.write(program.svg_tree)
-            self.response.headers.add_header('Content-Type', 'image/svg+xml; charset=utf-8')
+            self.response.headers['Content-Type'] = 'image/svg+xml; charset=utf-8'
             
 class SvgPreview(webapp.RequestHandler):
     def get(self):
@@ -78,7 +78,7 @@ class SvgPreview(webapp.RequestHandler):
         svg = memcache.get(key)
         if svg:
             self.response.out.write(svg)
-            self.response.headers.add_header('Content-Type', 'image/svg+xml; charset=utf-8')
+            self.response.headers['Content-Type'] = 'image/svg+xml; charset=utf-8'
         
 class Recent(webapp.RequestHandler):
     def get(self):
