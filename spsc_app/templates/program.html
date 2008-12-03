@@ -37,6 +37,11 @@
 			<input type="submit" value="Delete" /></form>
 			</td>
     		{% endifequal %}
+    		<td>
+			<form action="/supercompiler">
+			<input name="key" type="hidden" value="{{ program.key }}"/>
+			<input type="submit" value="Load Into Supercompiler" /></form>
+			</td>
     		</tr>
     		</table>
  		</div>
