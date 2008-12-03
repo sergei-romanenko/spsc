@@ -25,6 +25,9 @@
     	{%if user%}
     	<tr><td>Name:</td></tr>
     	<tr><td><input id="name" name="name" type="text" /><td></tr>
+    	{% if empty_name %}
+    	<tr><td><div class="error">Please provide name for your task</div></td></tr>
+    	{% endif %}
     	<tr><td>Summary:</td></tr>
     	<tr><td><input id="summary" name="summary" type="text"/><td></tr>
     	<tr><td>Notes:</td></tr>

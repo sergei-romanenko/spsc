@@ -5,7 +5,7 @@
   	<input type="hidden" name="key" value="{{key}}"/>
     <table>
     	<tbody>
-    	<tr><td>Input code:</td><td></td></tr>
+    	<tr><td>Input code:</td></tr>
     	<tr><td><textarea id="code" cols="100" rows="17" name="code">{{code}}</textarea></td></tr>
     	{% if code_error %}
     	<tr><td><div class="error">Incorrect input: {{code_error}}<br/>
@@ -15,20 +15,23 @@
     	<tr><td>Start function</td></tr>
     	</tr><td><input id="goal" name="goal" type="text" value="{{goal}}"/><td></tr>
     	{% if no_f_function %}
-    	<tr><td colspan="2"><div class="error">Error: there is no f-function <b>{{goal}}</b> in your input</div></td></tr>
+    	<tr><td><div class="error">Error: there is no f-function <b>{{goal}}</b> in your input</div></td></tr>
     	{% endif %}
-    	<tr><td>Name:</td><td width="100%">
+    	<tr><td>Name:</td>
     	<tr><td><input id="name" name="name" type="text" value="{{name}}"/></td></tr>
+    	{% if empty_name %}
+    	<tr><td><div class="error">Please provide name for your task</div></td></tr>
+    	{% endif %}
     	<tr><td>Summary:</td></tr>
     	<tr><td><input id="summary" name="summary" type="text" value="{{summary}}"/><td></tr>
     	<tr><td>Notes:</td></tr>
     	<tr><td><textarea id="notes" cols="100" rows="5" name="notes" >{{notes}}</textarea></td></tr>
-		<tr><td><input value="Preview" type="submit" name="action"/><input value="Save" type="submit" name="action"/></td><td></td></tr>
+		<tr><td><input value="Preview" type="submit" name="action"/><input value="Save" type="submit" name="action"/></td></tr>
     	{% if scp_code %}
-    	<tr><td colspan="2">Supercompiled code:</td></tr>
-    	<tr><td colspan="2"><div class="code"><pre class="code">{{ scp_code }}</pre></div></td></tr>
-    	<tr><td colspan="2">Process tree:</td></tr>
-    	<tr><td colspan="2"><object type="image/svg+xml" data="svgpreview?key={{tmp_key}}">SVG</object></td></tr>
+    	<tr><td>Supercompiled code:</td></tr>
+    	<tr><td><div class="code"><pre class="code">{{ scp_code }}</pre></div></td></tr>
+    	<tr><td>Process tree:</td></tr>
+    	<tr><td><object type="image/svg+xml" data="svgpreview?key={{tmp_key}}">SVG</object></td></tr>
     	{% endif %}
     	</tbody>
     </table>
