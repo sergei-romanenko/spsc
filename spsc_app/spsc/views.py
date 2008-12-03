@@ -109,7 +109,9 @@ class Supercompiler(webapp.RequestHandler):
         user = users.get_current_user()
         scp_code = validationResult.residualCode
         svg_tree = validationResult.svgTree
-        if action == 'Supercompile':
+        name = self.request.get('name').strip()
+        empty_name = name == ''
+        if action == 'Supercompile' or empty_name:
             key = uuid.uuid1().hex
             memcache.set(key, svg_tree, time=60)
             template_values = {
@@ -119,7 +121,11 @@ class Supercompiler(webapp.RequestHandler):
                                'code':code,
                                'goal':goal,
                                'scp_code':scp_code,
-                               'key':key
+                               'key':key,
+                               'name':name,
+                               'summary':self.request.get('summary'),
+                               'notes':self.request.get('notes'),
+                               'empty_name':empty_name
                                }
             self.response.out.write(template.render('templates/supercompiler.html', template_values))
             return
@@ -136,7 +142,7 @@ class Supercompiler(webapp.RequestHandler):
             'sign_out': users.create_logout_url(self.request.uri)
             }
         self.response.out.write(template.render('templates/supercompiler.html', template_values))
-    def display_errors(self, no_f_function=False, code_error=None, code_line=None):
+    def display_errors(self, no_f_function=False, code_error=None, code_line=None, empty_name=False):
         template_values = {
                         'user': users.get_current_user(),
                         'sign_in': users.create_login_url(self.request.uri),
@@ -145,10 +151,11 @@ class Supercompiler(webapp.RequestHandler):
                         'code_error': code_error,
                         'code_line': code_line,
                         'code' : self.request.get('code'),
-                        'name' : self.request.get('name'),
+                        'name' : self.request.get('name').strip(),
                         'goal' : self.request.get('goal'),
                         'summary' : self.request.get('summary'),
-                        'notes' : self.request.get('notes')
+                        'notes' : self.request.get('notes'),
+                        'empty_name': empty_name
                         }
         self.response.out.write(template.render('templates/supercompiler.html', template_values))
         
@@ -186,6 +193,10 @@ class Edit(webapp.RequestHandler):
                                'key':self.request.get('key')
                                }
             self.response.out.write(template.render('templates/edit.html', template_values))
+            return
+        name = self.request.get('name').strip()
+        if name == '':
+            self.display_errors(empty_name=True)
             return
         try:
             key_name = self.request.get('key')
@@ -232,7 +243,7 @@ class Edit(webapp.RequestHandler):
                 self.redirect('/')
         except db.BadKeyError:
             self.redirect('/') 
-    def display_errors(self, no_f_function=False, code_error=None, code_line=None):
+    def display_errors(self, no_f_function=False, code_error=None, code_line=None, empty_name=False):
         template_values = {
                         'user': users.get_current_user(),
                         'sign_in': users.create_login_url(self.request.uri),
@@ -245,7 +256,8 @@ class Edit(webapp.RequestHandler):
                         'goal' : self.request.get('goal'),
                         'summary' : self.request.get('summary'),
                         'notes' : self.request.get('notes'),
-                        'key':self.request.get('key')
+                        'key':self.request.get('key'),
+                        'empty_name': empty_name
                         }
         self.response.out.write(template.render('templates/edit.html', template_values))
 
