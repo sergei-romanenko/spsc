@@ -77,10 +77,14 @@ class SvgPreview(webapp.RequestHandler):
             self.response.out.write(svg)
             self.response.headers['Content-Type'] = 'image/svg+xml; charset=utf-8'
         
-class Recent(webapp.RequestHandler):
+class All(webapp.RequestHandler):
     def get(self):
-        programs = models.Program.all().order('-date')
+        order = self.request.get('order')
+        if order not in ['name', '-name', 'date', '-date', 'summary', '-summary', 'author', '-author', 'modified', '-modified']:
+            order = '-modified'
+        programs = models.Program.all().order(order)
         template_values = {
+                        'order': order,
                         'programs': programs,
                         'user': users.get_current_user(),
                         'sign_in': users.create_login_url(self.request.uri),
@@ -285,10 +289,14 @@ class Authors(webapp.RequestHandler):
         
 class Author(webapp.RequestHandler):
     def get(self):
+        order = self.request.get('order')
+        if order not in ['name', '-name', 'date', '-date', 'summary', '-summary', 'modified', '-modified']:
+            order = '-modified'
         author_key = self.request.get('key')
         author = db.get(db.Key(author_key))
-        programs = models.Program.all().ancestor(author).order('-date')
+        programs = models.Program.all().ancestor(author).order(order)
         template_values = {
+                        'order': order,
                         'programs': programs,
                         'user': users.get_current_user(),
                         'sign_in': users.create_login_url(self.request.uri),
@@ -303,9 +311,13 @@ class Mine(webapp.RequestHandler):
         if not user:
             self.redirect(users.create_login_url(self.request.uri))
             return
+        order = self.request.get('order')
+        if order not in ['name', '-name', 'date', '-date', 'summary', '-summary', 'modified', '-modified']:
+            order = '-modified'
         author = models.get_author_for_user(user)
-        programs = models.Program.all().ancestor(author).order('-date')
+        programs = models.Program.all().ancestor(author).order(order)
         template_values = {
+                        'order': order,   
                         'programs': programs,
                         'user': users.get_current_user(),
                         'sign_in': users.create_login_url(self.request.uri),
@@ -313,3 +325,7 @@ class Mine(webapp.RequestHandler):
                         'author':author
                         }
         self.response.out.write(template.render('templates/mine.html', template_values))
+        
+class Root(webapp.RequestHandler):
+    def get(self):
+        self.redirect('/all')

@@ -1,17 +1,22 @@
 {%extends "base.html"%}
-{%block title%}SPSC: Programs by {{ author.user.nickname }}{%endblock%}
+{%block title%}Programs by {{ author.user.nickname }}{%endblock%}
 {%block content%}
-    {% for program in programs %}
-    <div class="program">
-		<div class="summary">
-			<a href ="/view?key={{program.key}}"/> {{ program.name }}</a> 
-			by 
-			<a href ="/author?key={{program.author.key}}"/> {{ program.author.user.nickname }}</a> 
-			<span class="program-date">{{ program.date|date:"jS F Y H:i" }}</span> 
-		</div>
-		<div class="content">
-			<div class="program_summary">{{program.summary}}</div>
-		</div>
-	</div>
-    {% endfor %}
+     <table class="programs">
+        <thead>
+        <tr>
+        	<th><a href="/author?key={{author.key}}&amp;order={% ifequal order 'name' %}-{% endifequal %}name">Name</a></th>
+        	<th><a href="/author?key={{author.key}}&amp;order={% ifequal order 'summary' %}-{% endifequal %}summary">Summary</a></th>
+        	<th><a href="/author?key={{author.key}}&amp;order={% ifequal order 'date' %}-{% endifequal %}date">Created</a></th>
+        	<th><a href="/author?key={{author.key}}&amp;order={% ifequal order 'modified' %}-{% endifequal %}modified">Modified</a></th>
+        </tr>
+        </thead>
+        {% for program in programs %}
+ 		<tr class="{% if forloop.counter|divisibleby:2 %}even{% else %}odd{% endif %}">
+            <td><a href ="/view?key={{program.key}}"/>{{program.name}}</a></td>
+            <td>{{program.summary}}</td>
+            <td>{{ program.date|date:"jS F Y H:i" }}</td>
+            <td>{{ program.modified|date:"jS F Y H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </table>
 {%endblock%}

@@ -3,7 +3,8 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
 application = webapp.WSGIApplication(
-                                     [('/', views.Recent),
+                                     [('/', views.Root),
+                                      ('/all', views.All),
                                       ('/supercompiler', views.Supercompiler),
                                       ('/edit', views.Edit),
                                       ('/delete', views.Delete),

@@ -2,10 +2,7 @@
   "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-  <title>
-    {%block title%}
-    {%endblock%}
-  </title>
+  <title>SPSC</title>
   <link rel="icon" href="/favicon.ico" />
   <link type="text/css" rel="stylesheet" href="/static/styles.css" />
 </head>
@@ -16,8 +13,8 @@
   	<tr>
   	<td>
   		<div class="navbar">
-        <a class="b1" href="/">Recent Programs</a>
-        <a class="b1" href="/mine">My Programs</a>
+        <a class="b1" href="/all">All Tasks</a>
+        <a class="b1" href="/mine">My Tasks</a>
         <a class="b1" href="/supercompiler">Supercompiler</a>
         <a class="b1" href="/authors">Authors</a>
   		</div>
@@ -39,6 +36,7 @@
   	</table>
   	</div>
   	<div class="mbh" ></div>
+  	<h2>{%block title%}{%endblock%}</h2>
   	{%block content%}
     {%endblock%}
 </body>

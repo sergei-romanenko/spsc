@@ -69,3 +69,36 @@ h2 {
 h3 {
 	font-size: larger;
 }
+
+table.programs {
+  border: 1px solid #c5d7ef;
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 0;
+}
+
+table.programs th, table.programs td {
+  padding: .25em 1.5em .5em .5em;
+}
+
+table.programs th {
+  font-weight: bold;
+  text-align: left;
+  background: #e5ecf9;
+  white-space: nowrap;
+}
+
+table.programs th a, table.programs th a:visited {
+  color: black;
+  text-decoration: none;
+}
+
+table.programs td {
+  background-color: #fff;
+  text-align: left;
+  vertical-align: top;
+}
+
+table.programs tr.even td {
+  background-color: #f9f9f9;
+}
