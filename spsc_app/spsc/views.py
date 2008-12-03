@@ -4,7 +4,7 @@ import sys
 import urllib
 import uuid
 
-from xml.dom.minidom import parse, parseString
+from xml.dom import minidom
 
 from google.appengine.api import users
 from google.appengine.api import urlfetch
@@ -14,6 +14,7 @@ from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp import util
+
 import models
 
 OK = 'ok'
@@ -42,10 +43,10 @@ def supercompileProgram(code, goal):
                             headers={'Content-Type': 'application/x-www-form-urlencoded'})   
     if result.status_code == 200:
         xmlresponse = result.content
-        dom = parseString(xmlresponse)
-        status = dom.documentElement.getAttribute('status')
+        doc = minidom.parseString(xmlresponse)
+        status = doc.documentElement.getAttribute('status')
         if status == PARSE_ERROR:
-            details = dom.documentElement.getElementsByTagName('details')[0]
+            details = doc.documentElement.getElementsByTagName('details')[0]
             msg = details.getAttribute('message')
             line = int(details.getAttribute('line'))
             column = int(details.getAttribute('column'))
@@ -55,9 +56,9 @@ def supercompileProgram(code, goal):
                 code_line = lines[line-1] 
             return SupercompilationResult(status, message=msg, line=line, column=column, code_line=code_line)
         elif status == OK:
-            codeElement = dom.documentElement.getElementsByTagName('code')[0]
+            codeElement = doc.documentElement.getElementsByTagName('code')[0]
             residualCode = codeElement.firstChild.data
-            svg = dom.documentElement.getElementsByTagName('tree')[0].firstChild.toxml()
+            svg = doc.documentElement.getElementsByTagName('tree')[0].firstChild.toxml()
             return SupercompilationResult(OK, residualCode=residualCode, svgTree=svg)
         else:
             return SupercompilationResult(status)
