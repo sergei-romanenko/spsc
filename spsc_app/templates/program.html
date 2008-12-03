@@ -20,7 +20,7 @@
 			<div class="description">{{ program.notes }}</div>
 			<h3>Process tree</h3>
 			{%if program.svg_tree%}
-			<object type="image/svg+xml" data="svg?key={{program.key}}">SVG</object>
+			<object type="image/svg+xml" data="svg?key={{program.key}}" height="{{svg_height}}px" width="{{svg_width}}px">SVG</object>
 			{%endif%}
 		<div class="hidden-form">
 			<table>

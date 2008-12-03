@@ -19,6 +19,9 @@ PARSE_ERROR = 'parseError'
 NETWORK_ERROR = 'networkError'
 
 RUN_URL = 'http://pat.keldysh.ru/spsc_web/run'
+SVG_INTRO = """<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/SVG/DTD/svg10.dtd">
+"""
     
 class SupercompilationResult(object):
     def __init__(self, status, residualCode=None, svgTree=None, message=None, line=None, column=None, code_line=None):
@@ -66,6 +69,7 @@ class Svg(webapp.RequestHandler):
         key_name = self.request.get('key')
         program = db.get(db.Key(key_name))
         if program:
+            self.response.out.write(SVG_INTRO)
             self.response.out.write(program.svg_tree)
             self.response.headers['Content-Type'] = 'image/svg+xml; charset=utf-8'
             
@@ -74,6 +78,7 @@ class SvgPreview(webapp.RequestHandler):
         key = self.request.get('key')
         svg = memcache.get(key)
         if svg:
+            self.response.out.write(SVG_INTRO)
             self.response.out.write(svg)
             self.response.headers['Content-Type'] = 'image/svg+xml; charset=utf-8'
         
@@ -109,6 +114,9 @@ class Supercompiler(webapp.RequestHandler):
         user = users.get_current_user()
         scp_code = validationResult.residualCode
         svg_tree = validationResult.svgTree
+        svg_xml = minidom.parseString(svg_tree)
+        svg_width = svg_xml.documentElement.getAttribute('width')
+        svg_height = svg_xml.documentElement.getAttribute('height')
         name = self.request.get('name').strip()
         empty_name = name == ''
         if action == 'Supercompile' or empty_name:
@@ -125,7 +133,8 @@ class Supercompiler(webapp.RequestHandler):
                                'name':name,
                                'summary':self.request.get('summary'),
                                'notes':self.request.get('notes'),
-                               'empty_name':empty_name
+                               'empty_name':empty_name,
+                               'svg_width': svg_width, 'svg_height': svg_height
                                }
             self.response.out.write(template.render('templates/supercompiler.html', template_values))
             return
@@ -177,6 +186,9 @@ class Edit(webapp.RequestHandler):
         if action == 'Preview':
             scp_code = scp_result.residualCode
             svg_tree = scp_result.svgTree
+            svg_xml = minidom.parseString(svg_tree)
+            svg_width = svg_xml.documentElement.getAttribute('width')
+            svg_height = svg_xml.documentElement.getAttribute('height')
             key = uuid.uuid1().hex
             memcache.set(key, svg_tree, time=60)
             template_values = {
@@ -190,7 +202,8 @@ class Edit(webapp.RequestHandler):
                                'name':self.request.get('name'),
                                'summary':self.request.get('summary'),
                                'notes':self.request.get('notes'),
-                               'key':self.request.get('key')
+                               'key':self.request.get('key'),
+                               'svg_width': svg_width, 'svg_height': svg_height
                                }
             self.response.out.write(template.render('templates/edit.html', template_values))
             return
@@ -267,11 +280,16 @@ class Get(webapp.RequestHandler):
         try:
             program = models.Program.get(db.Key(key_name))
             if program:
+                svg = program.svg_tree
+                svg_xml = minidom.parseString(svg)
+                svg_width = svg_xml.documentElement.getAttribute('width')
+                svg_height = svg_xml.documentElement.getAttribute('height')
                 template_values = {
                                    'program': program,
                                    'user': users.get_current_user(),
                                    'sign_in': users.create_login_url(self.request.uri),
-                                   'sign_out': users.create_logout_url(self.request.uri)
+                                   'sign_out': users.create_logout_url(self.request.uri),
+                                   'svg_width': svg_width, 'svg_height': svg_height
                                    }
                 self.response.out.write(template.render('templates/program.html', template_values))
         except db.BadKeyError:
