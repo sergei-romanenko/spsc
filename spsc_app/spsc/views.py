@@ -1,6 +1,3 @@
-import cgi
-import os
-import sys
 import urllib
 import uuid
 
@@ -9,7 +6,6 @@ from xml.dom import minidom
 from google.appengine.api import users
 from google.appengine.api import urlfetch
 from google.appengine.api import memcache
-
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
@@ -90,8 +86,7 @@ class Recent(webapp.RequestHandler):
                         'sign_in': users.create_login_url(self.request.uri),
                         'sign_out': users.create_logout_url(self.request.uri)
                         }
-        path = os.path.join(os.path.dirname(__file__), '../templates/recent.html')
-        self.response.out.write(template.render(path, template_values))
+        self.response.out.write(template.render('templates/recent.html', template_values))
         
 class Supercompiler(webapp.RequestHandler):
     def post(self):
@@ -122,8 +117,7 @@ class Supercompiler(webapp.RequestHandler):
                                'scp_code':scp_code,
                                'key':key
                                }
-            path = os.path.join(os.path.dirname(__file__), '../templates/supercompiler.html')
-            self.response.out.write(template.render(path, template_values))
+            self.response.out.write(template.render('templates/supercompiler.html', template_values))
             return
         author = models.get_author_for_user(user)
         models.add_program_for_user(author.key(), name=self.request.get('name'), summary=self.request.get('summary'), 
@@ -137,8 +131,7 @@ class Supercompiler(webapp.RequestHandler):
             'sign_in': users.create_login_url(self.request.uri),
             'sign_out': users.create_logout_url(self.request.uri)
             }
-        path = os.path.join(os.path.dirname(__file__), '../templates/supercompiler.html')
-        self.response.out.write(template.render(path, template_values))
+        self.response.out.write(template.render('templates/supercompiler.html', template_values))
     def display_errors(self, no_f_function=False, code_error=None, code_line=None):
         template_values = {
                         'user': users.get_current_user(),
@@ -153,9 +146,7 @@ class Supercompiler(webapp.RequestHandler):
                         'summary' : self.request.get('summary'),
                         'notes' : self.request.get('notes')
                         }
-
-        path = os.path.join(os.path.dirname(__file__), '../templates/supercompiler.html')
-        self.response.out.write(template.render(path, template_values))
+        self.response.out.write(template.render('templates/supercompiler.html', template_values))
         
 class Edit(webapp.RequestHandler):
     def post(self):
@@ -190,8 +181,7 @@ class Edit(webapp.RequestHandler):
                                'notes':self.request.get('notes'),
                                'key':self.request.get('key')
                                }
-            path = os.path.join(os.path.dirname(__file__), '../templates/edit.html')
-            self.response.out.write(template.render(path, template_values))
+            self.response.out.write(template.render('templates/edit.html', template_values))
             return
         try:
             key_name = self.request.get('key')
@@ -233,8 +223,7 @@ class Edit(webapp.RequestHandler):
                                    'scp_code' : program.scp_code,
                                    'tmp_key' : svg_key
                                    }
-                path = os.path.join(os.path.dirname(__file__), '../templates/edit.html')
-                self.response.out.write(template.render(path, template_values))
+                self.response.out.write(template.render('templates/edit.html', template_values))
             else:
                 self.redirect('/')
         except db.BadKeyError:
@@ -254,9 +243,7 @@ class Edit(webapp.RequestHandler):
                         'notes' : self.request.get('notes'),
                         'key':self.request.get('key')
                         }
-
-        path = os.path.join(os.path.dirname(__file__), '../templates/edit.html')
-        self.response.out.write(template.render(path, template_values))
+        self.response.out.write(template.render('templates/edit.html', template_values))
 
 class Get(webapp.RequestHandler):
     def get(self):
@@ -270,8 +257,7 @@ class Get(webapp.RequestHandler):
                                    'sign_in': users.create_login_url(self.request.uri),
                                    'sign_out': users.create_logout_url(self.request.uri)
                                    }
-                path = os.path.join(os.path.dirname(__file__), '../templates/program.html')
-                self.response.out.write(template.render(path, template_values))
+                self.response.out.write(template.render('templates/program.html', template_values))
         except db.BadKeyError:
             self.redirect('/')
 
@@ -295,8 +281,7 @@ class Authors(webapp.RequestHandler):
                         'sign_in': users.create_login_url(self.request.uri),
                         'sign_out': users.create_logout_url(self.request.uri)
                         }
-        path = os.path.join(os.path.dirname(__file__), '../templates/authors.html')
-        self.response.out.write(template.render(path, template_values))
+        self.response.out.write(template.render('templates/authors.html', template_values))
         
 class Author(webapp.RequestHandler):
     def get(self):
@@ -310,8 +295,7 @@ class Author(webapp.RequestHandler):
                         'sign_out': users.create_logout_url(self.request.uri),
                         'author':author
                         }
-        path = os.path.join(os.path.dirname(__file__), '../templates/author.html')
-        self.response.out.write(template.render(path, template_values))
+        self.response.out.write(template.render('templates/author.html', template_values))
         
 class Mine(webapp.RequestHandler):
     def get(self):
@@ -328,5 +312,4 @@ class Mine(webapp.RequestHandler):
                         'sign_out': users.create_logout_url(self.request.host_url),
                         'author':author
                         }
-        path = os.path.join(os.path.dirname(__file__), '../templates/mine.html')
-        self.response.out.write(template.render(path, template_values))
+        self.response.out.write(template.render('templates/mine.html', template_values))
