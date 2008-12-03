@@ -11,7 +11,8 @@ class Program(db.Model):
     code = db.TextProperty()
     goal = db.StringProperty()
     notes = db.TextProperty()
-    date = db.DateTimeProperty(auto_now_add=True)
+    date = db.DateTimeProperty(auto_now_add=True) #creation date
+    modified = db.DateTimeProperty(auto_now=True)
     scp_code = db.TextProperty()
     svg_tree = db.TextProperty()
     
