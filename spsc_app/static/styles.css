@@ -58,8 +58,12 @@ pre.code {
 	width: 100%;
 }
 
-.user, navbar {
+.user, .navbar {
 	white-space: nowrap;
+}
+
+.navbar {
+	margin-right: 30px;	
 }
 
 h2 {
