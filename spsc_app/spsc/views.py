@@ -294,6 +294,26 @@ class Get(webapp.RequestHandler):
                 self.response.out.write(template.render('templates/program.html', template_values))
         except db.BadKeyError:
             self.redirect('/')
+    def post(self):
+        key_name = self.request.get('key')
+        action = self.request.get('action')
+        if action == 'Delete':
+            comment_key = self.request.get('comment_key')
+            comment = models.Comment.get(db.Key(comment_key))
+            comment.delete()
+            self.redirect('/view?key=' + key_name)
+            return
+        try:
+            program = models.Program.get(db.Key(key_name))
+            if program:
+                comment_text = self.request.get('comment')
+                user = users.get_current_user()
+                author = models.get_author_for_user(user)
+                comment = models.Comment(program = program, author = author, text = comment_text)
+                comment.put()
+                self.redirect('/view?key=' + key_name)
+        except db.BadKeyError:
+            self.redirect('/')
 
 class Delete(webapp.RequestHandler):
     def get(self):

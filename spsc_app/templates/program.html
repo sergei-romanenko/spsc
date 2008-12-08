@@ -22,32 +22,59 @@
 			{%if program.svg_tree%}
 			<object type="image/svg+xml" data="svg?key={{program.key}}" height="{{svg_height}}px" width="{{svg_width}}px">SVG</object>
 			{%endif%}
-		<div class="hidden-form">
-			<table>
-			<tr>
-    		{% ifequal program.author.user user %}
-    		<td>
-			<form action="/edit">
-			<input name="key" type="hidden" value="{{ program.key }}"/>
-			<input type="submit" value="Edit" /></form>
-			</td>
-			<td>
-			<form action="/delete">
-			<input name="key" type="hidden" value="{{ program.key }}"/>
-			<input type="submit" value="Delete" /></form>
-			</td>
-    		{% endifequal %}
-    		<td>
-			<form action="/supercompiler" method="post">
-			<input name="code" type="hidden" value="{{ program.code }}"/>
-			<input name="goal" type="hidden" value="{{ program.goal }}"/>
-			<input name="action" type="hidden" value="Supercompile"/>
-			<input type="submit" value="Load Into Supercompiler" /></form>
-			</td>
-    		</tr>
-    		</table>
- 		</div>
+			<div class="hidden-form">
+				<table>
+				<tr>
+	    		{% ifequal program.author.user user %}
+	    		<td>
+				<form action="/edit">
+				<input name="key" type="hidden" value="{{ program.key }}"/>
+				<input type="submit" value="Edit" /></form>
+				</td>
+				<td>
+				<form action="/delete">
+				<input name="key" type="hidden" value="{{ program.key }}"/>
+				<input type="submit" value="Delete" /></form>
+				</td>
+	    		{% endifequal %}
+	    		<td>
+				<form action="/supercompiler" method="post">
+				<input name="code" type="hidden" value="{{ program.code }}"/>
+				<input name="goal" type="hidden" value="{{ program.goal }}"/>
+				<input name="action" type="hidden" value="Supercompile"/>
+				<input type="submit" value="Load Into Supercompiler" /></form>
+				</td>
+	    		</tr>
+	    		</table>
+	 		</div>
 		</div>
 	</div>
+	{%if user%}
+ 		<div>Enter a comment:</div>
+ 		<form action="/view" method="post">
+ 		<input name="key" type="hidden" value="{{ program.key }}"/>
+ 		<table>
+ 		<tr><td><textarea name="comment" rows="6" cols="80"></textarea></td></tr>
+ 		<tr><td><input name="action" value="Submit" type="submit"></td></tr>
+ 		</table>
+ 		</form>
+	{%endif%}
+	{% for comment in program.comments %}
+		<div class="comment">
+		<div class="summary">
+			<span class="program-name">comment</span> by 
+			<a href ="/author?key={{comment.author.key}}"/> {{ comment.author.user.nickname }}</a> 
+			<span class="program-date">{{ comment.created|date:"jS F Y H:i" }}</span> 
+		</div>
+		<div class="comment-text">{{comment.text}}</div>
+		{% ifequal comment.author.user user %}
+			<form action="/view" method="post">
+			<input name="key" type="hidden" value="{{ program.key }}"/>
+ 			<input name="comment_key" type="hidden" value="{{ comment.key }}"/>
+ 			<input name="action" value="Delete" type="submit">
+ 			</form>
+		{% endifequal %}
+		</div>
+	{% endfor %}
     {% endif %}
 {%endblock%}

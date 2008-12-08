@@ -102,3 +102,12 @@ table.programs td {
 table.programs tr.even td {
   background-color: #f9f9f9;
 }
+
+.comment {
+	margin-top: 15px;
+}
+
+.comment-text {
+	margin-top: 8px;
+	margin-bottom: 8px;
+}

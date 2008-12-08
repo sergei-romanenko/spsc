@@ -16,6 +16,13 @@ class Program(db.Model):
     scp_code = db.TextProperty()
     svg_tree = db.TextProperty()
     
+class Comment(db.Model):
+    program = db.ReferenceProperty(Program, collection_name='comments')
+    text = db.TextProperty()
+    author = db.ReferenceProperty(Author)
+    created = db.DateTimeProperty(auto_now_add=True) #creation date
+    modified = db.DateTimeProperty(auto_now=True)
+    
 def get_author_for_user(user):
     author = db.Query(Author).filter('user =', user).get()
     author = Author.get_by_key_name(user.email())
