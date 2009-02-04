@@ -1,17 +1,4 @@
-This project is developed under Eclipse using Web Tools Platform (http://www.eclipse.org/webtools/).
-
-Because this project is open source one and of small size it seems to be illogical
-to place third-party libraries inside this project.
+This project is developed under Eclipse using Web Tools Platform (http://www.eclipse.org/webtools/) 
+and Eclipse Scala Plugin v2.7.3 (http://www.scala-lang.org/node/94)
 
 You need to register Apache Tomcat 5.5 Server under name "tomcat5.5"
-
-In order to build/develop this project using Eclipse you need to place following libraries (jar-files)
-into /spsc_web/WebContent/WEB-INF/lib:
-
-scala-library.jar                  (http://scala-lang.org)
-lift-webkit-0.8.jar                (http://scala-tools.org/repo-releases/net/liftweb/lift-webkit/0.8/lift-webkit-0.8.jar)
-log4j-{version}.jar                (http://logging.apache.org/log4j/)
-spsc_{version}.jar                 you need to build it from project spsc 
-commons-fileupload-{version}.jar   (http://commons.apache.org/fileupload/)
-
-Please note that lift v0.8 is not compatible with Scala 2.7.1. You need to build spsc under Scala 2.7.1.
