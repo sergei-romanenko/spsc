@@ -1,66 +1,67 @@
 <?xml version="1.0"?>
 
-<project name="spsc_web" default="all">
-
+<project name="stax-build" default="dist" basedir=".">
 	<description>
-    	Build spsc_web.jar 
+               Stax application build file
     </description>
+	<property file="stax.properties" />
+	<property name="dist" location="dist" />
+	<property name="deploy.file" location="${dist}/stax-deploy.ear" />
 
-	<property file="../spsc/build_spsc.properties" />
 
-	<property name="scala-compiler.jar" value="${scala.home}/lib/scala-compiler.jar" />
-	<property name="scala-library.jar" value="${scala.home}/lib/scala-library.jar" />
+	<property name="war.file" location="spsc_web.war" />
 
-	<path id="scala.classpath">
-		<pathelement location="${scala-compiler.jar}" />
-		<pathelement location="${scala-library.jar}" />
+	<property name="stax.appxml" location="stax-application.xml" />
+
+	<path id="staxtasks.classpath">
+		<fileset dir="${stax.home}/lib">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${stax.home}/groovy/lib">
+			<include name="*.jar" />
+		</fileset>
 	</path>
-	<property name="src.dir" value="src" />
-	<property name="lib_dir" value="WebContent/WEB-INF/lib" />
-	<property name="webinf_dir" value="WebContent/WEB-INF" />
-	<property name="webxml_file" value="${webinf_dir}/web.xml" />
 
-	<property name="dist_dir" value="dist" />
-	<property name="classes_dir" value="dist/classes" />
-
-	<property name="warname" value="spsc_web.war" />
-
-	<taskdef resource="scala/tools/ant/antlib.xml">
-		<classpath refid="scala.classpath" />
-	</taskdef>
-
-	<target name="all" depends="clean, prepare, compile, war">
-		<echo>Build completed successfully</echo>
+	<target name="clean" description="clean up">
+		<delete dir="${dist}" />
 	</target>
 
-	<target name="clean">
-		<delete dir="${dist_dir}" />
+	<target name="dist" description="generate the distribution">
+		<mkdir dir="${dist}" />
+		<mkdir dir="${dist}/conf" />
+		<copy file="${war.file}" tofile="${dist}/webapp.war" />
+		<copy file="${stax.appxml}" tofile="${dist}/conf/stax-application.xml" />
+
+		<delete file="${dist}/conf/application.xml" />
+		<echo file="${dist}/conf/application.xml">
+			<![CDATA[<!DOCTYPE application PUBLIC "-//Sun Microsystems, Inc.//DTD J2EE Application 1.2//EN" "http://java.sun.com/j2ee/dtds/application_1_2.dtd">
+			<application>
+				<module>
+					<web>
+						<web-uri>webapp.war</web-uri>
+						<context-root>
+						</context-root>
+					</web>
+				</module>
+			</application> ]]>
+               </echo>
+
+
+		<jar destfile="${deploy.file}">
+			<metainf dir="${dist}/conf">
+				<include name="stax-application.xml" />
+				<include name="application.xml" />
+			</metainf>
+			<zipfileset dir="${dist}">
+				<include name="webapp.war" />
+			</zipfileset>
+		</jar>
 	</target>
 
-	<target name="prepare" depends="clean">
-		<mkdir dir="${dist_dir}" />
-		<mkdir dir="${classes_dir}" />
-		<echo>Prepared</echo>
+	<target name="deploy" depends="dist" description="deploy the distribution to Stax">
+		<fail message="stax.username is not set" unless="stax.username" />
+		<fail message="stax.password is not set" unless="stax.password" />
+		<taskdef name="deploy" classname="com.staxnet.ant.DeployTask" classpathref="staxtasks.classpath" />
+		<deploy deployfile="${deploy.file}" username="${stax.username}" password="${stax.password}" />
 	</target>
-
-	<target name="compile" depends="prepare" description="compile code">
-		<scalac srcdir="${src.dir}" destdir="${classes_dir}">
-			<classpath>
-				<fileset dir="${lib_dir}">
-					<include name="*.jar" />
-				</fileset>
-			</classpath>
-			<include name="**/*.scala" />
-		</scalac>
-	</target>
-
-	<target name="war" depends="compile">
-		<war destfile="${dist_dir}/${warname}" webxml="${webxml_file}">
-			<webinf dir="${webinf_dir}" excludes="web.xml" />
-			<classes dir="${classes_dir}" />
-			<fileset dir="WebContent" excludes="WEB-INF/**/*"/>
-		</war>
-		<echo>Created war file.</echo>
-	</target>
-
 </project>
