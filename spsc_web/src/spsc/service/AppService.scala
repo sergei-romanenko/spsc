@@ -7,7 +7,7 @@ import spsc.SmallLanguageParsers._
 import scala.util.parsing.input.CharArrayReader
 
 object AppService {
-  val dispatcher: LiftRules.DispatchPf = {
+  val dispatcher: LiftRules.DispatchPF = {
     case Req(action::Nil, _, PostRequest) if action == "validate" || action == "run" => {
       () => {
         val result = SmallLanguageParsers.parseProgram(new CharArrayReader(S.param("program").openOr("").toCharArray))

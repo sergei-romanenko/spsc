@@ -27,7 +27,7 @@ class Boot {
                   Nil 
     LiftRules.setSiteMap(SiteMap(entries:_*))
     
-    LiftRules.addDispatchAfter(spsc.service.AppService.dispatcher)
+    LiftRules.dispatch.append(spsc.service.AppService.dispatcher)
   }
 }
 
