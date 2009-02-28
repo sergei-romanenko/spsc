@@ -135,16 +135,12 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
 object ResidualProgramGenerator{
   case class Signature(name: String, args: List[Variable])
   def generateResidualProgram(tree: ProcessTree) = new ResidualProgramGenerator(tree).generateProgram()
-  val digits = Array( 'a' , 'b' ,
-    'c' , 'd' , 'e' , 'f' , 'g' , 'h' ,
-    'i' , 'j' , 'k' , 'l' , 'm' , 'n' ,
-    'o' , 'p' , 'q' , 'r' , 's' , 't' ,
-    'u' , 'v' , 'w' , 'x' , 'y' , 'z');
+  val letters = "abcdefghijklmnopqrstuvwxyz".toArray
   
   def getVar(n: Int): Variable = {
     val sb = new StringBuilder
     for (s <- Integer.toString(n, 26)) {
-      sb.append(digits(Integer.parseInt("" + s, 26)))
+      sb.append(letters(Integer.parseInt("" + s, 26)))
     } 
     Variable(sb.toString)
   }

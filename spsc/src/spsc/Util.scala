@@ -15,19 +15,19 @@ object Util {
   }
   
   abstract sealed class FType
-  case class F extends FType
-  case class G extends FType
+  case object F extends FType
+  case object G extends FType
   
   def correctCalls(rawTerm: Term, program: Program): Term = {
     def cc(t: Term): Term = t match {
       case v: Variable => v
       case Constructor(name, args) => Constructor(name, args.map(cc))
       case FCall(name, args) => funType(name, program) match {
-        case F() => {
+        case F => {
           assume(program.getFFunction(name).args.size == args.size, "bad call: " + t);
           FCall(name, args.map(cc))
         }
-        case G() => {
+        case G => {
           assume(program.getGFunctions(name).head.args.size == args.size - 1, "bad call: " + t);
           GCall(name, cc(args.head), args.tail.map(cc))
         }
@@ -39,7 +39,7 @@ object Util {
   
   private def funType(name: String, program: Program): FType = program.definitions.find(_.name == name) match {
     case None => throw new IllegalArgumentException("Function " + name + " is undefined")
-    case Some(d) => d match {case f: FFunction => F(); case g: GFunction => G();}
+    case Some(d) => d match {case f: FFunction => F; case g: GFunction => G;}
   }
   
   def programFromString(input: String) = { 
