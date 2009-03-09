@@ -20,7 +20,7 @@ class SmallLanguageParsersTest {
   @Test def simple02(): Unit ={
     val programText = 
     """
-    |a(C) = C;
+    |a(C()) = C();
     """
     
     val expected = 
@@ -36,7 +36,7 @@ class SmallLanguageParsersTest {
   @Test def simple03(): Unit ={
     val programText = 
     """
-    |a(Nil, vs) = vs;
+    |a(Nil(), vs) = vs;
     |a(Cons(u, us), vs) = Cons(u, a(us, vs));
     """
         
@@ -58,7 +58,7 @@ class SmallLanguageParsersTest {
   @Test def simple04(): Unit ={
     val programText = 
     """
-    |a(Nil, vs) = b(vs);
+    |a(Nil(), vs) = b(vs);
     |a(Cons(u, us), vs) = Cons(u, a(us, vs));
     """
         

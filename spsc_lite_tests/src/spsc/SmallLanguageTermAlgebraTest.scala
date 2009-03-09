@@ -10,7 +10,7 @@ class SmallLanguageTermAlgebraTest {
   @Test def simpleHE() : Unit = {
     
     assertTrue(he(__("x"), __("x"))) //true: x<y
-    assertFalse(he(__("x"), __("Y"))) //false: x!<Y
+    assertFalse(he(__("x"), __("Y()"))) //false: x!<Y
     assertTrue(he(__("x"), __("Y(x)")))//true: x<Y(x) 
     
     // from Soerensen paper:
@@ -32,7 +32,7 @@ class SmallLanguageTermAlgebraTest {
   
   @Test def simpleEquivalent(): Unit = {
     // B = B
-    assertTrue(equivalent(__("B"), __("B")))
+    assertTrue(equivalent(__("B()"), __("B()")))
     
     // D(x, x) = D(y, y)
     assertTrue(equivalent(__("D(x, x)"), __("D(y, y)")))
@@ -46,17 +46,17 @@ class SmallLanguageTermAlgebraTest {
   
   @Test def simpleMSG(): Unit = {
     // A(B)^B = x
-    val msg0 = msg(__("A(B)"), __("B"))
+    val msg0 = msg(__("A(B())"), __("B()"))
     println(msg0)
     assertTrue(equivalent(msg0.term, __("x")))
     
     // C(B)^C(F(B)) = C(x)
-    val msg1 = msg(__("C(B)"), __("C(F(B))"))
+    val msg1 = msg(__("C(B())"), __("C(F(B()))"))
     println(msg1)
     assertTrue(equivalent(msg1.term, __("C(x)")))
 
     // D(B, B)^D(F(B), F(B)) = D(x, x)
-    val msg2 = msg(__("D(B, B)"), __("D(F(B), F(B))"))
+    val msg2 = msg(__("D(B(), B())"), __("D(F(B()), F(B()))"))
     println(msg2)
     assertTrue(equivalent(msg2.term, __("D(x, x)")))
   }
@@ -98,16 +98,16 @@ class SmallLanguageTermAlgebraTest {
   
   @Test def simpleInstanceOf(): Unit = {
     // A(x) <~ A(B); A(x){x:=B)=A(B)
-    assertTrue(instanceOf(__("A(x)"), __("A(B)")))
+    assertTrue(instanceOf(__("A(x)"), __("A(B())")))
                           
     // A(B) !<~ A(x);
-    assertFalse(instanceOf(__("A(B)"), __("A(x)")))
+    assertFalse(instanceOf(__("A(B())"), __("A(x)")))
   }
     
   @Test def simpleIncommensurable(): Unit = {
     
-    assertFalse(incommensurable(__("A(x)"), __("A(B)")))                         
+    assertFalse(incommensurable(__("A(x)"), __("A(B())")))                         
     
-    assertTrue(incommensurable(__("D(B, x)"), __("A(x)")))
+    assertTrue(incommensurable(__("D(B(), x)"), __("A(x)")))
   }
 }
