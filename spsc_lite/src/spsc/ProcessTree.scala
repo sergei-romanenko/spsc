@@ -6,18 +6,7 @@ object ProcessTree {
   def apply(expr: Expression) = 
     new ProcessTree(new Node(expr, null, Nil))
   
-  class Node(val expr: Expression, val in: Edge, var outs: List[Edge]) {
-    override def toString = toString("")
-      
-    def toString(indent: String): String = {
-      val sb = new StringBuilder(indent + "|__" + expr)
-      for (edge <- outs) {
-        sb.append("\n  " + indent + "|" + edge.substitution.toList.map(kv => kv._1 + "=" + kv._2).mkString("", ", ", ""))
-        sb.append("\n" + edge.child.toString(indent + "  "))
-      }
-      sb.toString
-    }    
-
+  class Node(val expr: Expression, val in: Edge, var outs: List[Edge]) {   
     def ancestors(): List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
 
     def isProcessed: Boolean = expr match {
@@ -51,9 +40,7 @@ object ProcessTree {
     }
   }
   
-  class Edge(val parent: Node, var child: Node, val substitution: Map[Variable, Term]) {
-    override def toString = "Edge("+ substitution + ", " + child + ")"
-  }
+  class Edge(val parent: Node, var child: Node, val substitution: Map[Variable, Term])
 }
 
 import ProcessTree._
