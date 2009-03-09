@@ -12,8 +12,6 @@ object SmallLanguageParsers extends STokenParsers with StrongParsers with Implic
   
   lexical.delimiters += ("(", ")", ",", "=", ";")
   
-  private def a[A](o: Option[List[A]]) : List[A] = null
-  
   private def variable: Parser[Variable] = 
     p(lident ^^ Variable)
   
