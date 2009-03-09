@@ -13,18 +13,8 @@ object ProcessTree {
     def isProcessed: Boolean = expr match {
       case Constructor(_, Nil) => true
       case v : Variable => true
-      case l: LetExpression => false
-      case _ => {
-        var edge = in
-        while (edge != null) {
-          val node1 = edge.parent
-          if (repeated != null) return true
-          edge = node1.in
-        }
-        false
-      }
+      case _ => repeated != null
     }
-    
   }
   
   class Edge(val parent: Node, var child: Node, val substitution: Map[Variable, Term])
