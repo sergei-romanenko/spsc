@@ -47,7 +47,7 @@ class ProcessTreeSVG(tree: ProcessTree) {
     def repeatEdges() : scala.xml.NodeBuffer = {
       val edges = new scala.xml.NodeBuffer
       for (n <- tree.leafs) {
-        val pn = n.getRepParent
+        val pn = n.repeated
         if (pn != null) {
           val (cx, cy, cw, ctw) = map(n)
           val (px, py, pw, ptw) = map(pn)

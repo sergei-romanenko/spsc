@@ -17,27 +17,14 @@ object ProcessTree {
         var edge = in
         while (edge != null) {
           val node1 = edge.parent
-          if (!isTrivial(node1.expr) && equivalent(expr.asInstanceOf[Term], node1.expr.asInstanceOf[Term])) return true
+          if (repeated != null) return true
           edge = node1.in
         }
         false
       }
     }
     
-    def getRepParent(): Node = expr match {
-      case Constructor(_, _) => null
-      case v : Variable => null
-      case l: LetExpression => null
-      case _ => {
-        var edge = in
-        while (edge != null) {
-          val node1 = edge.parent
-          if (!isTrivial(node1.expr) && equivalent(expr.asInstanceOf[Term], node1.expr.asInstanceOf[Term])) return node1
-          edge = node1.in
-        }
-        null
-      }
-    }
+    var repeated: Node = null
   }
   
   class Edge(val parent: Node, var child: Node, val substitution: Map[Variable, Term])
@@ -88,5 +75,3 @@ class ProcessTree {
   
   override def toString = rootNode.toString
 }
-
-

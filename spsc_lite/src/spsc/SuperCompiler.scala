@@ -74,13 +74,18 @@ class SuperCompiler(program: Program){
       if (isTrivial(beta.expr) || beta.ancestors.forall(n1 => isTrivial(n1.expr) || !strictHE(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term]))){
         drive(p, beta)
       } else {
-        val alpha = beta.ancestors.find(n1 => !isTrivial(n1.expr) && strictHE(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])).get
-        if (instanceOf(alpha.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])){
-          makeAbstraction(p, beta, alpha)
-        } else if (incommensurable(alpha.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])){
-          split(p, beta)
-        } else {
-          makeAbstraction(p, alpha, beta)
+        beta.ancestors.find(n1 => !isTrivial(n1.expr) && equivalent(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])) match {
+          case Some(a) => beta.repeated = a
+          case None => {
+            val alpha = beta.ancestors.find(n1 => !isTrivial(n1.expr) && strictHE(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])).get
+            if (instanceOf(alpha.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])){
+              makeAbstraction(p, beta, alpha)
+            } else if (incommensurable(alpha.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])){
+              split(p, beta)
+            } else {
+              makeAbstraction(p, alpha, beta)
+            }
+          }
         }
       }
     }    
