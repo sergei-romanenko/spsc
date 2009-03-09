@@ -12,12 +12,12 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
   private val defs = new scala.collection.mutable.ListBuffer[Definition]
   private val fnames = scala.collection.mutable.Set[String]()
   
-  private val rootName = tree.rootNode.expr.asInstanceOf[FCall].name
+  private val rootName = tree.root.expr.asInstanceOf[FCall].name
   
   private def generateProgram(): Program = {
-    val t = unfold(tree.rootNode)
-    val rootCall = tree.rootNode.expr.asInstanceOf[FCall]
-    signatures.get(tree.rootNode) match {
+    val t = unfold(tree.root)
+    val rootCall = tree.root.expr.asInstanceOf[FCall]
+    signatures.get(tree.root) match {
       case None => defs += FFunction(rootCall.name, rootCall.args.map(_.asInstanceOf[Variable]), t)
       case _ =>
     }    
@@ -52,7 +52,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
         (n.expr match {case fc_ : FCall => equivalent(fc, fc_); case _=>false})) match {
           case None => unfold(node.outs.head.child)
           case Some(fc1) => {
-            val newName = if (node == tree.rootNode) fc.name else rename(fc.name, node == tree.rootNode)
+            val newName = if (node == tree.root) fc.name else rename(fc.name, node == tree.root)
             val signature = Signature(newName, getVars(fc).toList)
             signatures(node) = signature
             val result = unfold(node.outs.head.child)

@@ -3,7 +3,7 @@ package spsc;
 class ProcessTreeSVG(tree: ProcessTree) {
   var map = Map[ProcessTree.Node, Tuple4[Int, Int, Int, Int]]()
   def treeToSVG() = 
-    <svg:svg xmlns:svg="http://www.w3.org/2000/svg" width={"" + width(tree.rootNode)} height={"" + height(tree.rootNode)} >
+    <svg:svg xmlns:svg="http://www.w3.org/2000/svg" width={"" + width(tree.root)} height={"" + height(tree.root)} >
     <svg:defs>
     <svg:style type="text/css">
     <![CDATA[
@@ -12,7 +12,7 @@ class ProcessTreeSVG(tree: ProcessTree) {
     line {stroke: black; stroke-width: 1}
     path {fill:none; stroke:black;stroke-width:1;stroke-dasharray: 4,4;}]]></svg:style>
     </svg:defs>
-    {nodeToSVG(tree.rootNode,0, 0)}
+    {nodeToSVG(tree.root,0, 0)}
     {repeatEdges()}
     </svg:svg>
     
