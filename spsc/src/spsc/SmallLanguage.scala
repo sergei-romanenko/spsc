@@ -20,7 +20,7 @@ import scala.util.parsing.input.Positional
     override def toString = name + args.mkString("(", ", " ,")")
   }
   case class GCall(name: String, arg0: Term, args: List[Term]) extends Call {
-    override def toString = name + "(" + arg0 + (args match {case Nil => ""; case _ => ", " + args.mkString(", ")})  + ")"
+    override def toString = name + (arg0 :: args).mkString("(", ", " ,")")
   }
   
   // Patterns are used in g-functions.
@@ -35,8 +35,7 @@ import scala.util.parsing.input.Positional
     override def toString = name + args.mkString("(", ", " ,")") + " = " + term + ";"
   }
   case class GFunction(name: String, arg0: Pattern, args: List[Variable], term: Term) extends Definition {
-    override def toString = 
-      name + "(" + arg0 + (args match {case Nil => ""; case _ => ", " + args.mkString(", ")})  + ") = " + term + ";"  
+    override def toString = name + (arg0 :: args).mkString("(", ", " ,")")  + " = " + term + ";"  
   }
   
   case class Program(definitions : List[Definition]) {
