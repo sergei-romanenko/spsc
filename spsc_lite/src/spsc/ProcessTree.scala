@@ -8,7 +8,8 @@ object ProcessTree {
   
   class Node(val expr: Expression, val in: Edge, var outs: List[Edge]) {   
     def ancestors(): List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
-
+    var repeated: Node = null
+    
     def isProcessed: Boolean = expr match {
       case Constructor(_, Nil) => true
       case v : Variable => true
@@ -24,7 +25,6 @@ object ProcessTree {
       }
     }
     
-    var repeated: Node = null
   }
   
   class Edge(val parent: Node, var child: Node, val substitution: Map[Variable, Term])
