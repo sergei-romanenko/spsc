@@ -31,7 +31,7 @@ object SmallLanguageParsers extends STokenParsers with ImplicitConversions {
       case _ => 
     }
     def walkTerm(t: Term): Term = t match {
-      case v @ Variable(_) => v
+      case v@Variable(_) => v
       case c@Constructor(name, args) => Constructor(name, args map walkTerm)
       case fc@FCall (name, args) =>
         if (gs.contains(name))
