@@ -10,7 +10,7 @@ case class Program(defs : List[Definition]) extends AProgram{
     case f @ FFunction(name, _, _) => fs += (name -> f)
     case g @ GFunction(name, arg0, _, _) => {
       gs += ((name, arg0.name) -> g)
-      gMap(name) = g :: gMap.getOrElse(name, Nil)
+      gMap = gMap.update(name, g :: gMap.getOrElse(name, Nil))
     }
   }
   

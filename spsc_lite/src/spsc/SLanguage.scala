@@ -33,7 +33,7 @@ case class GFunction(name: String, arg0: Pattern, args: List[Variable], term: Te
   override def toString = name + (arg0 :: args).mkString("(", ", " ,")")  + " = " + term + ";"  
 }
 
-abstract case class  AProgram() {
+abstract class AProgram {
   def getFFunction(name: String): FFunction
   def getGFunction(name: String, cname: String): GFunction
   def isDefinedF(name: String): Boolean
