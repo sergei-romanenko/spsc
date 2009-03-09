@@ -8,21 +8,14 @@ class SuperCompilerTest {
   
   @Test def processSamples(): Unit =
   {
-    
-    SuperCompilerApp.main(Array("-i", "input/append.sl",
-                                "-f", "append2", 
-                                "-t", "output/append2.svg",
-                                "-p", "output/append2.sl"))
-    SuperCompilerApp.main(Array("-i", "input/append.sl",
-                                "-f", "append3",
-                                "-t", "output/append3.svg",
-                                "-p", "output/append3.sl"))
 
-    for (i <- 1 to 21) {
+    for (i <- 1 to 22) {
+      if (i!=5)
       SuperCompilerApp.main(Array("-i", "input/test.sl",
           "-f", "test" + i,
           "-t", "output/test" + i + ".svg",
           "-p", "output/test" + i + ".sl"))
+      print(i)
     }
   }
 }
