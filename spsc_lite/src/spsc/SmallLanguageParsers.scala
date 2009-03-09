@@ -21,50 +21,36 @@ object SmallLanguageParsers extends STokenParsers with ImplicitConversions {
   private def call = lident ~ ("(" ~> repsep(term, ",") <~ ")") ^^ FCall
   private def constructor = uident ~ ((("(" ~> repsep(term, ",") <~ ")")?) ^^ {_.getOrElse(Nil)} ) ^^ Constructor  
   
-  def parseProgram(r: Reader[Char]): List[Definition] = 
-    validate(program(new lexical.Scanner(r)))
-
+  def parseProgram(r: Reader[Char]): List[Definition] = postProcess(program(new lexical.Scanner(r)).get)
   def parseTerm(r: Reader[Char]): ParseResult[Term] = term(new lexical.Scanner(r))
   
-  def validate(rawResult: ParseResult[List[Definition]]): List[Definition] = {      
-    val rawProgram = rawResult.get      
-    val gs: Set[String] = Set.empty
-      
+  def postProcess(rawProgram: List[Definition]): List[Definition] = {   
+    val gs: Set[String] = Set.empty  
     for (definition <- rawProgram) definition match {
       case GFunction(name, _, _, _) => gs += name
       case _ => 
     }
-
-    def validate(definition: Definition): Definition =  {
-      def validateTerm(t: Term): Term = t match {
-        case v @ Variable(_) => v
-        case c@Constructor(name, args) => Constructor(name, args map validateTerm)
-        case fc@FCall (name, args) =>
-          if (gs.contains(name)) {
-            GCall(name, validateTerm(args.head), args.tail map validateTerm)
-          } else {
-            FCall(name, args map validateTerm)
-          }
-        }
-      definition match {
-        case FFunction(name, args, rawTerm) => FFunction(name, args, validateTerm(rawTerm))
-        case GFunction(name, arg0, args, rawTerm) => GFunction(name, arg0, args, validateTerm(rawTerm))
-      }      
-    }
-    rawProgram map validate
+    def walkTerm(t: Term): Term = t match {
+      case v @ Variable(_) => v
+      case c@Constructor(name, args) => Constructor(name, args map walkTerm)
+      case fc@FCall (name, args) =>
+        if (gs.contains(name))
+          GCall(name, walkTerm(args.head), args.tail map walkTerm)
+        else
+          FCall(name, args map walkTerm)
+	}
+    def walkFun(definition: Definition): Definition = definition match {
+      case FFunction(name, args, rawTerm) => FFunction(name, args, walkTerm(rawTerm))
+      case GFunction(name, arg0, args, rawTerm) => GFunction(name, arg0, args, walkTerm(rawTerm))
+    }      
+    rawProgram map walkFun
   }
-  
 }
 
 class STokenParsers extends StdTokenParsers {  
   type Tokens = StdTokens
   val lexical = new StdLexical
-  
   import lexical.Identifier
-  
-  def uident: Parser[String] = 
-    elem("uidentifier", x => x.isInstanceOf[Identifier] && x.chars.charAt(0).isUpperCase) ^^ (_.chars)
-    
-  def lident: Parser[String] = 
-    elem("lidentifier", x => x.isInstanceOf[Identifier] && x.chars.charAt(0).isLowerCase) ^^ (_.chars)  
+  def uident: Parser[String] = elem("uidentifier", x => x.isInstanceOf[Identifier] && x.chars.charAt(0).isUpperCase) ^^ (_.chars)
+  def lident: Parser[String] = elem("lidentifier", x => x.isInstanceOf[Identifier] && x.chars.charAt(0).isLowerCase) ^^ (_.chars)  
 }
