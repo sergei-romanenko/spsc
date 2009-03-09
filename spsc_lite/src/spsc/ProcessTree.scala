@@ -18,8 +18,19 @@ object ProcessTree {
     
     def leafs(): List[Node]= outs match {
       case Nil => this :: Nil
-      case _ => List.flatten(outs map {_.child.leafs()})
+      case _ => List.flatten((outs map {_.child.leafs()}):List[List[Node]])
     }
+    
+    override def toString = toString("")
+      
+    def toString(indent: String): String = {
+      val sb = new StringBuilder(indent + "|__" + expr)
+      for (edge <- outs) {
+        sb.append("\n  " + indent + "|" + edge.substitution.toList.map(kv => kv._1 + "=" + kv._2).mkString("", ", ", ""))
+        sb.append("\n" + edge.child.toString(indent + "  "))
+      }
+      sb.toString
+    }   
   }
   
   class Edge(val parent: Node, var child: Node, val substitution: Map[Variable, Term])
@@ -27,14 +38,18 @@ object ProcessTree {
 
 import ProcessTree._
 class ProcessTree(var root: Node) {
-  var leafs = root :: Nil
-  
+  override def toString = root.toString
+  def leafs = {
+    val res = root.leafs
+    println(res)
+    res
+  }
   def addChildren(node: Node, children: List[Pair[Term, Map[Variable, Term]]]) = {
-    leafs = leafs.remove(_ == node)
+    //leafs = leafs.remove(_ == node)
     node.outs = for (pair <- children) yield {
       val edge = new Edge(node, null, pair._2)
       val childNode = new Node(pair._1, edge, Nil)
-      leafs = childNode :: leafs
+      //leafs = childNode :: leafs
       edge.child = childNode
       edge
     }
@@ -42,8 +57,8 @@ class ProcessTree(var root: Node) {
   
   def replace(node: Node, exp: Expression) = {
     // the node can be not leaf - but from any part of tree
-    leafs = leafs.remove(_ == node)
-    leafs = leafs.remove(_.ancestors.contains(node))
+    //leafs = leafs.remove(_ == node)
+    //leafs = leafs.remove(_.ancestors.contains(node))
     val childNode = new Node(exp, node.in, Nil)
     // the node can be root node:
     if (node == root){
@@ -51,7 +66,7 @@ class ProcessTree(var root: Node) {
     } else {
       node.in.child = childNode
     }
-    leafs = childNode :: leafs
+    //leafs = childNode :: leafs
   }
   
   def isClosed = leafs.forall(_.isProcessed)

@@ -15,9 +15,6 @@ class SuperCompiler(program: Program){
     
     // f(...)
     case FCall(name, args)  => {
-      if (!program.isDefinedF(name)){
-        return Nil
-      }
       val originalDefinition = program.getFFunction(name)
       val renamedDefinition = renameVarsInFFunction(originalDefinition)
       val substitution: Map[Variable, Term] = 
@@ -28,9 +25,6 @@ class SuperCompiler(program: Program){
     
     // g(C(...), ...)
     case GCall(name, Constructor(cname, cargs), args) => {
-      if (!program.isDefinedG(name, cname)){
-        return Nil
-      }
       val originalDefinition = program.getGFunction(name, cname)
       val renamedDefinition = renameVarsInGFunction(originalDefinition)     
       val substitution: Map[Variable, Term] = 
@@ -70,12 +64,14 @@ class SuperCompiler(program: Program){
   def buildProcessTree(e: Expression): ProcessTree = {
     val p = ProcessTree(e)
     while (!p.isClosed) {
+      println()
+      println(p)
       val beta = p.leafs.find(!_.isProcessed).get
       if (isTrivial(beta.expr) || beta.ancestors.forall(n1 => isTrivial(n1.expr) || !strictHE(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term]))){
         drive(p, beta)
       } else {
         beta.ancestors.find(n1 => !isTrivial(n1.expr) && equivalent(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])) match {
-          case Some(a) => beta.repeated = a
+          case Some(alpha) => beta.repeated = alpha
           case None => {
             val alpha = beta.ancestors.find(n1 => !isTrivial(n1.expr) && strictHE(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])).get
             if (instanceOf(alpha.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])){
@@ -94,6 +90,7 @@ class SuperCompiler(program: Program){
   
   def drive(t: ProcessTree, n: Node): Unit = {
     t.addChildren(n, driveExp(n.expr))
+    println()
   }
   
   def makeAbstraction(t: ProcessTree, alpha: Node, beta: Node): Unit = {

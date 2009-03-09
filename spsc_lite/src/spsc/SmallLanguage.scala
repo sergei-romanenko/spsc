@@ -16,8 +16,6 @@ case class Program(defs : List[Definition]) extends AProgram{
   
   def getFFunction(name: String) = fs(name)
   def getGFunction(name: String, cname: String) = gs((name, cname)) 
-  def isDefinedF(name: String) = fs.contains(name)
-  def isDefinedG(name: String, cname: String) = gs.contains((name, cname))
   def getGFunctions(name: String) = gMap(name)
   
   override def toString = defs.mkString("\n")

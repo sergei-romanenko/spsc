@@ -36,7 +36,5 @@ case class GFunction(name: String, arg0: Pattern, args: List[Variable], term: Te
 abstract class AProgram {
   def getFFunction(name: String): FFunction
   def getGFunction(name: String, cname: String): GFunction
-  def isDefinedF(name: String): Boolean
-  def isDefinedG(name: String, cname: String): Boolean
   def getGFunctions(name: String): List[GFunction]
 }
