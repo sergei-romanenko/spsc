@@ -37,7 +37,7 @@ object Util {
     cc(rawTerm)
   }
   
-  private def funType(name: String, program: Program): FType = program.definitions.find(_.name == name) match {
+  private def funType(name: String, program: Program): FType = program.defs.find(_.name == name) match {
     case None => throw new IllegalArgumentException("Function " + name + " is undefined")
     case Some(d) => d match {case f: FFunction => F; case g: GFunction => G;}
   }
