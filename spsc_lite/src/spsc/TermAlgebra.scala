@@ -49,11 +49,11 @@ object TermAlgebra {
   def strongMsg(term1: ATerm, term2: ATerm): Generalization = {
     val g = msg(term1, term2)
     if (equivalent(g.term, term1)){
-      val term = g.dSub.foldLeft(g.term)((t, s) => applySubstitution(t, (s._1, s._2)))
+      val term = g.dSub.foldLeft(g.term)((t, s) => applySub(t, (s._1, s._2)))
       val newS = g.dSub.map(triple => (triple._2.asInstanceOf[AVar], triple._3))
       Generalization(term, Nil, newS)
     } else  if (equivalent(g.term, term2)){
-      val term = g.dSub.foldLeft(g.term)((t, s) => applySubstitution(t, (s._1, s._3)))
+      val term = g.dSub.foldLeft(g.term)((t, s) => applySub(t, (s._1, s._3)))
       val newS = g.dSub.map(triple => (triple._3.asInstanceOf[AVar], triple._2))
       Generalization(term, newS, Nil)
     } else {
@@ -70,7 +70,7 @@ object TermAlgebra {
       case (v, s1 @ ASym(name1, args1), s2 @ ASym(name2, args2)) if name1 == name2 => {
         val newVars = args1.map(arg => nextVar())
         val addDSubs = ((newVars zip args1) zip (newVars zip args2)) map (pair => (pair._1._1, pair._1._2, pair._2._2)) 
-        t = applySubstitution(t, (v, ASym(name1, newVars)))
+        t = applySub(t, (v, ASym(name1, newVars)))
         l2 ++= addDSubs
       }         
       case d => l2 += d 
@@ -90,13 +90,13 @@ object TermAlgebra {
     g.dSub.foldRight((List[DoubleSubstitution](), List[DoubleSubstitution]()))(f1) match {
       case (Nil, _) => g
       case ((s @ (v, _, _)) :: o1, o2) => 
-        Generalization2(o1.foldRight(g.term)((ds, t) => applySubstitution(t, (ds._1, v))), s :: o2)
+        Generalization2(o1.foldRight(g.term)((ds, t) => applySub(t, (ds._1, v))), s :: o2)
     }
   }
   
-  private def applySubstitution(t: ATerm, sub: Substitution): ATerm = t match {
+  private def applySub(t: ATerm, sub: Substitution): ATerm = t match {
     case v: AVar => if (v == sub._1) sub._2 else v
-    case ASym(name, args) => ASym(name, args.map(applySubstitution(_, sub)))
+    case ASym(name, args) => ASym(name, args.map(applySub(_, sub)))
   }
   
   def equivalent(term1: ATerm, term2: ATerm): Boolean = {

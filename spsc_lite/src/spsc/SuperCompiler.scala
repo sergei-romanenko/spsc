@@ -1,7 +1,7 @@
 package spsc;
 
 import SmallLanguageTermAlgebra._
-import Util.applySubstitution
+import Util.applySub
 
 class SuperCompiler(program: Program){
   def driveE(expr: Expression): List[(Term, Map[Variable, Term])] = expr match {
@@ -10,19 +10,19 @@ class SuperCompiler(program: Program){
       args.map((_, Map()))
     case FCall(name, args)  => {
       val fDef = program.getFFunction(name)
-      List((applySubstitution(fDef.term, Map(fDef.args zip args : _*)), Map()))
+      List((applySub(fDef.term, Map(fDef.args zip args : _*)), Map()))
     }
     case GCall(name, Constructor(cname, cargs), args) => {
       val gDef = program.getGFunction(name, cname)  
-      List((applySubstitution(gDef.term, Map(((gDef.arg0.args zip cargs) ::: (gDef.args zip args)) : _*)), Map()))
+      List((applySub(gDef.term, Map(((gDef.arg0.args zip cargs) ::: (gDef.args zip args)) : _*)), Map()))
     }
     case gCall @ GCall(name, v : Variable, args) => 
       for (g <- program.getGFunctions(name);
         val c = Constructor(g.arg0.name, g.arg0.args.map(v => nextVar));
         val sub = Map(v -> c))
-        yield (driveE(applySubstitution(gCall, sub)).head._1, sub)
+        yield (driveE(applySub(gCall, sub)).head._1, sub)
     case GCall(name, call : Call, args) =>
-      driveE(call).map(p => (GCall(name, p._1, args.map(applySubstitution(_, p._2))), p._2))
+      driveE(call).map(p => (GCall(name, p._1, args.map(applySub(_, p._2))), p._2))
   }
   
   
@@ -32,31 +32,31 @@ class SuperCompiler(program: Program){
       args.map((_, Map()))
     case FCall(name, args)  => {
       val fDef = program.getFFunction(name)
-      List((applySubstitution(fDef.term, Map(fDef.args zip args : _*)), Map()))
+      List((applySub(fDef.term, Map(fDef.args zip args : _*)), Map()))
     }
     case GCall(name, Constructor(cname, cargs), args) => {
       val gDef = program.getGFunction(name, cname)  
-      List((applySubstitution(gDef.term, Map(((gDef.arg0.args zip cargs) ::: (gDef.args zip args)) : _*)), Map()))
+      List((applySub(gDef.term, Map(((gDef.arg0.args zip cargs) ::: (gDef.args zip args)) : _*)), Map()))
     }
     case gCall @ GCall(name, v : Variable, args) => 
       for (g <- program.getGFunctions(name);
         val c = Constructor(g.arg0.name, g.arg0.args.map(v => nextVar));
         val sub = Map(v -> c))
-        yield (driveExp(applySubstitution(gCall, sub)).head._1, sub)
+        yield (driveExp(applySub(gCall, sub)).head._1, sub)
     case GCall(name, call : Call, args) =>
-      driveExp(call).map(p => (GCall(name, p._1, args.map(applySubstitution(_, p._2))), p._2))
+      driveExp(call).map(p => (GCall(name, p._1, args.map(applySub(_, p._2))), p._2))
     case LetExpression(term, bindings) => 
       (term, Map[Variable, Term]()) :: (for (pair <- bindings) yield Pair(pair._2, Map[Variable, Term]())).toList
   }
   
   def renameVarsInFFunction(f: FFunction): FFunction = {
     val renaming = Map() ++ f.args.map(v => (v, nextVar())) 
-    FFunction(f.name, f.args.map(renaming(_)), applySubstitution(f.term, renaming))    
+    FFunction(f.name, f.args.map(renaming(_)), applySub(f.term, renaming))    
   }
   
   def renameVarsInGFunction(g: GFunction): GFunction = {
     val renaming = Map() ++ (g.args.map(v => (v, nextVar())) ::: g.arg0.args.map(v => (v, nextVar()))) 
-    GFunction(g.name, Pattern(g.arg0.name, g.arg0.args.map(renaming(_))), g.args.map(renaming(_)), applySubstitution(g.term, renaming))    
+    GFunction(g.name, Pattern(g.arg0.name, g.arg0.args.map(renaming(_))), g.args.map(renaming(_)), applySub(g.term, renaming))    
   }
   
   // heart of supercompiler

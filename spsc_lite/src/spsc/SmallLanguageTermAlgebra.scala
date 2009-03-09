@@ -59,19 +59,19 @@ object SmallLanguageTermAlgebra {
       case (v, s1 @ Constructor(name1, args1), s2 @ Constructor(name2, args2)) if name1 == name2 => {
         val newVars = args1.map(arg => nextVar())
         val addDSubs = ((newVars zip args1) zip (newVars zip args2)) map (pair => (pair._1._1, pair._1._2, pair._2._2)) 
-        t = applySubstitution(t, (v, Constructor(name1, newVars)))
+        t = applySub(t, (v, Constructor(name1, newVars)))
         l2 ++= addDSubs
       }
       case (v, s1 @ FCall(name1, args1), s2 @ FCall(name2, args2)) if name1 == name2 => {
         val newVars = args1.map(arg => nextVar())
         val addDSubs = ((newVars zip args1) zip (newVars zip args2)) map (pair => (pair._1._1, pair._1._2, pair._2._2)) 
-        t = applySubstitution(t, (v, FCall(name1, newVars)))
+        t = applySub(t, (v, FCall(name1, newVars)))
         l2 ++= addDSubs
       }
       case (v, s1 @ GCall(name1, arg01, args1), s2 @ GCall(name2, arg02, args2)) if name1 == name2 => {
         val newVars = (arg01 :: args1).map(arg => nextVar())
         val addDSubs = ((newVars zip (arg01 :: args1)) zip (newVars zip (arg02 :: args2))) map (pair => (pair._1._1, pair._1._2, pair._2._2)) 
-        t = applySubstitution(t, (v, GCall(name1, newVars.head, newVars.tail)))
+        t = applySub(t, (v, GCall(name1, newVars.head, newVars.tail)))
         l2 ++= addDSubs
       }
       case d => l2 += d
@@ -91,15 +91,15 @@ object SmallLanguageTermAlgebra {
     g.dSub.foldRight((List[DoubleSubstitution](), List[DoubleSubstitution]()))(f1) match {
       case (Nil, _) => g
       case ((s @ (v, _, _)) :: o1, o2) => 
-        Generalization2(o1.foldRight(g.term)((ds, t) => applySubstitution(t, (ds._1, v))), s :: o2)
+        Generalization2(o1.foldRight(g.term)((ds, t) => applySub(t, (ds._1, v))), s :: o2)
     }
   }
   
-  private def applySubstitution(t: Term, sub: Substitution): Term = t match {
+  private def applySub(t: Term, sub: Substitution): Term = t match {
     case v: Variable => if (v == sub._1) sub._2 else v
-    case Constructor(name, args) => Constructor(name, args.map(applySubstitution(_, sub)))
-    case FCall(name, args) => FCall(name, args.map(applySubstitution(_, sub)))
-    case GCall(name, arg0, args) => GCall(name, applySubstitution(arg0, sub), args.map(applySubstitution(_, sub)))
+    case Constructor(name, args) => Constructor(name, args.map(applySub(_, sub)))
+    case FCall(name, args) => FCall(name, args.map(applySub(_, sub)))
+    case GCall(name, arg0, args) => GCall(name, applySub(arg0, sub), args.map(applySub(_, sub)))
   }
   
   def equivalent(term1: Term, term2: Term): Boolean = {

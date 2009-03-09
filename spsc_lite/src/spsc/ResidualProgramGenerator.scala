@@ -1,7 +1,7 @@
 package spsc;
 
 import SmallLanguageTermAlgebra._
-import Util.applySubstitution
+import Util.applySub
 import scala.collection.jcl.LinkedHashSet
 
 class ResidualProgramGenerator(val tree: ProcessTree) {
@@ -33,7 +33,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
     case Constructor(name, args) => Constructor(name, node.outs.map(e => unfold(e.child)))
     
     case LetExpression(term, bindings) => 
-      applySubstitution(unfold(node.outs.head.child), 
+      applySub(unfold(node.outs.head.child), 
           Map() ++ (bindings.map(pair => pair._1) zip node.outs.tail.map(e => unfold(e.child))))
     
     case fc @ FCall(name, args) =>
@@ -45,7 +45,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
         val pFc = pNode.expr.asInstanceOf[FCall]
         val pSign = signatures(pNode)
         val sub = Map() ++ renaming(pFc, fc)
-        FCall(pSign.name, pSign.args.map(applySubstitution(_, sub)))
+        FCall(pSign.name, pSign.args.map(applySub(_, sub)))
       } else {
         tree.leafs.find(n => n.ancestors.contains(node) && 
         (n.expr match {case fc_ : FCall => equivalent(fc, fc_); case _=>false})) match {
@@ -72,9 +72,9 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
         val pSign = signatures(pNode)
         val sub = Map() ++ renaming(pGc, gc)
         if (pNode.outs.size == 1){
-          FCall(pSign.name, pSign.args.map(applySubstitution(_, sub)))
+          FCall(pSign.name, pSign.args.map(applySub(_, sub)))
         } else {
-          GCall(pSign.name, applySubstitution(pSign.args.head, sub) , pSign.args.tail.map(applySubstitution(_, sub)))
+          GCall(pSign.name, applySub(pSign.args.head, sub) , pSign.args.tail.map(applySub(_, sub)))
         }
       } else if (node.outs.head.substitution.isEmpty) {
         tree.leafs.find(n => n.ancestors.contains(node) && 
@@ -148,11 +148,11 @@ object ResidualProgramGenerator{
     case f: FFunction =>
       val args = f.args
       val renaming = Map() ++ ((args) zip (args.indices.map(getVar(_)))) 
-      FFunction(f.name, f.args.map(renaming(_)), applySubstitution(f.term, renaming))
+      FFunction(f.name, f.args.map(renaming(_)), applySub(f.term, renaming))
     case g: GFunction =>
       val args = g.arg0.args ::: g.args
       val renaming = Map() ++ ((args) zip (args.indices.map(getVar(_))))
-      GFunction(g.name, Pattern(g.arg0.name, g.arg0.args.map(renaming(_))), g.args.map(renaming(_)), applySubstitution(g.term, renaming))    
+      GFunction(g.name, Pattern(g.arg0.name, g.arg0.args.map(renaming(_))), g.args.map(renaming(_)), applySub(g.term, renaming))    
   }
 
 }
