@@ -1,7 +1,7 @@
 package spsc;
 
 class ProcessTreeSVG(tree: ProcessTree) {
-  var map = Map[ProcessTree.Node, Tuple4[Int, Int, Int, Int]]()
+  var map = Map[Node, Tuple4[Int, Int, Int, Int]]()
   def treeToSVG() = 
     <svg:svg xmlns:svg="http://www.w3.org/2000/svg" width={"" + width(tree.root)} height={"" + height(tree.root)} >
     <svg:defs>
@@ -16,7 +16,7 @@ class ProcessTreeSVG(tree: ProcessTree) {
     {repeatEdges()}
     </svg:svg>
     
-    def nodeToSVG(node: ProcessTree.Node, trX: Int, trY: Int): scala.xml.NodeBuffer = {
+    def nodeToSVG(node: Node, trX: Int, trY: Int): scala.xml.NodeBuffer = {
       def childrenToSVG() = {
         val children = new scala.xml.NodeBuffer
         var trChX = (width(node) - childrenWidth(node))/2
@@ -62,18 +62,18 @@ class ProcessTreeSVG(tree: ProcessTree) {
       edges
     }
       
-    def width(node: ProcessTree.Node): Int = {
+    def width(node: Node): Int = {
       val myWidth = rectWidth(node) + 40
       Math.max(myWidth, childrenWidth(node))
     }
     
-    def height(node: ProcessTree.Node): Int = {
+    def height(node: Node): Int = {
       var childrenHeight = 0
       for (out <- node.outs) childrenHeight = Math.max(height(out.child), childrenHeight)
       if (childrenHeight > 0) childrenHeight + 100 else 30
     }
     
-    def childrenWidth(node: ProcessTree.Node): Int = {
+    def childrenWidth(node: Node): Int = {
       var childrenWidth = 0
       for (out <- node.outs){
         childrenWidth += width(out.child)
@@ -82,6 +82,6 @@ class ProcessTreeSVG(tree: ProcessTree) {
     }
     
     
-    def rectWidth(node: ProcessTree.Node): Int = node.expr.toString.length*6 + 10
+    def rectWidth(node: Node): Int = node.expr.toString.length*6 + 10
 
 }

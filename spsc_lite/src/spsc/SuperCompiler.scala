@@ -1,7 +1,6 @@
 package spsc;
 
 import SmallLanguageTermAlgebra._
-import ProcessTree._
 import Util.applySubstitution
 
 class SuperCompiler(program: Program){
@@ -62,7 +61,7 @@ class SuperCompiler(program: Program){
   
   // heart of supercompiler
   def buildProcessTree(e: Expression): ProcessTree = {
-    val p = ProcessTree(e)
+    val p = new ProcessTree(new Node(e, null, Nil))
     while (!p.isClosed) {
       println()
       println(p)

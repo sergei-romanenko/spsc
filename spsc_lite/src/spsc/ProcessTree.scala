@@ -1,73 +1,38 @@
-package spsc;
+package spsc
 
-import SmallLanguageTermAlgebra._
-
-object ProcessTree {
-  def apply(expr: Expression) = 
-    new ProcessTree(new Node(expr, null, Nil))
+class Node(val expr: Expression, val in: Edge, var outs: List[Edge]) {
+  var repeated: Node = null
+  def ancestors(): List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
   
-  class Node(val expr: Expression, val in: Edge, var outs: List[Edge]) {
-    var repeated: Node = null
-    def ancestors(): List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
-    
-    def isProcessed: Boolean = expr match {
-      case Constructor(_, Nil) => true
-      case v : Variable => true
-      case _ => repeated != null
-    }
-    
-    def leafs(): List[Node]= outs match {
-      case Nil => this :: Nil
-      case _ => List.flatten((outs map {_.child.leafs()}):List[List[Node]])
-    }
-    
-    override def toString = toString("")
-      
-    def toString(indent: String): String = {
-      val sb = new StringBuilder(indent + "|__" + expr)
-      for (edge <- outs) {
-        sb.append("\n  " + indent + "|" + edge.substitution.toList.map(kv => kv._1 + "=" + kv._2).mkString("", ", ", ""))
-        sb.append("\n" + edge.child.toString(indent + "  "))
-      }
-      sb.toString
-    }   
+  def isProcessed: Boolean = expr match {
+    case Constructor(_, Nil) => true
+    case v : Variable => true
+    case _ => repeated != null
   }
-  
-  class Edge(val parent: Node, var child: Node, val substitution: Map[Variable, Term])
+    
+  def leafs(): List[Node]= outs match {
+    case Nil => this :: Nil
+    case _ => List.flatten((outs map {_.child.leafs()}):List[List[Node]])
+  }   
 }
+  
+class Edge(val parent: Node, var child: Node, val substitution: Map[Variable, Term])
 
-import ProcessTree._
 class ProcessTree(var root: Node) {
-  override def toString = root.toString
-  def leafs = {
-    val res = root.leafs
-    println(res)
-    res
-  }
-  def addChildren(node: Node, children: List[Pair[Term, Map[Variable, Term]]]) = {
-    //leafs = leafs.remove(_ == node)
+  def leafs = root.leafs
+  def addChildren(node: Node, children: List[Pair[Term, Map[Variable, Term]]]) =
     node.outs = for (pair <- children) yield {
       val edge = new Edge(node, null, pair._2)
       val childNode = new Node(pair._1, edge, Nil)
-      //leafs = childNode :: leafs
       edge.child = childNode
       edge
     }
-  }
   
-  def replace(node: Node, exp: Expression) = {
-    // the node can be not leaf - but from any part of tree
-    //leafs = leafs.remove(_ == node)
-    //leafs = leafs.remove(_.ancestors.contains(node))
-    val childNode = new Node(exp, node.in, Nil)
-    // the node can be root node:
-    if (node == root){
-      root = childNode
-    } else {
-      node.in.child = childNode
-    }
-    //leafs = childNode :: leafs
-  }
+  def replace(node: Node, exp: Expression) =  
+    if (node == root)
+      root = new Node(exp, node.in, Nil)
+    else
+      node.in.child = new Node(exp, node.in, Nil)
   
   def isClosed = leafs.forall(_.isProcessed)
 }

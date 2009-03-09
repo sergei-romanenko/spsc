@@ -1,6 +1,5 @@
 package spsc;
 
-import ProcessTree._
 import SmallLanguageTermAlgebra._
 import Util.applySubstitution
 import scala.collection.jcl.LinkedHashSet
