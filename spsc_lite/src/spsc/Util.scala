@@ -44,7 +44,6 @@ object Util {
   
   def programFromString(input: String) = { 
     val pr = SmallLanguageParsers.parseProgram(new CharArrayReader(input.toCharArray))
-    if (pr.isEmpty) throw new IllegalArgumentException(pr.toString)
-    new Program(pr.get)
+    new Program(pr)
   }
 }

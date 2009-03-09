@@ -15,23 +15,18 @@ object SmallLanguageParsers extends STokenParsers with ImplicitConversions {
   private def term: Parser[Term] = call | constructor | variable
   
   private def variable = lident ^^ Variable
-  private def pattern = uident ~ ((("(" ~> repsep(variable, ",") <~ ")")?) ^^ {_.getOrElse(Nil)}) ^^ Pattern
+  private def pattern = uident ~ ((("(" ~> repsep(variable, ",") <~ ")")?) ^^ {_.getOrElse(Nil)} ) ^^ Pattern
   private def fFunction = lident ~ ("(" ~> repsep(variable, ",") <~ ")") ~ ("=" ~> term <~ ";") ^^ FFunction
   private def gFunction = lident ~ ("(" ~> pattern) ~ ((("," ~> variable)*) <~ ")") ~ ("=" ~> term <~ ";") ^^ GFunction
   private def call = lident ~ ("(" ~> repsep(term, ",") <~ ")") ^^ FCall
   private def constructor = uident ~ ((("(" ~> repsep(term, ",") <~ ")")?) ^^ {_.getOrElse(Nil)} ) ^^ Constructor  
   
-  def parseProgram(r: Reader[Char]): ParseResult[List[Definition]] = {
-    val result0 = program(new lexical.Scanner(r))
-    if (result0.successful) 
-      validate(result0)
-    else
-      result0
-  }
+  def parseProgram(r: Reader[Char]): List[Definition] = 
+    validate(program(new lexical.Scanner(r)))
 
   def parseTerm(r: Reader[Char]): ParseResult[Term] = term(new lexical.Scanner(r))
   
-  def validate(rawResult: ParseResult[List[Definition]]): ParseResult[List[Definition]] = {      
+  def validate(rawResult: ParseResult[List[Definition]]): List[Definition] = {      
     val rawProgram = rawResult.get      
     val gs: Set[String] = Set.empty
       
@@ -40,7 +35,7 @@ object SmallLanguageParsers extends STokenParsers with ImplicitConversions {
       case _ => 
     }
 
-    def validate(definition: Definition): ParseResult[Definition] =  {
+    def validate(definition: Definition): Definition =  {
       def validateTerm(t: Term): Term = t match {
         case v @ Variable(_) => v
         case c@Constructor(name, args) => Constructor(name, args map validateTerm)
@@ -52,18 +47,11 @@ object SmallLanguageParsers extends STokenParsers with ImplicitConversions {
           }
         }
       definition match {
-        case FFunction(name, args, rawTerm) => return Success(FFunction(name, args, validateTerm(rawTerm)), null)
-        case GFunction(name, arg0, args, rawTerm) => return Success(GFunction(name, arg0, args, validateTerm(rawTerm)), null)
+        case FFunction(name, args, rawTerm) => FFunction(name, args, validateTerm(rawTerm))
+        case GFunction(name, arg0, args, rawTerm) => GFunction(name, arg0, args, validateTerm(rawTerm))
       }      
     }
-    val ds = new ListBuffer[Definition]()
-    for (d <- rawProgram) {
-      validate(d) match {
-        case r: NoSuccess => return r
-        case Success(vd, _) => ds + vd
-      }
-    }
-    Success(ds.toList, rawResult.next)   
+    rawProgram map validate
   }
   
 }

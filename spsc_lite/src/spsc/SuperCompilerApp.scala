@@ -54,10 +54,7 @@ object SuperCompilerApp {
     } while (str != null)
     in.close();
     val result = SmallLanguageParsers.parseProgram(new CharArrayReader(sb.toString.toCharArray))
-    if (!result.successful){
-      throw new IllegalArgumentException(result.toString)
-    }
-    val program = new Program(result.get)
+    val program = new Program(result)
     val function = program.getFFunction(funName)
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(FCall(function.name, function.args))    

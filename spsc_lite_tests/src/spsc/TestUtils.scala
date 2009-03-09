@@ -10,7 +10,7 @@ object TestUtils {
     SmallLanguageParsers.parseTerm(new CharArrayReader(input.toCharArray)).get
   
   def programFromString(input: String) =
-    new Program( parseResultFromString(input).get )
+    new Program( parseResultFromString(input) )
   
   def parseResultFromString(input: String) =
     SmallLanguageParsers.parseProgram(new CharArrayReader(input.toCharArray))

@@ -45,10 +45,7 @@ object InterpreterApp {
     } while (str != null)
     in.close();
     val result = SmallLanguageParsers.parseProgram(new CharArrayReader(sb.toString.toCharArray))
-    if (!result.successful){
-      throw new IllegalArgumentException(result.toString)
-    }
-    val program = new Program(result.get)
+    val program = new Program(result)
     val interpreter = new Interpreter(program)
     Console.println(interpreter.eval(expr))
   }
