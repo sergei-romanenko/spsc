@@ -44,17 +44,14 @@ class ProcessTree {
   def leafs = leafs_
   
   def addChildren(node: Node, children: List[Pair[Term, Map[Variable, Term]]]) = {
-    assume(leafs_.contains(node))
     leafs_ = leafs_.remove(_ == node)
-    val edges = new scala.collection.mutable.ListBuffer[Edge]
-    for (pair <- children){
+    node.outs = for (pair <- children) yield {
       val edge = new Edge(node, null, pair._2)
       val childNode = new Node(pair._1, edge, Nil)
       leafs_ = childNode :: leafs
       edge.child = childNode
-      edges += edge
+      edge
     }
-    node.outs = edges.toList
   }
   
   def replace(node: Node, exp: Expression) = {
