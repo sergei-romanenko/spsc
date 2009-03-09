@@ -6,14 +6,19 @@ object ProcessTree {
   def apply(expr: Expression) = 
     new ProcessTree(new Node(expr, null, Nil))
   
-  class Node(val expr: Expression, val in: Edge, var outs: List[Edge]) {   
-    def ancestors(): List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
+  class Node(val expr: Expression, val in: Edge, var outs: List[Edge]) {
     var repeated: Node = null
+    def ancestors(): List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
     
     def isProcessed: Boolean = expr match {
       case Constructor(_, Nil) => true
       case v : Variable => true
       case _ => repeated != null
+    }
+    
+    def leafs(): List[Node]= outs match {
+      case Nil => this :: Nil
+      case _ => List.flatten(outs map {_.child.leafs()})
     }
   }
   
@@ -22,7 +27,7 @@ object ProcessTree {
 
 import ProcessTree._
 class ProcessTree(var root: Node) {
-  var leafs = if (root != null) root :: Nil else Nil
+  var leafs = root :: Nil
   
   def addChildren(node: Node, children: List[Pair[Term, Map[Variable, Term]]]) = {
     leafs = leafs.remove(_ == node)
