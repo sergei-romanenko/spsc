@@ -1,19 +1,17 @@
 package spsc
 
 import scala.util.parsing.combinator.ImplicitConversions
-import scala.util.parsing.combinator.syntactical.StdTokenParsers
-import scala.util.parsing.combinator.lexical.StdLexical
-import scala.util.parsing.input.{Positional, Reader, Position}
-import scala.util.parsing.syntax.StdTokens
-import scala.collection.mutable.{ListBuffer, Map, Set}
+import scala.util.parsing.combinator.syntactical.StandardTokenParsers
+import scala.util.parsing.input.Reader
 
-object SmallLanguageParsers extends STokenParsers with ImplicitConversions {
+object SmallLanguageParsers extends StandardTokenParsers with ImplicitConversions {
   lexical.delimiters += ("(", ")", ",", "=", ";")
-
   private def program = definition+
   private def definition: Parser[Definition] = gFunction | fFunction
   private def term: Parser[Term] = call | constructor | variable
   
+  private def uident = ident ^? {case id if id.charAt(0).isUpperCase => id}
+  private def lident = ident ^? {case id if id.charAt(0).isLowerCase => id}
   private def variable = lident ^^ Variable
   private def pattern = uident ~ ((("(" ~> repsep(variable, ",") <~ ")")?) ^^ {_.getOrElse(Nil)} ) ^^ Pattern
   private def fFunction = lident ~ ("(" ~> repsep(variable, ",") <~ ")") ~ ("=" ~> term <~ ";") ^^ FFunction
@@ -25,9 +23,9 @@ object SmallLanguageParsers extends STokenParsers with ImplicitConversions {
   def parseTerm(r: Reader[Char]): ParseResult[Term] = term(new lexical.Scanner(r))
   
   def postProcess(rawProgram: List[Definition]): List[Definition] = {   
-    val gs: Set[String] = Set.empty  
+    var gs: Set[String] = Set.empty  
     for (definition <- rawProgram) definition match {
-      case GFunction(name, _, _, _) => gs += name
+      case GFunction(name, _, _, _) => gs = gs + name
       case _ => 
     }
     def walkTerm(t: Term): Term = t match {
@@ -45,12 +43,4 @@ object SmallLanguageParsers extends STokenParsers with ImplicitConversions {
     }      
     rawProgram map walkFun
   }
-}
-
-class STokenParsers extends StdTokenParsers {  
-  type Tokens = StdTokens
-  val lexical = new StdLexical
-  import lexical.Identifier
-  def uident: Parser[String] = elem("uidentifier", x => x.isInstanceOf[Identifier] && x.chars.charAt(0).isUpperCase) ^^ (_.chars)
-  def lident: Parser[String] = elem("lidentifier", x => x.isInstanceOf[Identifier] && x.chars.charAt(0).isLowerCase) ^^ (_.chars)  
 }
