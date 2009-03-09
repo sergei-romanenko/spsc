@@ -5,7 +5,7 @@ Build prerequisites:
   scala 2.7 (http://scala-lang.org )
   
 Set up scala location in build_spsc.properties file.  
-Use build_spsc.properties.sample as cheat sheet.
+Use build_spsc.sample.properties as cheat sheet.
 Setup version number of spsc build.
 
 From project directory run ant:
