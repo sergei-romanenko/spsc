@@ -1,72 +1,73 @@
-append(Nil(), vs) = vs;
-append(Cons(u, us), vs) = Cons(u, append(us, vs));
+gappend(Nil(), vs) = vs;
+gappend(Cons(u, us), vs) = Cons(u, gappend(us, vs));
 
-reverse(Nil()) = Nil();
-reverse(Cons(x, xs)) = append(reverse(xs), Cons(x, Nil()));
+greverse(Nil()) = Nil();
+greverse(Cons(x, xs)) = gappend(greverse(xs), Cons(x, Nil()));
 
-from(n) = Cons(n, from(S(n)));
+ffrom(n) = Cons(n, ffrom(S(n)));
 
-take(Z(), xs) = Nil();
-take(S(n), xs) = Cons(head(xs), take(n, tail(xs)));
+gtake(Z(), xs) = Nil();
+gtake(S(n), xs) = Cons(ghead(xs), gtake(n, gtail(xs)));
 
-mapAdd1(Nil()) = Nil();
-mapAdd1(Cons(x, xs)) = Cons(S(x), mapAdd1(xs));
+gmapAdd1(Nil()) = Nil();
+gmapAdd1(Cons(x, xs)) = Cons(S(x), gmapAdd1(xs));
 
-null(Nil()) = True();
-null(Cons(x, xs)) = False();
+gnull(Nil()) = True();
+gnull(Cons(x, xs)) = False();
 
-head(Cons(x, xs)) = x;
+ghead(Cons(x, xs)) = x;
 
-tail(Cons(x, xs)) = xs;
+gtail(Cons(x, xs)) = xs;
 
-ab(A(x)) = B(ab(x));
-ab(B(x)) = A(ab(x));
+gab(A(x)) = B(gab(x));
+gab(B(x)) = A(gab(x));
 
-reva(Nil(), ys) = ys;
-reva(Cons(x, xs), ys) = reva(xs, Cons(x, ys));
+greva(Nil(), ys) = ys;
+greva(Cons(x, xs), ys) = greva(xs, Cons(x, ys));
 
-eq(Z(), y) = eqZ(y);
-eq(S(x), y) = eqS(y, x);
+geq(Z(), y) = geqZ(y);
+geq(S(x), y) = geqS(y, x);
 
-eqZ(Z()) = True();
-eqZ(S(x)) = False();
+geqZ(Z()) = True();
+geqZ(S(x)) = False();
 
-eqS(Z(), x) = False();
-eqS(S(y), x) = eq(x, y);
+geqS(Z(), x) = False();
+geqS(S(y), x) = geq(x, y);
 
-if(True(), x, y) = x;
-if(False(), x, y) = y;
+gif(True(), x, y) = x;
+gif(False(), x, y) = y;
 
-not(x) = if(x, False(), True());
-or(x, y) = if(x, True(), y);
-and(x, y) = if(x, y, False());
+fnot(x) = gif(x, False(), True());
+for(x, y) = gif(x, True(), y);
+fand(x, y) = gif(x, y, False());
 
-member(x, list) = and(not(null(list)), or(eq(x, head(list)), member(x, tail(list))));
-member2(Nil(), x) = False();
-member2(Cons(y, ys), x) = if(eq(x, y), True(), member2(ys, x));
-member3(Nil(), x) = False();
-member3(Cons(y, ys), x) = member3if(eq(x, y), x, ys);
-member3if(True(), x, ys) = True();
-member3if(False(), x, ys) = member3(ys, x);
+fmember(x, list) = fand(fnot(gnull(list)), for(geq(x, ghead(list)), fmember(x, gtail(list))));
 
-test1() = append(Nil(), Nil());
-test2() = append(Cons(A1(), Cons(A2(), Nil())), Cons(A3(), Cons(A4(), Nil())));
-test3() = reverse(Cons(A1(), Cons(A2(), Cons(A3(), Nil()))));
-test4() = mapAdd1(from(Z()));
-test5(x) = reverse(x);
-test6(x) = ab(ab(x));
-test7(xs) = reva(xs, Nil());
-test8(x) = eq(x, x);
-test9(x) = eq(x, S(x));
-test10(x) = eq(S(x), x);
-test11(x) = eq(S(Z()), x);
-test12(x, y) = not(or(not(x), not(y)));
-test13(x, list) = member(x, list);
-test14(list) = member(S(Z()), list);
-test15(x) = member(x, Cons(Z(), Cons(S(Z()), Nil())));
-test16(x, list) = member2(list, x);
-test17(list) = member2(list, S(Z()));
-test18(x) = member2(Cons(Z(), Cons(S(Z()), Nil())), x);
-test19(x, list) = member3(list, x);
-test20(list) = member3(list, S(Z()));
-test21(x) = member3(Cons(Z(), Cons(S(Z()), Nil())), x);
+gmember2(Nil(), x) = False();
+gmember2(Cons(y, ys), x) = gif(geq(x, y), True(), gmember2(ys, x));
+gmember3(Nil(), x) = False();
+gmember3(Cons(y, ys), x) = gmember3if(geq(x, y), x, ys);
+gmember3if(True(), x, ys) = True();
+gmember3if(False(), x, ys) = gmember3(ys, x);
+
+fTest1() = gappend(Nil(), Nil());
+fTest2() = gappend(Cons(A1(), Cons(A2(), Nil())), Cons(A3(), Cons(A4(), Nil())));
+fTest3() = greverse(Cons(A1(), Cons(A2(), Cons(A3(), Nil()))));
+fTest4() = gmapAdd1(ffrom(Z()));
+fTest5(x) = greverse(x);
+fTest6(x) = gab(gab(x));
+fTest7(xs) = greva(xs, Nil());
+fTest8(x) = geq(x, x);
+fTest9(x) = geq(x, S(x));
+fTest10(x) = geq(S(x), x);
+fTest11(x) = geq(S(Z()), x);
+fTest12(x, y) = fnot(for(fnot(x), fnot(y)));
+fTest13(x, list) = fmember(x, list);
+fTest14(list) = fmember(S(Z()), list);
+fTest15(x) = fmember(x, Cons(Z(), Cons(S(Z()), Nil())));
+fTest16(x, list) = gmember2(list, x);
+fTest17(list) = gmember2(list, S(Z()));
+fTest18(x) = gmember2(Cons(Z(), Cons(S(Z()), Nil())), x);
+fTest19(x, list) = gmember3(list, x);
+fTest20(list) = gmember3(list, S(Z()));
+fTest21(x) = gmember3(Cons(Z(), Cons(S(Z()), Nil())), x);

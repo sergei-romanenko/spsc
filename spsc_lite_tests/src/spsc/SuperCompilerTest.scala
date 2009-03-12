@@ -11,7 +11,7 @@ class SuperCompilerTest {
 
     for (i <- 1 to 21) {
       SuperCompilerApp.main(Array("-i", "input/test.sl",
-          "-f", "test" + i,
+          "-f", "fTest" + i,
           "-t", "output/test" + i + ".svg",
           "-p", "output/test" + i + ".sl"))
       print(i)
