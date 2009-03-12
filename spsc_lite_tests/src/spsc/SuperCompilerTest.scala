@@ -9,8 +9,7 @@ class SuperCompilerTest {
   @Test def processSamples(): Unit =
   {
 
-    for (i <- 1 to 22) {
-      if (i!=5)
+    for (i <- 1 to 21) {
       SuperCompilerApp.main(Array("-i", "input/test.sl",
           "-f", "test" + i,
           "-t", "output/test" + i + ".svg",
