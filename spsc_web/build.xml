@@ -62,6 +62,6 @@
 		<fail message="stax.username is not set" unless="stax.username" />
 		<fail message="stax.password is not set" unless="stax.password" />
 		<taskdef name="deploy" classname="com.staxnet.ant.DeployTask" classpathref="staxtasks.classpath" />
-		<deploy deployfile="${deploy.file}" username="${stax.username}" password="${stax.password}" />
+		<deploy deployfile="${deploy.file}" username="${stax.username}" password="${stax.password}" message="20 Feb"/>
 	</target>
 </project>
