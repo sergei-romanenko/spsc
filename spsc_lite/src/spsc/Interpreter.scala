@@ -38,7 +38,7 @@ class Interpreter (program: Program) {
   def lazyEvalGCall(name: String, t: Term, args: List[Term]) : Constructor = t match {
 
     case Constructor(cname, cargs) => {
-      val gFunction = program.getGFunction(name, cname)
+      val gFunction = program.g(name, cname)
       val substitution: Map[Variable, Term] =
         Map() ++  ((gFunction.arg0.args zip cargs) ::: (gFunction.args zip args))      
       lazyEval(applySub(gFunction.term, substitution))
@@ -55,7 +55,7 @@ class Interpreter (program: Program) {
   }
   
   def unfoldFCall(name: String, args: List[Term]): Term = {
-    val fFunction = program.getFFunction(name)
+    val fFunction = program.f(name)
     val substitution: Map[Variable, Term] = Map() ++  (fFunction.args zip args)
     applySub(fFunction.term, substitution)    
   }

@@ -1,22 +1,18 @@
 package spsc
   
-case class Program(defs : List[Definition]) extends AProgram{
+case class Program(defs : List[Definition]){
   
-  private var fs   = Map[String, FFunction]()
-  private var gs   = Map[(String, String), GFunction]()
-  private var gMap = Map[String, List[GFunction]]()
+  var f   = Map[String, FFunction]()
+  var g   = Map[(String, String), GFunction]()
+  var gs = Map[String, List[GFunction]]()
   
   for (d <- defs) d match {
-    case f @ FFunction(name, _, _) => fs += (name -> f)
-    case g @ GFunction(name, arg0, _, _) => {
-      gs += ((name, arg0.name) -> g)
-      gMap = gMap.update(name, g :: gMap.getOrElse(name, Nil))
+    case f_ @ FFunction(name, _, _) => f += (name -> f_)
+    case g_ @ GFunction(name, arg0, _, _) => {
+      g += ((name, arg0.name) -> g_)
+      gs = gs.update(name, g_ :: gs.getOrElse(name, Nil))
     }
   }
-  
-  def getFFunction(name: String) = fs(name)
-  def getGFunction(name: String, cname: String) = gs((name, cname)) 
-  def getGFunctions(name: String) = gMap(name)
   
   override def toString = defs.mkString("\n")
 }

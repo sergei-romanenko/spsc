@@ -9,15 +9,15 @@ class SuperCompiler(program: Program){
     case Constructor(name, args) => 
       args.map((_, Map()))
     case FCall(name, args)  => {
-      val fDef = program.getFFunction(name)
+      val fDef = program.f(name)
       List((applySub(fDef.term, Map(fDef.args zip args : _*)), Map()))
     }
     case GCall(name, Constructor(cname, cargs), args) => {
-      val gDef = program.getGFunction(name, cname)  
+      val gDef = program.g(name, cname)  
       List((applySub(gDef.term, Map(((gDef.arg0.args zip cargs) ::: (gDef.args zip args)) : _*)), Map()))
     }
     case gCall @ GCall(name, v : Variable, args) => 
-      for (g <- program.getGFunctions(name);
+      for (g <- program.gs(name);
         val c = Constructor(g.arg0.name, g.arg0.args.map(v => nextVar));
         val sub = Map(v -> c))
         yield (driveE(applySub(gCall, sub)).head._1, sub)
@@ -31,15 +31,15 @@ class SuperCompiler(program: Program){
     case Constructor(name, args) => 
       args.map((_, Map()))
     case FCall(name, args)  => {
-      val fDef = program.getFFunction(name)
+      val fDef = program.f(name)
       List((applySub(fDef.term, Map(fDef.args zip args : _*)), Map()))
     }
     case GCall(name, Constructor(cname, cargs), args) => {
-      val gDef = program.getGFunction(name, cname)  
+      val gDef = program.g(name, cname)  
       List((applySub(gDef.term, Map(((gDef.arg0.args zip cargs) ::: (gDef.args zip args)) : _*)), Map()))
     }
     case gCall @ GCall(name, v : Variable, args) => 
-      for (g <- program.getGFunctions(name);
+      for (g <- program.gs(name);
         val c = Constructor(g.arg0.name, g.arg0.args.map(v => nextVar));
         val sub = Map(v -> c))
         yield (driveExp(applySub(gCall, sub)).head._1, sub)

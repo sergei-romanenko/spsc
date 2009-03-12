@@ -24,11 +24,11 @@ object Util {
       case Constructor(name, args) => Constructor(name, args.map(cc))
       case FCall(name, args) => funType(name, program) match {
         case F => {
-          assume(program.getFFunction(name).args.size == args.size, "bad call: " + t);
+          assume(program.f(name).args.size == args.size, "bad call: " + t);
           FCall(name, args.map(cc))
         }
         case G => {
-          assume(program.getGFunctions(name).head.args.size == args.size - 1, "bad call: " + t);
+          assume(program.gs(name).head.args.size == args.size - 1, "bad call: " + t);
           GCall(name, cc(args.head), args.tail.map(cc))
         }
       }

@@ -55,7 +55,7 @@ object SuperCompilerApp {
     in.close();
     val result = SmallLanguageParsers.parseProgram(new CharArrayReader(sb.toString.toCharArray))
     val program = new Program(result)
-    val function = program.getFFunction(funName)
+    val function = program.f(funName)
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(FCall(function.name, function.args))    
     val svg = new ProcessTreeSVG(pt).treeToSVG()

@@ -32,9 +32,3 @@ case class FFunction(name: String, args: List[Variable], term: Term) extends Def
 case class GFunction(name: String, arg0: Pattern, args: List[Variable], term: Term) extends Definition {
   override def toString = name + (arg0 :: args).mkString("(", ", " ,")")  + " = " + term + ";"  
 }
-
-abstract class AProgram {
-  def getFFunction(name: String): FFunction
-  def getGFunction(name: String, cname: String): GFunction
-  def getGFunctions(name: String): List[GFunction]
-}
