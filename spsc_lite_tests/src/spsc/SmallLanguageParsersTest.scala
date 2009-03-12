@@ -7,11 +7,11 @@ class SmallLanguageParsersTest {
   @Test def simple01(): Unit = {
     val programText = 
     """
-    |a(x) = x;
+    |fA(x) = x;
     """
     
     val expected = 
-      FFunction("a", List(Variable("x")), Variable("x")) :: Nil
+      FFunction("fA", List(Variable("x")), Variable("x")) :: Nil
     val result = TestUtils.parseResultFromString(programText.stripMargin)    
     println(result)
     assertEquals(expected, result)    
@@ -20,11 +20,11 @@ class SmallLanguageParsersTest {
   @Test def simple02(): Unit ={
     val programText = 
     """
-    |a(C()) = C();
+    |gA(C()) = C();
     """
     
     val expected = 
-      GFunction("a",
+      GFunction("gA",
           Pattern("C", Nil),
           Nil,
           Constructor("C", Nil)) :: Nil
@@ -36,19 +36,19 @@ class SmallLanguageParsersTest {
   @Test def simple03(): Unit ={
     val programText = 
     """
-    |a(Nil(), vs) = vs;
-    |a(Cons(u, us), vs) = Cons(u, a(us, vs));
+    |gA(Nil(), vs) = vs;
+    |gA(Cons(u, us), vs) = Cons(u, gA(us, vs));
     """
         
     val expected = 
-      GFunction("a",
+      GFunction("gA",
           Pattern("Nil", Nil),
           List(Variable("vs")),
           Variable("vs")) ::
-      GFunction("a",
+      GFunction("gA",
           Pattern("Cons", List(Variable("u"), Variable("us"))),
           List(Variable("vs")), 
-          Constructor("Cons", List(Variable("u"), GCall("a", Variable("us"), List( Variable("vs")))))) :: 
+          Constructor("Cons", List(Variable("u"), GCall("gA", Variable("us"), List( Variable("vs")))))) :: 
       Nil
     val result = TestUtils.parseResultFromString(programText.stripMargin)
     println(result)
@@ -58,19 +58,19 @@ class SmallLanguageParsersTest {
   @Test def simple04(): Unit ={
     val programText = 
     """
-    |a(Nil(), vs) = b(vs);
-    |a(Cons(u, us), vs) = Cons(u, a(us, vs));
+    |gA(Nil(), vs) = fB(vs);
+    |gA(Cons(u, us), vs) = Cons(u, gA(us, vs));
     """
         
     val expected = 
-      GFunction("a",
+      GFunction("gA",
           Pattern("Nil", Nil),
           List(Variable("vs")),
-          FCall("b", Variable("vs")::Nil)) ::
-      GFunction("a",
+          FCall("fB", Variable("vs")::Nil)) ::
+      GFunction("gA",
           Pattern("Cons", List(Variable("u"), Variable("us"))),
           List(Variable("vs")), 
-          Constructor("Cons", List(Variable("u"), GCall("a", Variable("us"), List( Variable("vs")))))) :: 
+          Constructor("Cons", List(Variable("u"), GCall("gA", Variable("us"), List( Variable("vs")))))) :: 
       Nil
     val result = TestUtils.parseResultFromString(programText.stripMargin)
     println(result)

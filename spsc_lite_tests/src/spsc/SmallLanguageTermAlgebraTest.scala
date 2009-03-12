@@ -23,11 +23,11 @@ class SmallLanguageTermAlgebraTest {
     // d(b, b) < d(f(b), f(b))
     assertTrue(he(__("d(b, b)"), __("d(f(b), f(b))")))
     // f(c(b)) !< c(b)
-    assertFalse(he(__("f(c(b))"), __("c(b)")))
+    assertFalse(he(__("ff(fc(b))"), __("fc(b)")))
     // f(c(b)) !< c(f(b))
-    assertFalse(he(__("f(c(b))"), __("c(f(b))")))
+    assertFalse(he(__("ff(fc(b))"), __("fc(ff(b))")))
     // f(c(b)) !< f(f(f(b)))
-    assertFalse(he(__("f(c(b))"), __("f(f(f(b)))")))
+    assertFalse(he(__("ff(fc(b))"), __("ff(ff(ff(b)))")))
   }
   
   @Test def simpleEquivalent(): Unit = {

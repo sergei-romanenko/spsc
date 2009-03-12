@@ -9,14 +9,14 @@ class LazinessTest {
   {
     val program = 
     """
-    |test1() = take(S(S(Z())), from(Z()));
-    |from(n) = Cons(n, from(S(n)));
-    |take(Z(), xs) = Nil();
-    |take(S(n), xs) = Cons(head(xs), take(n, tail(xs)));
-    |head(Cons(x, xs)) = x;
-    |tail(Cons(x, xs)) = xs;
+    |fTest1() = gTake(S(S(Z())), fFrom(Z()));
+    |fFrom(n) = Cons(n, fFrom(S(n)));
+    |gTake(Z(), xs) = Nil();
+    |gTake(S(n), xs) = Cons(gHead(xs), gTake(n, gTail(xs)));
+    |gHead(Cons(x, xs)) = x;
+    |gTail(Cons(x, xs)) = xs;
     """
 
-    runTest(program, "test1()", "Cons(Z(), Cons(S(Z()), Nil()))")
+    runTest(program, "fTest1()", "Cons(Z(), Cons(S(Z()), Nil()))")
   }
 }
