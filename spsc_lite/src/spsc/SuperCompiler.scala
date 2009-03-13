@@ -27,16 +27,6 @@ class SuperCompiler(program: Program){
       (term, Map[Variable, Term]()) :: (for (pair <- bindings) yield Pair(pair._2, Map[Variable, Term]())).toList
   }
   
-  def renameVarsInFFunction(f: FFunction): FFunction = {
-    val renaming = Map() ++ f.args.map(v => (v, nextVar())) 
-    FFunction(f.name, f.args.map(renaming(_)), applySub(f.term, renaming))    
-  }
-  
-  def renameVarsInGFunction(g: GFunction): GFunction = {
-    val renaming = Map() ++ (g.args.map(v => (v, nextVar())) ::: g.arg0.args.map(v => (v, nextVar()))) 
-    GFunction(g.name, Pattern(g.arg0.name, g.arg0.args.map(renaming(_))), g.args.map(renaming(_)), applySub(g.term, renaming))    
-  }
-  
   // heart of supercompiler
   def buildProcessTree(e: Expression): ProcessTree = {
     val p = new ProcessTree(new Node(e, null, Nil))
