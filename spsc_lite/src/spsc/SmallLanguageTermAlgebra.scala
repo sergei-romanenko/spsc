@@ -111,13 +111,10 @@ object SmallLanguageTermAlgebra {
         case (None, None) => map1to2(v1) = v2; map2to1(v2) = v1; true
         case _ => false
       }
-      case (Constructor(name1, args1), Constructor(name2, args2)) if name1 == name2 =>
-        ((args1 zip args2) forall (args => eq1(args._1, args._2)))
-      case (FCall(name1, args1), FCall(name2, args2)) if name1 == name2 =>
-        ((args1 zip args2) forall (args => eq1(args._1, args._2)))
-      case (GCall(name1, arg01 :: args1), GCall(name2, arg02 :: args2)) if name1 == name2 =>
-        eq1(arg01, arg02) && ((args1 zip args2) forall (args => eq1(args._1, args._2)))
-      case _ => false
+      case (t1, t2) => 
+        t1.productPrefix == t2.productPrefix && 
+          t1.name == t2.name && 
+          ((t1.args zip t2.args) forall (args => eq1(args._1, args._2)))
     }
     eq1(term1, term2)
   }

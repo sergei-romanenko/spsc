@@ -2,18 +2,15 @@ package spsc
   
 abstract class Expression
 
-sealed abstract class Term extends Expression {
-  def name: String
-  def args: List[Term]
+sealed abstract case class Term(name: String, args: List[Term]) extends Expression {
   override def toString = name + args.mkString("(", ", " ,")")
 }
-case class Variable(name: String) extends Term {
+case class Variable(override val name: String) extends Term(name, Nil) {
   override def toString() = name
-  def args = Nil
 }
-case class Constructor(name: String, args: List[Term]) extends Term
-case class FCall(name: String, args: List[Term]) extends Term
-case class GCall(name: String, args: List[Term]) extends Term
+case class Constructor(override val name: String, override val args: List[Term]) extends Term(name, args)
+case class FCall(override val name: String, override val args: List[Term]) extends Term(name, args)
+case class GCall(override val name: String, override val args: List[Term]) extends Term(name, args)
 
 case class Pattern(name: String, args: List[Variable]) {
   override def toString = name + args.mkString("(", ", " ,")")
