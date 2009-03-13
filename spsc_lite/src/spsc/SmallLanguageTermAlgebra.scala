@@ -111,10 +111,8 @@ object SmallLanguageTermAlgebra {
         case (None, None) => map1to2(v1) = v2; map2to1(v2) = v1; true
         case _ => false
       }
-      case (t1, t2) => 
-        t1.productPrefix == t2.productPrefix && 
-          t1.name == t2.name && 
-          ((t1.args zip t2.args) forall (args => eq1(args._1, args._2)))
+      case (t1, t2) => t1.productPrefix == t2.productPrefix && 
+        t1.name == t2.name && ((t1.args zip t2.args) forall {case (a, b) => eq1(a, b)})
     }
     eq1(term1, term2)
   }
