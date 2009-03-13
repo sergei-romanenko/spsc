@@ -28,5 +28,4 @@ object SmallLanguageParsers extends StandardTokenParsers with ImplicitConversion
     res.get
    }
   def parseTerm(r: Reader[Char]): ParseResult[Term] = term(new lexical.Scanner(r))
-  
 }

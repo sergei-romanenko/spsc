@@ -8,11 +8,10 @@ case class Variable(name: String) extends Term {
 case class Constructor(name: String, args: List[Term]) extends Term {
   override def toString = name + args.mkString("(", ", " ,")")
 }
-sealed abstract class Call extends Term
-case class FCall(name: String, args: List[Term]) extends Call {
+case class FCall(name: String, args: List[Term]) extends Term {
   override def toString = name + args.mkString("(", ", " ,")")
 }
-case class GCall(name: String, arg0: Term, args: List[Term]) extends Call {
+case class GCall(name: String, arg0: Term, args: List[Term]) extends Term {
   override def toString = name + (arg0 :: args).mkString("(", ", " ,")")
 } 
 case class Pattern(name: String, args: List[Variable]) {
