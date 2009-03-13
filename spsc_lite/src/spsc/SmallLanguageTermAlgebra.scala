@@ -19,7 +19,7 @@ object SmallLanguageTermAlgebra {
   private def heByDiving(term1: Term, term2: Term): Boolean = term2 match {
     case (Constructor(_, args)) => args exists (he(term1, _))
     case (FCall(_, args)) => args exists (he(term1, _))
-    case (GCall(_, arg0, args)) => he(term1, arg0) || (args exists (he(term1, _)))
+    case (GCall(_, args)) => (args exists (he(term1, _)))
     case _ => false
   }
   
@@ -28,8 +28,8 @@ object SmallLanguageTermAlgebra {
       (args1 zip args2) forall (args => he(args._1, args._2))      
     case (FCall(name1, args1), FCall(name2, args2)) if name1 == name2 => 
       (args1 zip args2) forall (args => he(args._1, args._2))
-    case (GCall(name1, arg01, args1), GCall(name2, arg02, args2)) if name1 == name2 => 
-      ((arg01 :: args1) zip (arg02 :: args2)) forall (args => he(args._1, args._2))
+    case (GCall(name1, args1), GCall(name2, args2)) if name1 == name2 => 
+      (args1 zip args2) forall (args => he(args._1, args._2))
     case _ => false
   }
   
@@ -68,10 +68,10 @@ object SmallLanguageTermAlgebra {
         t = applySub(t, (v, FCall(name1, newVars)))
         l2 ++= addDSubs
       }
-      case (v, s1 @ GCall(name1, arg01, args1), s2 @ GCall(name2, arg02, args2)) if name1 == name2 => {
+      case (v, s1 @ GCall(name1, arg01 :: args1), s2 @ GCall(name2, arg02 :: args2)) if name1 == name2 => {
         val newVars = (arg01 :: args1).map(arg => nextVar())
         val addDSubs = ((newVars zip (arg01 :: args1)) zip (newVars zip (arg02 :: args2))) map (pair => (pair._1._1, pair._1._2, pair._2._2)) 
-        t = applySub(t, (v, GCall(name1, newVars.head, newVars.tail)))
+        t = applySub(t, (v, GCall(name1, newVars.head :: newVars.tail)))
         l2 ++= addDSubs
       }
       case d => l2 += d
@@ -99,7 +99,7 @@ object SmallLanguageTermAlgebra {
     case v: Variable => if (v == sub._1) sub._2 else v
     case Constructor(name, args) => Constructor(name, args.map(applySub(_, sub)))
     case FCall(name, args) => FCall(name, args.map(applySub(_, sub)))
-    case GCall(name, arg0, args) => GCall(name, applySub(arg0, sub), args.map(applySub(_, sub)))
+    case GCall(name, arg0 :: args) => GCall(name, applySub(arg0, sub) :: args.map(applySub(_, sub)))
   }
   
   def equivalent(term1: Term, term2: Term): Boolean = {
@@ -115,7 +115,7 @@ object SmallLanguageTermAlgebra {
         ((args1 zip args2) forall (args => eq1(args._1, args._2)))
       case (FCall(name1, args1), FCall(name2, args2)) if name1 == name2 =>
         ((args1 zip args2) forall (args => eq1(args._1, args._2)))
-      case (GCall(name1, arg01, args1), GCall(name2, arg02, args2)) if name1 == name2 =>
+      case (GCall(name1, arg01 :: args1), GCall(name2, arg02 :: args2)) if name1 == name2 =>
         eq1(arg01, arg02) && ((args1 zip args2) forall (args => eq1(args._1, args._2)))
       case _ => false
     }
@@ -131,7 +131,7 @@ object SmallLanguageTermAlgebra {
         ((args1 zip args2) map (args => proceed(args._1, args._2)))
       case (FCall(_, args1), FCall(_, args2)) =>
         ((args1 zip args2) map (args => proceed(args._1, args._2)))
-      case (GCall(_, arg01, args1), GCall(_, arg02, args2)) =>
+      case (GCall(_, arg01 :: args1), GCall(_, arg02 :: args2)) =>
         proceed(arg01, arg02)
         ((args1 zip args2) map (args => proceed(args._1, args._2)))
       case _ => 
@@ -155,7 +155,7 @@ object SmallLanguageTermAlgebra {
   
   // Definition 15
   private def b(t: Term): Int = t match {
-    case g: GCall => b(g.arg0)
+    case g: GCall => b(g.args.head)
     case f: FCall => 0
     case c: Constructor => 0
     case v: Variable => 1 

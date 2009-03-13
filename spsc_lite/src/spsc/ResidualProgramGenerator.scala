@@ -62,7 +62,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
       }
       
     
-    case gc @ GCall(name, arg0, args) => 
+    case gc @ GCall(name, arg0 :: args) => 
       if (node.outs.isEmpty){
         if (node.ancestors.find(n => n.expr match {case gc_ : GCall => equivalent(gc, gc_); case _=>false}).isEmpty){
           return gc
@@ -74,7 +74,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
         if (pNode.outs.size == 1){
           FCall(pSign.name, pSign.args.map(applySub(_, sub)))
         } else {
-          GCall(pSign.name, applySub(pSign.args.head, sub) , pSign.args.tail.map(applySub(_, sub)))
+          GCall(pSign.name, applySub(pSign.args.head, sub) :: pSign.args.tail.map(applySub(_, sub)))
         }
       } else if (node.outs.head.substitution.isEmpty) {
         tree.leafs.find(n => n.ancestors.contains(node) && 
@@ -99,7 +99,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
           var patVars = e.args.map(_.asInstanceOf[Variable])
           defs += GFunction(signature.name, Pattern(patName, patVars), vars, unfold(edge.child))
         }
-        GCall(signature.name, patternVar, vars)
+        GCall(signature.name, patternVar :: vars)
       }
   }
   
@@ -109,7 +109,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
       case v: Variable => vars + v
       case c: Constructor => c.args.map(arg => {vars ++ getVars(arg)})
       case f: FCall => f.args.map(arg => {vars ++ getVars(arg)})
-      case g: GCall => (g.arg0 :: g.args).map(arg => {vars ++ getVars(arg)})
+      case g: GCall => (g.args).map(arg => {vars ++ getVars(arg)})
     }
     vars
   }

@@ -10,8 +10,8 @@ object Util {
       Constructor(name, args.map(applySub(_, map)))
     case FCall(name, args) => 
       FCall(name, args.map(applySub(_, map)))
-    case GCall(name, arg0, args) => 
-      GCall(name, applySub(arg0, map), args.map(applySub(_, map)))
+    case GCall(name, arg0 :: args) => 
+      GCall(name, applySub(arg0, map) :: args.map(applySub(_, map)))
   }
   
   abstract sealed class FType
@@ -29,7 +29,7 @@ object Util {
         }
         case G => {
           assume(program.gs(name).head.args.size == args.size - 1, "bad call: " + t);
-          GCall(name, cc(args.head), args.tail.map(cc))
+          GCall(name, cc(args.head) :: args.tail.map(cc))
         }
       }
       case g: GCall => throw new IllegalArgumentException("Internal error: raw term contains g-call")

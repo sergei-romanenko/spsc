@@ -48,7 +48,7 @@ class SmallLanguageParsersTest {
       GFunction("gA",
           Pattern("Cons", List(Variable("u"), Variable("us"))),
           List(Variable("vs")), 
-          Constructor("Cons", List(Variable("u"), GCall("gA", Variable("us"), List( Variable("vs")))))) :: 
+          Constructor("Cons", List(Variable("u"), GCall("gA", Variable("us") :: List( Variable("vs")))))) :: 
       Nil
     val result = TestUtils.parseResultFromString(programText.stripMargin)
     println(result)
@@ -70,7 +70,7 @@ class SmallLanguageParsersTest {
       GFunction("gA",
           Pattern("Cons", List(Variable("u"), Variable("us"))),
           List(Variable("vs")), 
-          Constructor("Cons", List(Variable("u"), GCall("gA", Variable("us"), List( Variable("vs")))))) :: 
+          Constructor("Cons", List(Variable("u"), GCall("gA", Variable("us") :: List( Variable("vs")))))) :: 
       Nil
     val result = TestUtils.parseResultFromString(programText.stripMargin)
     println(result)

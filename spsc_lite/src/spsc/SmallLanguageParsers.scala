@@ -20,7 +20,7 @@ object SmallLanguageParsers extends StandardTokenParsers with ImplicitConversion
   def gFunction = gid ~ ("(" ~> pattern) ~ ((("," ~> variable)*) <~ ")") ~ ("=" ~> term <~ ";") ^^ GFunction
   def constructor = uid ~ ("(" ~> repsep(term, ",") <~ ")") ^^ Constructor 
   def fcall = fid ~ ("(" ~> repsep(term, ",") <~ ")") ^^ FCall
-  def gcall = gid ~ ("(" ~> term) ~ (("," ~> term)*) <~ ")" ^^ GCall
+  def gcall = gid ~ ("(" ~> repsep(term, ",") <~ ")") ^^ GCall
   
   def parseProgram(r: Reader[Char]): List[Definition] = {
     val res = program(new lexical.Scanner(r))

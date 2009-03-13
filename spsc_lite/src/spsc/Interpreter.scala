@@ -28,7 +28,7 @@ class Interpreter (program: Program) {
     case FCall(name, args)  => 
       lazyEval(unfoldFCall(name, args))
 
-    case GCall(name, arg0, args) =>
+    case GCall(name, arg0 :: args) =>
       lazyEvalGCall(name, arg0, args)
 
     case t: Term =>
@@ -47,7 +47,7 @@ class Interpreter (program: Program) {
     case FCall(name1, args1) => 
       lazyEvalGCall(name, unfoldFCall(name1, args1), args)
 
-    case GCall(name1, t1, args1) =>
+    case GCall(name1, t1 :: args1) =>
       lazyEvalGCall(name, lazyEvalGCall(name1, t1, args1), args)
 
     case t : Term =>
