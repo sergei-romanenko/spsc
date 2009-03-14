@@ -55,33 +55,8 @@ class SuperCompiler(program: Program){
     t.replace(alpha, LetExpression(alpha.expr.asInstanceOf[Term], (Map() ++ g).toList))
   }
   
-  def equiv(term1: Term, term2: Term): Boolean = {
-    var map1to2 = scala.collection.mutable.Map[Variable, Variable]()
-    var map2to1 = scala.collection.mutable.Map[Variable, Variable]()
-    def eq1(t1: Term, t2: Term): Boolean = (t1, t2) match {
-      case (v1: Variable, v2: Variable) => (map1to2.get(v1), map2to1.get(v2)) match {
-        case (Some(v3), Some(v4)) => v2 == v3 && v1 == v4
-        case (None, None) => map1to2(v1) = v2; map2to1(v2) = v1; true
-        case _ => false
-      }
-      case (t1, t2) => t1.productPrefix == t2.productPrefix && 
-        t1.name == t2.name && ((t1.args zip t2.args) forall {case (a, b) => eq1(a, b)})
-    }
-    eq1(term1, term2)
-  }
-  
-  def inst(term1: Term, term2: Term): Boolean = {
-    val map = scala.collection.mutable.Map[Variable, Term]()
-    def walk(t1: Term, t2: Term): Boolean = t1 match {
-      case v1: Variable => map.get(v1) match {
-        case None => map(v1) = t2; true
-        case Some(t) => t == t2 
-      }
-      case _ => t1.productPrefix == t2.productPrefix && 
-        t1.name == t2.name && ((t1.args zip t2.args) forall {case (a, b) => walk(a, b)})
-    }
-    walk(term1, term2)
-  }
+  def equiv(term1: Term, term2: Term): Boolean = inst(term1, term2) && inst(term2, term1)
+  def inst(term1: Term, term2: Term): Boolean = sub(term1, term2).isDefined
   
   def sub(term1: Term, term2: Term): Option[Map[Variable, Term]] = {
     var map = Map[Variable, Term]()
