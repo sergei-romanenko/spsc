@@ -26,23 +26,27 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
     Program(newDefs.toList.sort((e1, e2) => (e1.name compareTo e2.name) < 0))
   }
   
-  private def unfold(node: Node): Term = node.expr match {
-    case v: Variable => v
-    
-    case Constructor(name, args) => Constructor(name, node.outs.map(e => unfold(e.child)))
-    
-    case LetExpression(term, bindings) => 
-      applySub(unfold(node.outs.head.child), 
-          Map() ++ (bindings.map(pair => pair._1) zip node.outs.tail.map(e => unfold(e.child))))
-    
-    case fc @ FCall(name, args) =>
-      if (node.outs.isEmpty){
-        val pNode = node.repeated
-        val pFc = pNode.expr.asInstanceOf[FCall]
-        val pSign = signatures(pNode)
-        val sub = Util.sub(pFc, fc).get
+  private def unfold(node: Node): Term = 
+    if (node.repeated != null) {
+      val gc = node.expr.asInstanceOf[Term]
+      val pNode = node.repeated
+      val pGc = pNode.expr.asInstanceOf[Term]
+      val pSign = signatures(pNode)
+      val sub = Util.sub(pGc, gc).get
+      if (pNode.outs.size == 1){
         FCall(pSign.name, pSign.args.map(applySub(_, sub)))
       } else {
+        GCall(pSign.name, applySub(pSign.args.head, sub) :: pSign.args.tail.map(applySub(_, sub)))
+      }
+    } else node.expr match {
+      case v: Variable => v
+      case Constructor(name, args) => Constructor(name, node.outs.map(e => unfold(e.child)))
+    
+      case LetExpression(term, bindings) => 
+        applySub(unfold(node.outs.head.child), 
+          Map() ++ (bindings.map(pair => pair._1) zip node.outs.tail.map(e => unfold(e.child))))
+    
+      case fc @ FCall(name, args) =>
         tree.leafs.find(_.repeated == node) match {
           case None => unfold(node.outs.head.child)
           case Some(fc1) => {
@@ -54,21 +58,10 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
             result
           }
         }
-      }
       
     
     case gc @ GCall(name, arg0 :: args) => 
-      if (node.outs.isEmpty){
-        val pNode = node.repeated
-        val pGc = pNode.expr.asInstanceOf[GCall]
-        val pSign = signatures(pNode)
-        val sub = Util.sub(pGc, gc).get
-        if (pNode.outs.size == 1){
-          FCall(pSign.name, pSign.args.map(applySub(_, sub)))
-        } else {
-          GCall(pSign.name, applySub(pSign.args.head, sub) :: pSign.args.tail.map(applySub(_, sub)))
-        }
-      } else if (node.outs.head.substitution.isEmpty) {
+      if (node.outs.head.substitution.isEmpty) {
         tree.leafs.find(_.repeated == node) match {
           case None => unfold(node.outs.head.child)
           case Some(fc1) => {
@@ -83,7 +76,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
       } else {
         val patternVar = node.outs.head.substitution.toList.head._1
         val vars = (getVars(gc) - patternVar).toList
-        val signature = Signature(rename(gc.name, false), patternVar :: vars)
+        val signature = Signature(rename(gc.name, node == tree.root), patternVar :: vars)
         signatures(node) = signature
         for (edge <- node.outs){
           val e = edge.substitution(patternVar).asInstanceOf[Constructor]
