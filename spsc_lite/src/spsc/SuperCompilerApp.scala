@@ -10,7 +10,7 @@ import java.io.FileReader
 import java.io.FileWriter
 import java.io.BufferedReader
 
-import SmallLanguageParsers._
+import SLanguageParsers._
 import ResidualProgramGenerator._
 
 object SuperCompilerApp {
@@ -53,7 +53,7 @@ object SuperCompilerApp {
       }
     } while (str != null)
     in.close();
-    val program = SmallLanguageParsers.parseProgram(new CharArrayReader(sb.toString.toCharArray))
+    val program = SLanguageParsers.parseProgram(new CharArrayReader(sb.toString.toCharArray))
     val function = program.f(funName)
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(FCall(function.name, function.args))    

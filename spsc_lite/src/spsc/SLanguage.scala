@@ -25,12 +25,12 @@ case class GFunction(name: String, arg0: Pattern, args: List[Variable], term: Te
   override def toString = name + (arg0 :: args).mkString("(", ", " ,")")  + " = " + term + ";"  
 }
 case class Program(defs : List[Definition]){
-  val f   = (defs :\ (Map[String, FFunction]())) 
-    {case  (x@FFunction(name, _, _), map) => map + (name -> x); case (_, map) => map}
-  val g   = (defs :\ (Map[(String, String), GFunction]())) 
+  val f = (defs :\ (Map[String, FFunction]())) 
+    {case (x@FFunction(name, _, _), map) => map + (name -> x); case (_, map) => map}
+  val g = (defs :\ (Map[(String, String), GFunction]())) 
     {case (x@GFunction(name, p, _, _), map) => map + ((name, p.name) -> x); case (_, map) => map}
-  val gs  = (defs :\ Map[String, List[GFunction]]()) 
-    {case  (g_ @GFunction(name, _, _, _), map) => map.update(name, g_ :: map.getOrElse(name, Nil)); case (_, map) => map}
+  val gs = (defs :\ Map[String, List[GFunction]]()) 
+    {case (g_ @GFunction(name, _, _, _), map) => map.update(name, g_ :: map.getOrElse(name, Nil)); case (_, map) => map}
   override def toString = defs.mkString("\n")
 }
 case class LetExpression(term: Term, bindings: List[Pair[Variable, Term]]) extends Expression {

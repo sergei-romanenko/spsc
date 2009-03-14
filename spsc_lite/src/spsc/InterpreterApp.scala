@@ -10,7 +10,6 @@ import java.io.FileReader
 import java.io.FileWriter
 import java.io.BufferedReader
 
-import SmallLanguageParsers._
 import ResidualProgramGenerator._
 
 object InterpreterApp {
@@ -44,7 +43,7 @@ object InterpreterApp {
       }
     } while (str != null)
     in.close();
-    val program = SmallLanguageParsers.parseProgram(new CharArrayReader(sb.toString.toCharArray))
+    val program = SLanguageParsers.parseProgram(new CharArrayReader(sb.toString.toCharArray))
     val interpreter = new Interpreter(program)
     Console.println(interpreter.eval(expr))
   }

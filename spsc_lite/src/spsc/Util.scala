@@ -43,6 +43,6 @@ object Util {
   }
   
   def programFromString(input: String) = { 
-    SmallLanguageParsers.parseProgram(new CharArrayReader(input.toCharArray))
+    SLanguageParsers.parseProgram(new CharArrayReader(input.toCharArray))
   }
 }

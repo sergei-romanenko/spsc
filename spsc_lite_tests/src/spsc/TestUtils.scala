@@ -7,13 +7,13 @@ import org.junit.Assert._
 
 object TestUtils {
   def termFromString(input: String) =
-    SmallLanguageParsers.parseTerm(new CharArrayReader(input.toCharArray))
+    SLanguageParsers.parseTerm(new CharArrayReader(input.toCharArray))
   
   def programFromString(input: String) =
-    SmallLanguageParsers.parseProgram(new CharArrayReader(input.toCharArray))
+    SLanguageParsers.parseProgram(new CharArrayReader(input.toCharArray))
   
   def defs(input: String) =
-    SmallLanguageParsers.parseProgram2(new CharArrayReader(input.toCharArray))
+    SLanguageParsers.parseProgram2(new CharArrayReader(input.toCharArray))
     
   def runTest(
       programAsString: String,

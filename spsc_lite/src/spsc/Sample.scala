@@ -9,8 +9,8 @@ object Sample {
     gAppend(Cons(u, us), vs) = Cons(u, gAppend(us, vs));
     """
     val inputText = "fGoal(a, b, c)"
-    val program = SmallLanguageParsers.parseProgram(new CharArrayReader(programText.toArray))
-    val inputTerm = SmallLanguageParsers.parseTerm(new CharArrayReader(inputText.toArray))
+    val program = SLanguageParsers.parseProgram(new CharArrayReader(programText.toArray))
+    val inputTerm = SLanguageParsers.parseTerm(new CharArrayReader(inputText.toArray))
     
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(inputTerm)

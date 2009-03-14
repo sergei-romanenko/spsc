@@ -16,7 +16,7 @@ class Interpreter (program: Program) {
   }
   
   def eval(input: String): Term = {
-    val term = SmallLanguageParsers.parseTerm(new CharArrayReader(input.toCharArray))
+    val term = SLanguageParsers.parseTerm(new CharArrayReader(input.toCharArray))
     eval(term)
   }
   
