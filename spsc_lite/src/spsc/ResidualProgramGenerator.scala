@@ -37,17 +37,13 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
     
     case fc @ FCall(name, args) =>
       if (node.outs.isEmpty){
-        if (node.ancestors.find(n => n.expr match {case fc_ : FCall => equiv(fc, fc_); case _=>false}).isEmpty){
-          return fc
-        }
-        val pNode = node.ancestors.find(n => n.expr match {case fc_ : FCall => equiv(fc, fc_); case _=>false}).get
+        val pNode = node.repeated
         val pFc = pNode.expr.asInstanceOf[FCall]
         val pSign = signatures(pNode)
         val sub = Util.sub(pFc, fc).get
         FCall(pSign.name, pSign.args.map(applySub(_, sub)))
       } else {
-        tree.leafs.find(n => n.ancestors.contains(node) && 
-        (n.expr match {case fc_ : FCall => equiv(fc, fc_); case _=>false})) match {
+        tree.leafs.find(_.repeated == node) match {
           case None => unfold(node.outs.head.child)
           case Some(fc1) => {
             val newName = if (node == tree.root) fc.name else rename(fc.name, node == tree.root)
@@ -63,10 +59,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
     
     case gc @ GCall(name, arg0 :: args) => 
       if (node.outs.isEmpty){
-        if (node.ancestors.find(n => n.expr match {case gc_ : GCall => equiv(gc, gc_); case _=>false}).isEmpty){
-          return gc
-        }
-        val pNode = node.ancestors.find(n => n.expr match {case gc_ : GCall => equiv(gc, gc_); case _=>false}).get
+        val pNode = node.repeated
         val pGc = pNode.expr.asInstanceOf[GCall]
         val pSign = signatures(pNode)
         val sub = Util.sub(pGc, gc).get
@@ -76,8 +69,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
           GCall(pSign.name, applySub(pSign.args.head, sub) :: pSign.args.tail.map(applySub(_, sub)))
         }
       } else if (node.outs.head.substitution.isEmpty) {
-        tree.leafs.find(n => n.ancestors.contains(node) && 
-        (n.expr match {case gc_ : GCall => equiv(gc, gc_); case _=>false})) match {
+        tree.leafs.find(_.repeated == node) match {
           case None => unfold(node.outs.head.child)
           case Some(fc1) => {
             val signature = Signature(rename(gc.name, false), getVars(gc).toList)
