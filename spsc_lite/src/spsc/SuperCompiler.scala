@@ -1,6 +1,5 @@
 package spsc;
 
-import SmallLanguageTermAlgebra._
 import Util.applySub
 
 class SuperCompiler(program: Program){
@@ -18,7 +17,7 @@ class SuperCompiler(program: Program){
     }
     case gCall @ GCall(name, (v : Variable) :: args) => 
       for (g <- program.gs(name);
-        val c = Constructor(g.arg0.name, g.arg0.args.map(v => nextVar));
+        val c = Constructor(g.arg0.name, g.arg0.args.map(v => SmallLanguageTermAlgebra.nextVar));
         val sub = Map(v -> c))
         yield (driveExp(applySub(gCall, sub)).head._1, sub)
     case GCall(name, call :: args) =>
@@ -37,7 +36,7 @@ class SuperCompiler(program: Program){
       } else {
         beta.ancestors.find(n1 => !isTrivial(n1.expr) && equiv(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])) match {
           case Some(alpha) => beta.repeated = alpha
-          case None => beta.ancestors.find(n1 => !isTrivial(n1.expr) && instanceOf(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])) match {
+          case None => beta.ancestors.find(n1 => !isTrivial(n1.expr) && inst(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])) match {
             case Some(alpha) => makeAbstraction(p, beta, alpha)
             case None => drive(p, beta)
           }
@@ -53,12 +52,8 @@ class SuperCompiler(program: Program){
   }
   
   def makeAbstraction(t: ProcessTree, alpha: Node, beta: Node): Unit = {
-    val g = strongMsg(alpha.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])
-    if (g.sub1.isEmpty){
-      t.replace(alpha, g.term)
-    } else {
-      t.replace(alpha, LetExpression(g.term, (Map() ++ g.sub1).toList))
-    }
+    val g = sub(alpha.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term]).get
+    t.replace(alpha, LetExpression(alpha.expr.asInstanceOf[Term], (Map() ++ g).toList))
   }
   
   def equiv(term1: Term, term2: Term): Boolean = {
@@ -74,6 +69,39 @@ class SuperCompiler(program: Program){
         t1.name == t2.name && ((t1.args zip t2.args) forall {case (a, b) => eq1(a, b)})
     }
     eq1(term1, term2)
+  }
+  
+  def inst(term1: Term, term2: Term): Boolean = {
+    val map = scala.collection.mutable.Map[Variable, Term]()
+    def walk(t1: Term, t2: Term): Boolean = t1 match {
+      case v1: Variable => map.get(v1) match {
+        case None => map(v1) = t2; true
+        case Some(t) => t == t2 
+      }
+      case _ => t1.productPrefix == t2.productPrefix && 
+        t1.name == t2.name && ((t1.args zip t2.args) forall {case (a, b) => walk(a, b)})
+    }
+    walk(term1, term2)
+  }
+  
+  def sub(term1: Term, term2: Term): Option[Map[Variable, Term]] = {
+    var map = Map[Variable, Term]()
+    def walk(t1: Term, t2: Term): Boolean = t1 match {
+      case v1: Variable => map.get(v1) match {
+        case None => map = map.update(v1, t2); true
+        case Some(t) => t == t2 
+      }
+      case _ => t1.productPrefix == t2.productPrefix && 
+        t1.name == t2.name && ((t1.args zip t2.args) forall {case (a, b) => walk(a, b)})
+    }
+    if (walk(term1, term2)) Some(map.filter {case (a, b) => a == b}) else None
+  }
+  
+  def isTrivial(expr: Expression): Boolean = expr match {
+    case l: LetExpression => !l.bindings.isEmpty
+    case c: Constructor => true
+    case v: Variable => true
+    case _ => false
   }
   
 }
