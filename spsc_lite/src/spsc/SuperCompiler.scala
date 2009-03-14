@@ -3,6 +3,12 @@ package spsc;
 import Util._
 
 class SuperCompiler(program: Program){
+  private var counter = 0
+  def nextVar(): Variable = {
+    counter += 1
+    Variable("$" + counter)
+  }
+  
   def driveExp(expr: Expression): List[Pair[Term, Map[Variable, Term]]] = expr match {
     case v: Variable => Nil
     case Constructor(name, args) => 
@@ -17,7 +23,7 @@ class SuperCompiler(program: Program){
     }
     case gCall @ GCall(name, (v : Variable) :: args) => 
       for (g <- program.gs(name);
-        val c = Constructor(g.arg0.name, g.arg0.args.map(v => SmallLanguageTermAlgebra.nextVar));
+        val c = Constructor(g.arg0.name, g.arg0.args.map(v => nextVar));
         val sub = Map(v -> c))
         yield (driveExp(applySub(gCall, sub)).head._1, sub)
     case GCall(name, call :: args) =>
