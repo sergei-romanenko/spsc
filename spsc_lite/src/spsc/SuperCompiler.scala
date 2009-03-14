@@ -38,22 +38,18 @@ class SuperCompiler(program: Program){
     while (!p.isClosed) {
       val beta = p.leafs.find(!_.isProcessed).get
       if (isTrivial(beta.expr)) {
-        drive(p, beta)
+        p.addChildren(beta, driveExp(beta.expr))
       } else {
         beta.ancestors.find(n1 => !isTrivial(n1.expr) && equiv(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])) match {
           case Some(alpha) => beta.repeated = alpha
           case None => beta.ancestors.find(n1 => !isTrivial(n1.expr) && inst(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])) match {
             case Some(alpha) => makeAbstraction(p, beta, alpha)
-            case None => drive(p, beta)
+            case None => p.addChildren(beta, driveExp(beta.expr))
           }
         }
       }
     }    
     p
-  }
-  
-  def drive(t: ProcessTree, n: Node): Unit = {
-    t.addChildren(n, driveExp(n.expr))
   }
   
   def makeAbstraction(t: ProcessTree, alpha: Node, beta: Node): Unit = {
