@@ -1,7 +1,6 @@
-package spsc;
+package spsc
 
-import SmallLanguageTermAlgebra._
-import Util.applySub
+import Util._
 import scala.collection.jcl.LinkedHashSet
 
 class ResidualProgramGenerator(val tree: ProcessTree) {
@@ -38,17 +37,17 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
     
     case fc @ FCall(name, args) =>
       if (node.outs.isEmpty){
-        if (node.ancestors.find(n => n.expr match {case fc_ : FCall => equivalent(fc, fc_); case _=>false}).isEmpty){
+        if (node.ancestors.find(n => n.expr match {case fc_ : FCall => equiv(fc, fc_); case _=>false}).isEmpty){
           return fc
         }
-        val pNode = node.ancestors.find(n => n.expr match {case fc_ : FCall => equivalent(fc, fc_); case _=>false}).get
+        val pNode = node.ancestors.find(n => n.expr match {case fc_ : FCall => equiv(fc, fc_); case _=>false}).get
         val pFc = pNode.expr.asInstanceOf[FCall]
         val pSign = signatures(pNode)
-        val sub = Map() ++ renaming(pFc, fc)
+        val sub = Util.sub(pFc, fc).get
         FCall(pSign.name, pSign.args.map(applySub(_, sub)))
       } else {
         tree.leafs.find(n => n.ancestors.contains(node) && 
-        (n.expr match {case fc_ : FCall => equivalent(fc, fc_); case _=>false})) match {
+        (n.expr match {case fc_ : FCall => equiv(fc, fc_); case _=>false})) match {
           case None => unfold(node.outs.head.child)
           case Some(fc1) => {
             val newName = if (node == tree.root) fc.name else rename(fc.name, node == tree.root)
@@ -64,13 +63,13 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
     
     case gc @ GCall(name, arg0 :: args) => 
       if (node.outs.isEmpty){
-        if (node.ancestors.find(n => n.expr match {case gc_ : GCall => equivalent(gc, gc_); case _=>false}).isEmpty){
+        if (node.ancestors.find(n => n.expr match {case gc_ : GCall => equiv(gc, gc_); case _=>false}).isEmpty){
           return gc
         }
-        val pNode = node.ancestors.find(n => n.expr match {case gc_ : GCall => equivalent(gc, gc_); case _=>false}).get
+        val pNode = node.ancestors.find(n => n.expr match {case gc_ : GCall => equiv(gc, gc_); case _=>false}).get
         val pGc = pNode.expr.asInstanceOf[GCall]
         val pSign = signatures(pNode)
-        val sub = Map() ++ renaming(pGc, gc)
+        val sub = Util.sub(pGc, gc).get
         if (pNode.outs.size == 1){
           FCall(pSign.name, pSign.args.map(applySub(_, sub)))
         } else {
@@ -78,7 +77,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
         }
       } else if (node.outs.head.substitution.isEmpty) {
         tree.leafs.find(n => n.ancestors.contains(node) && 
-        (n.expr match {case gc_ : GCall => equivalent(gc, gc_); case _=>false})) match {
+        (n.expr match {case gc_ : GCall => equiv(gc, gc_); case _=>false})) match {
           case None => unfold(node.outs.head.child)
           case Some(fc1) => {
             val signature = Signature(rename(gc.name, false), getVars(gc).toList)
