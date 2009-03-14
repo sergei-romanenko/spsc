@@ -19,13 +19,18 @@ object Util {
   
   def sub(term1: Term, term2: Term): Option[Map[Variable, Term]] = {
     var map = Map[Variable, Term]()
-    def walk(t1: Term, t2: Term): Boolean = t1 match {
-      case v1: Variable => map.get(v1) match {
+    def walk(t1: Term, t2: Term): Boolean = (t1, t2) match {
+      case (v1: Variable, _) => map.get(v1) match {
         case None => map = map.update(v1, t2); true
         case Some(t) => t == t2 
       }
-      case _ => t1.productPrefix == t2.productPrefix && 
-        t1.name == t2.name && ((t1.args zip t2.args) forall {case (a, b) => walk(a, b)})
+      case (Constructor(n1, args1), Constructor(n2, args2)) =>
+        n1 == n2 && ((args1 zip args2) forall {case (a, b) => walk(a, b)})
+      case (FCall(n1, args1), FCall(n2, args2)) =>
+        n1 == n2 && ((args1 zip args2) forall {case (a, b) => walk(a, b)})
+      case (GCall(n1, args1), GCall(n2, args2)) =>
+        n1 == n2 && ((args1 zip args2) forall {case (a, b) => walk(a, b)})
+      case _ => false
     }
     if (walk(term1, term2)) Some(map.filter {case (a, b) => a == b}) else None
   }

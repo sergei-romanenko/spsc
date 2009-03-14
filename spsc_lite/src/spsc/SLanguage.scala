@@ -1,20 +1,19 @@
 package spsc
-  
+
+trait Printable {
+  val name : String
+  val args : List[Printable]
+  override def toString = name + args.mkString("(", ", " ,")")
+}
+
 abstract class Expression
+sealed abstract class Term extends Expression with Printable
+case class Variable(name: String) extends Term {val args = null} 
+case class Constructor(name: String, args: List[Term]) extends Term
+case class FCall(name: String, args: List[Term]) extends Term
+case class GCall(name: String, args: List[Term]) extends Term
+case class Pattern(name: String, args: List[Variable]) extends Printable
 
-sealed abstract case class Term(name: String, args: List[Term]) extends Expression {
-  override def toString = name + args.mkString("(", ", " ,")")
-}
-case class Variable(override val name: String) extends Term(name, Nil) {
-  override def toString() = name
-}
-case class Constructor(override val name: String, override val args: List[Term]) extends Term(name, args)
-case class FCall(override val name: String, override val args: List[Term]) extends Term(name, args)
-case class GCall(override val name: String, override val args: List[Term]) extends Term(name, args)
-
-case class Pattern(name: String, args: List[Variable]) {
-  override def toString = name + args.mkString("(", ", " ,")")
-}
 sealed abstract class Definition {
   def name: String
 }
