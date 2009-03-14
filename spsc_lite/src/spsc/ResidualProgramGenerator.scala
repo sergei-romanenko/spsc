@@ -36,7 +36,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
       if (pNode.outs.size == 1){
         FCall(pSign.name, pSign.args.map(applySub(_, sub)))
       } else {
-        GCall(pSign.name, applySub(pSign.args.head, sub) :: pSign.args.tail.map(applySub(_, sub)))
+        GCall(pSign.name, pSign.args.map(applySub(_, sub)))
       }
     } else node.expr match {
       case v: Variable => v
@@ -45,22 +45,9 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
       case LetExpression(term, bindings) => 
         applySub(unfold(node.outs.head.child), 
           Map() ++ (bindings.map(pair => pair._1) zip node.outs.tail.map(e => unfold(e.child))))
-    
-      case fc @ FCall(name, args) =>
-        tree.leafs.find(_.repeated == node) match {
-          case None => unfold(node.outs.head.child)
-          case Some(fc1) => {
-            val newName = if (node == tree.root) fc.name else rename(fc.name, node == tree.root)
-            val signature = Signature(newName, getVars(fc).toList)
-            signatures(node) = signature
-            val result = unfold(node.outs.head.child)
-            defs += FFunction(signature.name, signature.args, result)
-            result
-          }
-        }
       
     
-    case gc @ GCall(name, arg0 :: args) => 
+    case gc : Term => 
       if (node.outs.head.substitution.isEmpty) {
         tree.leafs.find(_.repeated == node) match {
           case None => unfold(node.outs.head.child)
