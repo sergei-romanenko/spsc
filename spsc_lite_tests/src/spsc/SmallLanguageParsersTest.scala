@@ -12,7 +12,7 @@ class SmallLanguageParsersTest {
     
     val expected = 
       FFunction("fA", List(Variable("x")), Variable("x")) :: Nil
-    val result = TestUtils.parseResultFromString(programText.stripMargin)    
+    val result = TestUtils.defs(programText.stripMargin)    
     println(result)
     assertEquals(expected, result)    
   }
@@ -28,7 +28,7 @@ class SmallLanguageParsersTest {
           Pattern("C", Nil),
           Nil,
           Constructor("C", Nil)) :: Nil
-    val result = TestUtils.parseResultFromString(programText.stripMargin)
+    val result = TestUtils.defs(programText.stripMargin)
     println(result)
     assertEquals(expected, result)
   }
@@ -50,7 +50,7 @@ class SmallLanguageParsersTest {
           List(Variable("vs")), 
           Constructor("Cons", List(Variable("u"), GCall("gA", Variable("us") :: List( Variable("vs")))))) :: 
       Nil
-    val result = TestUtils.parseResultFromString(programText.stripMargin)
+    val result = TestUtils.defs(programText.stripMargin)
     println(result)
     assertEquals(expected, result)    
   }
@@ -72,7 +72,7 @@ class SmallLanguageParsersTest {
           List(Variable("vs")), 
           Constructor("Cons", List(Variable("u"), GCall("gA", Variable("us") :: List( Variable("vs")))))) :: 
       Nil
-    val result = TestUtils.parseResultFromString(programText.stripMargin)
+    val result = TestUtils.defs(programText.stripMargin)
     println(result)
     assertEquals(expected, result)    
   }
@@ -83,7 +83,7 @@ class SmallLanguageParsersTest {
     |a(Nil, Nil) = Nil;
     """
     try{
-      val result = TestUtils.parseResultFromString(programText.stripMargin)
+      val result = TestUtils.defs(programText.stripMargin)
       println(result)
       fail
     } catch {

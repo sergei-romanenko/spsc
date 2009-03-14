@@ -48,7 +48,6 @@ class SuperCompiler(program: Program){
   
   def drive(t: ProcessTree, n: Node): Unit = {
     t.addChildren(n, driveExp(n.expr))
-    println()
   }
   
   def makeAbstraction(t: ProcessTree, alpha: Node, beta: Node): Unit = {

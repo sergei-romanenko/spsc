@@ -43,7 +43,6 @@ object Util {
   }
   
   def programFromString(input: String) = { 
-    val pr = SmallLanguageParsers.parseProgram(new CharArrayReader(input.toCharArray))
-    new Program(pr)
+    SmallLanguageParsers.parseProgram(new CharArrayReader(input.toCharArray))
   }
 }

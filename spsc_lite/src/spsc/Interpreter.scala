@@ -16,9 +16,8 @@ class Interpreter (program: Program) {
   }
   
   def eval(input: String): Term = {
-    val pr = SmallLanguageParsers.parseTerm(new CharArrayReader(input.toCharArray))
-    if (pr.isEmpty) throw new IllegalArgumentException(pr.toString)
-    eval(correctCalls(pr.get, program))
+    val term = SmallLanguageParsers.parseTerm(new CharArrayReader(input.toCharArray))
+    eval(term)
   }
   
   private def lazyEval(t: Term): Constructor = t match {

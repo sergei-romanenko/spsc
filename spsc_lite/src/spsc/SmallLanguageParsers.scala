@@ -22,9 +22,8 @@ object SmallLanguageParsers extends StandardTokenParsers with ImplicitConversion
   def fcall = fid ~ ("(" ~> repsep(term, ",") <~ ")") ^^ FCall
   def gcall = gid ~ ("(" ~> repsep(term, ",") <~ ")") ^^ GCall
   
-  def parseProgram(r: Reader[Char]): List[Definition] = {
-    val res = program(new lexical.Scanner(r))
-    res.get
-   }
-  def parseTerm(r: Reader[Char]): ParseResult[Term] = term(new lexical.Scanner(r))
+  def parseProgram(r: Reader[Char]) = Program(program(new lexical.Scanner(r)).get)
+  def parseTerm(r: Reader[Char]) = term(new lexical.Scanner(r)).get
+  
+  def parseProgram2(r: Reader[Char]) = program(new lexical.Scanner(r)).get
 }

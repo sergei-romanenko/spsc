@@ -102,6 +102,8 @@ class SmallLanguageTermAlgebraTest {
                           
     // A(B) !<~ A(x);
     assertFalse(instanceOf(__("A(B())"), __("A(x)")))
+    
+    assertTrue(instanceOf(__("x"), __("A(x)")))
   }
     
   @Test def simpleIncommensurable(): Unit = {

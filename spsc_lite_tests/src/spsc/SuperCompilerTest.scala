@@ -9,7 +9,7 @@ class SuperCompilerTest {
   @Test def processSamples(): Unit =
   {
     // 17 is important
-    val samples = List(1,2,3,6, 8, 9, 10, 11, 12, 17, 18, 20, 21)
+    val samples = List(1,2,3,5,6, 8, 9, 10, 11, 12, 17, 18, 20, 21)
     
     for (i <- samples) {
       SuperCompilerApp.main(Array("-i", "input/test.sl",
