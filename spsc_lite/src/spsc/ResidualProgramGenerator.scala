@@ -51,7 +51,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
             signatures(node) = signature
             val result = unfold(node.outs.head.child)
             defs += FFunction(signature.name, signature.args, result)
-            FCall(signature.name, signature.args)
+            result
           }
         }
       }
@@ -72,7 +72,8 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
         tree.leafs.find(_.repeated == node) match {
           case None => unfold(node.outs.head.child)
           case Some(fc1) => {
-            val signature = Signature(rename(gc.name, false), getVars(gc).toList)
+            val newName = if (node == tree.root) gc.name else rename(gc.name, node == tree.root)
+            val signature = Signature(newName, getVars(gc).toList)
             signatures(node) = signature
             val result = unfold(node.outs.head.child)
             defs += FFunction(signature.name, signature.args, result)
