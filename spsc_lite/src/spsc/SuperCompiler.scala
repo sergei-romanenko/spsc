@@ -1,6 +1,6 @@
 package spsc;
 
-import Util.applySub
+import Util._
 
 class SuperCompiler(program: Program){
   def driveExp(expr: Expression): List[Pair[Term, Map[Variable, Term]]] = expr match {
@@ -53,22 +53,6 @@ class SuperCompiler(program: Program){
   def makeAbstraction(t: ProcessTree, alpha: Node, beta: Node): Unit = {
     val g = sub(alpha.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term]).get
     t.replace(alpha, LetExpression(alpha.expr.asInstanceOf[Term], (Map() ++ g).toList))
-  }
-  
-  def equiv(term1: Term, term2: Term): Boolean = inst(term1, term2) && inst(term2, term1)
-  def inst(term1: Term, term2: Term): Boolean = sub(term1, term2).isDefined
-  
-  def sub(term1: Term, term2: Term): Option[Map[Variable, Term]] = {
-    var map = Map[Variable, Term]()
-    def walk(t1: Term, t2: Term): Boolean = t1 match {
-      case v1: Variable => map.get(v1) match {
-        case None => map = map.update(v1, t2); true
-        case Some(t) => t == t2 
-      }
-      case _ => t1.productPrefix == t2.productPrefix && 
-        t1.name == t2.name && ((t1.args zip t2.args) forall {case (a, b) => walk(a, b)})
-    }
-    if (walk(term1, term2)) Some(map.filter {case (a, b) => a == b}) else None
   }
   
   def isTrivial(expr: Expression): Boolean = expr match {

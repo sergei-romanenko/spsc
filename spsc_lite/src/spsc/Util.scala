@@ -14,32 +14,20 @@ object Util {
       GCall(name, applySub(arg0, map) :: args.map(applySub(_, map)))
   }
   
-  abstract sealed class FType
-  case object F extends FType
-  case object G extends FType
+  def equiv(term1: Term, term2: Term): Boolean = inst(term1, term2) && inst(term2, term1)
+  def inst(term1: Term, term2: Term): Boolean = sub(term1, term2).isDefined
   
-  def correctCalls(rawTerm: Term, program: Program): Term = {
-    def cc(t: Term): Term = t match {
-      case v: Variable => v
-      case Constructor(name, args) => Constructor(name, args.map(cc))
-      case FCall(name, args) => funType(name, program) match {
-        case F => {
-          assume(program.f(name).args.size == args.size, "bad call: " + t);
-          FCall(name, args.map(cc))
-        }
-        case G => {
-          assume(program.gs(name).head.args.size == args.size - 1, "bad call: " + t);
-          GCall(name, cc(args.head) :: args.tail.map(cc))
-        }
+  def sub(term1: Term, term2: Term): Option[Map[Variable, Term]] = {
+    var map = Map[Variable, Term]()
+    def walk(t1: Term, t2: Term): Boolean = t1 match {
+      case v1: Variable => map.get(v1) match {
+        case None => map = map.update(v1, t2); true
+        case Some(t) => t == t2 
       }
-      case g: GCall => throw new IllegalArgumentException("Internal error: raw term contains g-call")
+      case _ => t1.productPrefix == t2.productPrefix && 
+        t1.name == t2.name && ((t1.args zip t2.args) forall {case (a, b) => walk(a, b)})
     }
-    cc(rawTerm)
-  }
-  
-  private def funType(name: String, program: Program): FType = program.defs.find(_.name == name) match {
-    case None => throw new IllegalArgumentException("Function " + name + " is undefined")
-    case Some(d) => d match {case f: FFunction => F; case g: GFunction => G;}
+    if (walk(term1, term2)) Some(map.filter {case (a, b) => a == b}) else None
   }
   
   def programFromString(input: String) = { 
