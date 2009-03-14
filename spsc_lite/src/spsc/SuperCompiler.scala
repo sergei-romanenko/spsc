@@ -31,23 +31,15 @@ class SuperCompiler(program: Program){
   def buildProcessTree(e: Expression): ProcessTree = {
     val p = new ProcessTree(new Node(e, null, Nil))
     while (!p.isClosed) {
-      println()
-      println(p)
       val beta = p.leafs.find(!_.isProcessed).get
-      if (isTrivial(beta.expr) || beta.ancestors.forall(n1 => isTrivial(n1.expr) || !strictHE(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term]))){
+      if (isTrivial(beta.expr)) {
         drive(p, beta)
       } else {
         beta.ancestors.find(n1 => !isTrivial(n1.expr) && equivalent(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])) match {
           case Some(alpha) => beta.repeated = alpha
-          case None => {
-            val alpha = beta.ancestors.find(n1 => !isTrivial(n1.expr) && strictHE(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])).get
-            if (instanceOf(alpha.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])){
-              makeAbstraction(p, beta, alpha)
-            } else if (incommensurable(alpha.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])){
-              split(p, beta)
-            } else {
-              makeAbstraction(p, alpha, beta)
-            }
+          case None => beta.ancestors.find(n1 => !isTrivial(n1.expr) && instanceOf(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])) match {
+            case Some(alpha) => makeAbstraction(p, beta, alpha)
+            case None => drive(p, beta)
           }
         }
       }
@@ -70,24 +62,6 @@ class SuperCompiler(program: Program){
       t.replace(alpha, LetExpression(g.term, (Map() ++ g.sub1).toList))
     }
     
-  }
-  
-  def split(t: ProcessTree, n: Node): Unit = n.expr match {
-    case c @ Constructor(name, args) => {
-      val vars = args.map(a => nextVar())
-      val sub = Map() ++ (vars zip args)
-      t.replace(n, LetExpression(Constructor(name, vars), sub.toList))
-    }
-    case f @ FCall(name, args) =>
-      val vars = args.map(a => nextVar())
-      val sub = Map() ++ (vars zip args)
-      t.replace(n, LetExpression(FCall(name, vars), sub.toList))
-    case g @ GCall(name, arg0 :: args) =>
-      val arg0Var = nextVar
-      val vars = args.map(a => nextVar())
-      val sub = Map() ++ ((arg0Var :: vars) zip (arg0 :: args))
-      t.replace(n, LetExpression(GCall(name, arg0Var :: vars), sub.toList))
-    case _ => throw new IllegalArgumentException("Can not split " + n.expr)
   }
   
 }
