@@ -12,14 +12,14 @@ class Node(val expr: Term, val in: Edge, var outs: List[Edge]) {
   }
 }
   
-class Edge(val parent: Node, var child: Node, val substitution: Map[Var, Term])
+class Edge(val parent: Node, var child: Node, val substitution: (Var, Cons))
 
 class ProcessTree(var root: Node) {
   def leafs = root.leafs
   def replace(node: Node, exp: Term) =  node.in.child = new Node(exp, node.in, Nil)
   def isClosed = leafs.forall(_.isProcessed)
   
-  def addChildren(node: Node, children: List[Pair[Term, Map[Var, Term]]]) =
+  def addChildren(node: Node, children: List[(Term, (Var, Cons))]) =
     node.outs = for (pair <- children) yield {
       val edge = new Edge(node, null, pair._2)
       val childNode = new Node(pair._1, edge, Nil)

@@ -47,7 +47,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
           Map() ++ (bindings.map(pair => pair._1) zip node.outs.tail.map(e => unfold(e.child))))
       
       case call : Call => 
-        if (node.outs.head.substitution.isEmpty) {
+        if (node.outs.head.substitution == null) {
           tree.leafs.find(_.repeated == node) match {
             case None => unfold(node.outs.head.child)
             case Some(fc1) => {
@@ -60,12 +60,12 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
             }
           }
         } else {
-          val patternVar = node.outs.head.substitution.toList.head._1
+          val patternVar = node.outs.head.substitution._1
           val vars = (getVars(call) - patternVar).toList
           val signature = Signature(rename(call.f, node == tree.root), patternVar :: vars)
           signatures(node) = signature
           for (edge <- node.outs){
-            val e = edge.substitution(patternVar).asInstanceOf[Cons]
+            val e = edge.substitution._2.asInstanceOf[Cons]
             val patName = e.name
             var patVars = e.args.map(_.asInstanceOf[Var])
             defs += GFun(signature.name, Pattern(patName, patVars), vars, unfold(edge.child))

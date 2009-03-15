@@ -1,17 +1,29 @@
 package spsc
 
-sealed abstract class Term
-case class Var(name: String) extends Term
-case class Cons(name: String, args: List[Term]) extends Term
+abstract class Term
+case class Var(name: String) extends Term {
+  override def toString = name
+}
+case class Cons(name: String, args: List[Term]) extends Term {
+  override def toString = name + args.mkString("(", ", " ,")")
+}
 abstract class Call(val f: String) extends Term
-case class FCall(name: String, args: List[Term]) extends Call(name)
-case class GCall(name: String, args: List[Term]) extends Call(name)
+case class FCall(name: String, args: List[Term]) extends Call(name) {
+  override def toString = name + args.mkString("(", ", " ,")")
+}
+case class GCall(name: String, args: List[Term]) extends Call(name) {
+  override def toString = name + args.mkString("(", ", " ,")")
+}
 case class Let(term: Term, bindings: List[(Var, Term)]) extends Term
 case class Pattern(name: String, args: List[Var])
 
-sealed abstract class Def {def name: String}
-case class FFun(name: String, args: List[Var], term: Term) extends Def
-case class GFun(name: String, p: Pattern, args: List[Var], term: Term) extends Def
+abstract class Def {def name: String}
+case class FFun(name: String, args: List[Var], term: Term) extends Def {
+  override def toString = name + args.mkString("(", ", " ,")") + " = " + term + ";"
+}
+case class GFun(name: String, p: Pattern, args: List[Var], term: Term) extends Def {
+  override def toString = name + (p :: args).mkString("(", ", " ,")")  + " = " + term + ";"
+}
 
 case class Program(defs: List[Def]){
   val f = (defs :\ (Map[String, FFun]())) 
