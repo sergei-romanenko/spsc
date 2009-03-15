@@ -7,10 +7,19 @@ object Sample {
     fGoal(x, y, z) = gAppend(gAppend(x,y), Nil());
     gAppend(Nil(), vs) = vs;
     gAppend(Cons(u, us), vs) = Cons(u, gAppend(us, vs));
+    
+    f(a) = g1(a, b);
+    g1(Nil(), v) = Nil();
+    g2(Cons(x, y)) = Nil();
     """
-    val inputText = "fGoal(a, b, c)"
-    val program = SLanguageParsers.parseProgram(programText)
+    val inputText = "f(x)"  //"fGoal(a, b, c)"
     val inputTerm = SLanguageParsers.parseTerm(inputText)
+    val program = SLanguageParsers.parseProgram(programText)
+
+    
+    //val f: FFun = program.f("fApp2") // f-функция
+    //val g: GFun = program.g("gApp", "Nil") // g-функция, соответствующей образцу
+    //val gs: List[GFun] = program.gs("gApp") // список g-функций
     
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(inputTerm)
