@@ -7,7 +7,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
   import ResidualProgramGenerator._
   
   private var signatures = scala.collection.mutable.Map[Node, Signature]()
-  private val defs = new scala.collection.mutable.ListBuffer[Definition]
+  private val defs = new scala.collection.mutable.ListBuffer[Def]
   private val fnames = scala.collection.mutable.Set[String]()
   
   private val rootName = tree.root.expr.asInstanceOf[FCall].name
@@ -16,10 +16,10 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
     val t = unfold(tree.root)
     val rootCall = tree.root.expr.asInstanceOf[FCall]
     signatures.get(tree.root) match {
-      case None => defs += FFunction(rootCall.name, rootCall.args.map(_.asInstanceOf[Variable]), t)
+      case None => defs += FFun(rootCall.name, rootCall.args.map(_.asInstanceOf[Var]), t)
       case _ =>
     }    
-    val newDefs = new scala.collection.mutable.ListBuffer[Definition]
+    val newDefs = new scala.collection.mutable.ListBuffer[Def]
     for (d <- defs) {
       newDefs += renameVarsInDefinition(d)
     }
@@ -32,18 +32,18 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
       val pNode = node.repeated
       val pGc = pNode.expr.asInstanceOf[Term]
       val pSign = signatures(pNode)
-      val sub = Util.sub(pGc, gc).get
+      val s = Util.findSub(pGc, gc).get
       if (pNode.outs.size == 1){
-        FCall(pSign.name, pSign.args.map(applySub(_, sub)))
+        FCall(pSign.name, pSign.args.map(sub(_, s)))
       } else {
-        GCall(pSign.name, pSign.args.map(applySub(_, sub)))
+        GCall(pSign.name, pSign.args.map(sub(_, s)))
       }
     } else node.expr match {
-      case v: Variable => v
-      case Constructor(name, args) => Constructor(name, node.outs.map(e => unfold(e.child)))
+      case v: Var => v
+      case Cons(name, args) => Cons(name, node.outs.map(e => unfold(e.child)))
     
-      case LetExpression(term, bindings) => 
-        applySub(unfold(node.outs.head.child), 
+      case Let(term, bindings) => 
+        sub(unfold(node.outs.head.child), 
           Map() ++ (bindings.map(pair => pair._1) zip node.outs.tail.map(e => unfold(e.child))))
       
       case call : Call => 
@@ -55,7 +55,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
               val signature = Signature(newName, getVars(call).toList)
               signatures(node) = signature
               val result = unfold(node.outs.head.child)
-              defs += FFunction(signature.name, signature.args, result)
+              defs += FFun(signature.name, signature.args, result)
               result
             }
           }
@@ -65,20 +65,20 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
           val signature = Signature(rename(call.f, node == tree.root), patternVar :: vars)
           signatures(node) = signature
           for (edge <- node.outs){
-            val e = edge.substitution(patternVar).asInstanceOf[Constructor]
+            val e = edge.substitution(patternVar).asInstanceOf[Cons]
             val patName = e.name
-            var patVars = e.args.map(_.asInstanceOf[Variable])
-            defs += GFunction(signature.name, Pattern(patName, patVars), vars, unfold(edge.child))
+            var patVars = e.args.map(_.asInstanceOf[Var])
+            defs += GFun(signature.name, Pattern(patName, patVars), vars, unfold(edge.child))
           }
           GCall(signature.name, patternVar :: vars)
       }
   }
   
-  private def getVars(t: Term): LinkedHashSet[Variable] = {
-    val vars = new LinkedHashSet[Variable]()
+  private def getVars(t: Term): LinkedHashSet[Var] = {
+    val vars = new LinkedHashSet[Var]()
     t match {
-      case v: Variable => vars + v
-      case c: Constructor => c.args.map(arg => {vars ++ getVars(arg)})
+      case v: Var => vars + v
+      case c: Cons => c.args.map(arg => {vars ++ getVars(arg)})
       case f: FCall => f.args.map(arg => {vars ++ getVars(arg)})
       case g: GCall => (g.args).map(arg => {vars ++ getVars(arg)})
     }
@@ -103,27 +103,27 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
 }
 
 object ResidualProgramGenerator{
-  case class Signature(name: String, args: List[Variable])
+  case class Signature(name: String, args: List[Var])
   def generateResidualProgram(tree: ProcessTree) = new ResidualProgramGenerator(tree).generateProgram()
   val letters = "abcdefghijklmnopqrstuvwxyz".toArray
   
-  def getVar(n: Int): Variable = {
+  def getVar(n: Int): Var = {
     val sb = new StringBuilder
     for (s <- Integer.toString(n, 26)) {
       sb.append(letters(Integer.parseInt("" + s, 26)))
     } 
-    Variable(sb.toString)
+    Var(sb.toString)
   }
   
-  def renameVarsInDefinition(d: Definition) = d match {
-    case f: FFunction =>
+  def renameVarsInDefinition(d: Def) = d match {
+    case f: FFun =>
       val args = f.args
       val renaming = Map() ++ ((args) zip (args.indices.map(getVar(_)))) 
-      FFunction(f.name, f.args.map(renaming(_)), applySub(f.term, renaming))
-    case g: GFunction =>
-      val args = g.arg0.args ::: g.args
+      FFun(f.name, f.args.map(renaming(_)), sub(f.term, renaming))
+    case g: GFun =>
+      val args = g.p.args ::: g.args
       val renaming = Map() ++ ((args) zip (args.indices.map(getVar(_))))
-      GFunction(g.name, Pattern(g.arg0.name, g.arg0.args.map(renaming(_))), g.args.map(renaming(_)), applySub(g.term, renaming))    
+      GFun(g.name, Pattern(g.p.name, g.p.args.map(renaming(_))), g.args.map(renaming(_)), sub(g.term, renaming))    
   }
 
 }
