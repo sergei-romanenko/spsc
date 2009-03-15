@@ -13,7 +13,7 @@ class ResidualProgramGenerator(val tree: Tree) {
   private val rootName = tree.root.expr.asInstanceOf[FCall].name
   
   private def generateProgram(): Program = {
-    val t = unfold(tree.root)
+    val t = walk(tree.root)
     val rootCall = tree.root.expr.asInstanceOf[FCall]
     signatures.get(tree.root) match {
       case None => defs += FFun(rootCall.name, rootCall.args.map(_.asInstanceOf[Var]), t)
@@ -26,7 +26,7 @@ class ResidualProgramGenerator(val tree: Tree) {
     Program(newDefs.toList.sort((e1, e2) => (e1.name compareTo e2.name) < 0))
   }
   
-  private def unfold(node: Node): Term = 
+  private def walk(node: Node): Term = 
     if (node.repeated != null) {
       val gc = node.expr.asInstanceOf[Term]
       val pNode = node.repeated
@@ -40,21 +40,21 @@ class ResidualProgramGenerator(val tree: Tree) {
       }
     } else node.expr match {
       case v: Var => v
-      case Cons(name, args) => Cons(name, node.outs.map(e => unfold(e.child)))
+      case Cons(name, args) => Cons(name, node.outs.map(e => walk(e.child)))
     
       case Let(term, bindings) => 
-        sub(unfold(node.outs.head.child), 
-          Map() ++ (bindings.map(pair => pair._1) zip node.outs.tail.map(e => unfold(e.child))))
+        sub(walk(node.outs.head.child), 
+          Map() ++ (bindings.map(pair => pair._1) zip node.outs.tail.map(e => walk(e.child))))
       
       case call : Call => 
         if (node.outs.head.branch == null) {
           tree.leafs.find(_.repeated == node) match {
-            case None => unfold(node.outs.head.child)
+            case None => walk(node.outs.head.child)
             case Some(fc1) => {
               val newName = if (node == tree.root) call.f else rename(call.f, node == tree.root)
               val signature = Signature(newName, getVars(call).toList)
               signatures(node) = signature
-              val result = unfold(node.outs.head.child)
+              val result = walk(node.outs.head.child)
               defs += FFun(signature.name, signature.args, result)
               result
             }
@@ -68,7 +68,7 @@ class ResidualProgramGenerator(val tree: Tree) {
             val e = edge.branch._2
             val patName = e.name
             var patVars = e.args.map(_.asInstanceOf[Var])
-            defs += GFun(signature.name, Pattern(patName, patVars), vars, unfold(edge.child))
+            defs += GFun(signature.name, Pattern(patName, patVars), vars, walk(edge.child))
           }
           GCall(signature.name, patternVar :: vars)
       }
@@ -115,15 +115,6 @@ object ResidualProgramGenerator{
     Var(sb.toString)
   }
   
-  def renameVarsInDefinition(d: Def) = d match {
-    case f: FFun =>
-      val args = f.args
-      val renaming = Map() ++ ((args) zip (args.indices.map(getVar(_)))) 
-      FFun(f.name, f.args.map(renaming(_)), sub(f.term, renaming))
-    case g: GFun =>
-      val args = g.p.args ::: g.args
-      val renaming = Map() ++ ((args) zip (args.indices.map(getVar(_))))
-      GFun(g.name, Pattern(g.p.name, g.p.args.map(renaming(_))), g.args.map(renaming(_)), sub(g.term, renaming))    
-  }
+  def renameVarsInDefinition(d: Def) = d
 
 }
