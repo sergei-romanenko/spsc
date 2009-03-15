@@ -1,5 +1,6 @@
 package spsc
 
+class Edge(val parent: Node, var child: Node, val substitution: (Var, Cons))
 class Node(val expr: Term, val in: Edge, var outs: List[Edge]) {
   var repeated: Node = null
   def ancestors(): List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
@@ -11,19 +12,14 @@ class Node(val expr: Term, val in: Edge, var outs: List[Edge]) {
     case _ => repeated != null
   }
 }
-  
-class Edge(val parent: Node, var child: Node, val substitution: (Var, Cons))
-
-class ProcessTree(var root: Node) {
+class Tree(var root: Node) {
   def leafs = root.leafs
   def replace(node: Node, exp: Term) =  node.in.child = new Node(exp, node.in, Nil)
-  def isClosed = leafs.forall(_.isProcessed)
   
   def addChildren(node: Node, children: List[(Term, (Var, Cons))]) =
-    node.outs = for (pair <- children) yield {
-      val edge = new Edge(node, null, pair._2)
-      val childNode = new Node(pair._1, edge, Nil)
-      edge.child = childNode
+    node.outs = for ((term, b) <- children) yield {
+      val edge = new Edge(node, null, b)
+      edge.child = new Node(term, edge, Nil)
       edge
     }
 }

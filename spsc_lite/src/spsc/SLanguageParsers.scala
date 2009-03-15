@@ -2,7 +2,7 @@ package spsc
 
 import scala.util.parsing.combinator.ImplicitConversions
 import scala.util.parsing.combinator.syntactical.StandardTokenParsers
-import scala.util.parsing.input.Reader
+import scala.util.parsing.input.{CharSequenceReader => Reader}
 
 object SLanguageParsers extends StandardTokenParsers with ImplicitConversions {
   lexical.delimiters += ("(", ")", ",", "=", ";")
@@ -20,7 +20,6 @@ object SLanguageParsers extends StandardTokenParsers with ImplicitConversions {
   def cons = uid ~ ("(" ~> repsep(term, ",") <~ ")") ^^ Cons
   def fcall = fid ~ ("(" ~> repsep(term, ",") <~ ")") ^^ FCall
   def gcall = gid ~ ("(" ~> repsep(term, ",") <~ ")") ^^ GCall
-  def parseProgram(r: Reader[Char]) = Program(program(new lexical.Scanner(r)).get)
-  def parseTerm(r: Reader[Char]) = term(new lexical.Scanner(r)).get
-  def parseProgram2(r: Reader[Char]) = program(new lexical.Scanner(r)).get
+  def parseProgram(s: String) = Program(program(new lexical.Scanner(new Reader(s))).get)
+  def parseTerm(s: String) = term(new lexical.Scanner(new Reader(s))).get
 }

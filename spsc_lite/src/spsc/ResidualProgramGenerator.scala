@@ -3,7 +3,7 @@ package spsc
 import Util._
 import scala.collection.jcl.LinkedHashSet
 
-class ResidualProgramGenerator(val tree: ProcessTree) {
+class ResidualProgramGenerator(val tree: Tree) {
   import ResidualProgramGenerator._
   
   private var signatures = scala.collection.mutable.Map[Node, Signature]()
@@ -32,7 +32,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
       val pNode = node.repeated
       val pGc = pNode.expr.asInstanceOf[Term]
       val pSign = signatures(pNode)
-      val s = Util.findSub(pGc, gc).get
+      val s = Util.findSub(pGc, gc)
       if (pNode.outs.size == 1){
         FCall(pSign.name, pSign.args.map(sub(_, s)))
       } else {
@@ -104,7 +104,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
 
 object ResidualProgramGenerator{
   case class Signature(name: String, args: List[Var])
-  def generateResidualProgram(tree: ProcessTree) = new ResidualProgramGenerator(tree).generateProgram()
+  def generateResidualProgram(tree: Tree) = new ResidualProgramGenerator(tree).generateProgram()
   val letters = "abcdefghijklmnopqrstuvwxyz".toArray
   
   def getVar(n: Int): Var = {

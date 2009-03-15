@@ -6,7 +6,7 @@ class SuperCompiler(p: Program){
     case FCall(name, args)  => List((sub(p.f(name).term, Map(p.f(name).args zip args : _*)), null))
     case GCall(name, Cons(cname, cargs) :: args) =>
       val g = p.g(name, cname)  
-      (sub(g.term, Map((g.p.args:::g.args) zip (cargs ::: args): _*)), null) :: Nil
+      List((sub(g.term, Map((g.p.args:::g.args) zip (cargs ::: args): _*)), null))
     case gCall @ GCall(name, (v : Var) :: args) => 
       for (g <- p.gs(name); val cons = Cons(g.p.name, g.p.args.map(_ => nv)))
         yield (driveExp(sub(gCall, Map(v->cons)))(0)._1, (v, cons))
@@ -14,9 +14,9 @@ class SuperCompiler(p: Program){
     case Let(term, bs) => (term, null) :: bs.map {pair => (pair._2, null)}
   }
   
-  def buildProcessTree(e: Term): ProcessTree = {
-    val t = new ProcessTree(new Node(e, null, Nil))
-    while (!t.isClosed) {
+  def buildProcessTree(e: Term): Tree = {
+    val t = new Tree(new Node(e, null, Nil))
+    while (!t.leafs.forall{_.isProcessed}) {
       val b = t.leafs.find(!_.isProcessed).get
       if (trivial(b.expr)) {
         t.addChildren(b, driveExp(b.expr))
@@ -30,19 +30,8 @@ class SuperCompiler(p: Program){
     t
   }
   
-  def split(t: ProcessTree, alpha: Node, beta: Node): Unit =
-    t.replace(alpha, Let(alpha.expr, findSub(alpha.expr, beta.expr).get.toList))
-  
-  def trivial(expr: Term): Boolean = expr match {
-    case l: Let => !l.bindings.isEmpty
-    case c: Cons => true
-    case v: Var => true
-    case _ => false
-  }
+  def split(t: Tree, a: Node, b: Node) = t.replace(a, Let(a.expr, findSub(a.expr, b.expr).toList))
+  def trivial(expr: Term): Boolean = expr match {case x: Call => false; case _ => true}
   private var counter = 0
-  def nv(): Var = {
-    counter += 1
-    Var("$" + counter)
-  }
-  
+  private def nv() = {counter += 1; Var("$" + counter)}
 }
