@@ -24,8 +24,7 @@ class ResidualProgramGenerator(val tree: Tree) {
           tree.leafs.find(_.repeated == node) match {
             case None => walk(node.outs.head.child)
             case Some(fc1) => {
-              val newName = if (node == tree.root) call.f else rename(call.f, node == tree.root)
-              val signature = Signature(newName, getVars(call).toList)
+              val signature = Signature(rename(call.f, node == tree.root), getVars(call).toList)
               signatures(node) = signature
               val body = walk(node.outs.head.child)
               defs += FFun(signature.name, signature.args, body)
@@ -35,13 +34,10 @@ class ResidualProgramGenerator(val tree: Tree) {
         } else {
           val patternVar = node.outs.head.branch._1
           val vars = (getVars(call) - patternVar).toList
-          val signature = Signature(rename(call.f, false), patternVar :: vars)
-          signatures(node) = signature
-          for (edge <- node.outs){
-            val pat = edge.branch._2
-            defs += GFun(signature.name, pat, vars, walk(edge.child))
-          }
-          GCall(signature.name, patternVar :: vars)
+          val sig = Signature(rename(call.f, false), patternVar :: vars)
+          signatures(node) = sig
+          for (edge <- node.outs) defs += GFun(sig.name, edge.branch._2, vars, walk(edge.child))
+          GCall(sig.name, patternVar :: vars)
       }
   }
   
