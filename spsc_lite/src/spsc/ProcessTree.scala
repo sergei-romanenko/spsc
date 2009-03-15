@@ -1,6 +1,6 @@
 package spsc
 
-class Node(val expr: Expression, val in: Edge, var outs: List[Edge]) {
+class Node(val expr: Term, val in: Edge, var outs: List[Edge]) {
   var repeated: Node = null
   def ancestors(): List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
   
@@ -28,7 +28,7 @@ class ProcessTree(var root: Node) {
       edge
     }
   
-  def replace(node: Node, exp: Expression) =  
+  def replace(node: Node, exp: Term) =  
     if (node == root)
       root = new Node(exp, node.in, Nil)
     else

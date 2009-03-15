@@ -9,7 +9,7 @@ class SuperCompiler(program: Program){
     Variable("$" + counter)
   }
   
-  def driveExp(expr: Expression): List[Pair[Term, Map[Variable, Term]]] = expr match {
+  def driveExp(expr: Term): List[Pair[Term, Map[Variable, Term]]] = expr match {
     case v: Variable => Nil
     case Constructor(name, args) => 
       args.map((_, Map()))
@@ -33,16 +33,16 @@ class SuperCompiler(program: Program){
   }
   
   // heart of supercompiler
-  def buildProcessTree(e: Expression): ProcessTree = {
+  def buildProcessTree(e: Term): ProcessTree = {
     val p = new ProcessTree(new Node(e, null, Nil))
     while (!p.isClosed) {
       val beta = p.leafs.find(!_.isProcessed).get
       if (isTrivial(beta.expr)) {
         p.addChildren(beta, driveExp(beta.expr))
       } else {
-        beta.ancestors.find(n1 => !isTrivial(n1.expr) && equiv(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])) match {
+        beta.ancestors.find(n1 => !isTrivial(n1.expr) && equiv(n1.expr, beta.expr)) match {
           case Some(alpha) => beta.repeated = alpha
-          case None => beta.ancestors.find(n1 => !isTrivial(n1.expr) && inst(n1.expr.asInstanceOf[Term], beta.expr.asInstanceOf[Term])) match {
+          case None => beta.ancestors.find(n1 => !isTrivial(n1.expr) && inst(n1.expr, beta.expr)) match {
             case Some(alpha) => makeAbstraction(p, beta, alpha)
             case None => p.addChildren(beta, driveExp(beta.expr))
           }
@@ -57,7 +57,7 @@ class SuperCompiler(program: Program){
     t.replace(alpha, LetExpression(alpha.expr.asInstanceOf[Term], (Map() ++ g).toList))
   }
   
-  def isTrivial(expr: Expression): Boolean = expr match {
+  def isTrivial(expr: Term): Boolean = expr match {
     case l: LetExpression => !l.bindings.isEmpty
     case c: Constructor => true
     case v: Variable => true

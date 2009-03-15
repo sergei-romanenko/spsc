@@ -46,12 +46,12 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
         applySub(unfold(node.outs.head.child), 
           Map() ++ (bindings.map(pair => pair._1) zip node.outs.tail.map(e => unfold(e.child))))
       
-      case call : Term => 
+      case call : Call => 
         if (node.outs.head.substitution.isEmpty) {
           tree.leafs.find(_.repeated == node) match {
             case None => unfold(node.outs.head.child)
             case Some(fc1) => {
-              val newName = if (node == tree.root) call.name else rename(call.name, node == tree.root)
+              val newName = if (node == tree.root) call.f else rename(call.f, node == tree.root)
               val signature = Signature(newName, getVars(call).toList)
               signatures(node) = signature
               val result = unfold(node.outs.head.child)
@@ -62,7 +62,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
         } else {
           val patternVar = node.outs.head.substitution.toList.head._1
           val vars = (getVars(call) - patternVar).toList
-          val signature = Signature(rename(call.name, node == tree.root), patternVar :: vars)
+          val signature = Signature(rename(call.f, node == tree.root), patternVar :: vars)
           signatures(node) = signature
           for (edge <- node.outs){
             val e = edge.substitution(patternVar).asInstanceOf[Constructor]
