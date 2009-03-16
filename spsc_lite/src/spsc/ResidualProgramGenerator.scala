@@ -32,11 +32,11 @@ class ResidualProgramGenerator(val tree: Tree) {
             }
           }
         } else {
-          val patternVar = node.outs.head.branch._1
+          val patternVar = node.outs.head.branch.v
           val vars = (getVars(call) - patternVar).toList
           val sig = Signature(rename(call.f, false), patternVar :: vars)
           signatures(node) = sig
-          for (edge <- node.outs) defs += GFun(sig.name, edge.branch._2, vars, walk(edge.child))
+          for (edge <- node.outs) defs += GFun(sig.name, edge.branch.pat, vars, walk(edge.child))
           GCall(sig.name, patternVar :: vars)
       }
   }
