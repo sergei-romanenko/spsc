@@ -22,7 +22,7 @@ class SuperCompiler(p: Program){
         t.addChildren(b, driveExp(b.expr))
       } else {
         b.ancestors.find(a => inst(a.expr, b.expr)) match {
-          case Some(a) => if (equiv(a.expr, b.expr)) b.repeated = a else split(t, b, a)
+          case Some(a) => if (equiv(a.expr, b.expr)) b.fnode = a else split(t, b, a)
           case None => t.addChildren(b, driveExp(b.expr))
         }
       }

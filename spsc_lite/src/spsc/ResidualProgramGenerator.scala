@@ -5,32 +5,27 @@ import scala.collection.jcl.LinkedHashSet
 
 class ResidualProgramGenerator(val tree: Tree) {
   import ResidualProgramGenerator._
-  private def walk(n: Node): Term = 
-    if (n.repeated != null) {
-      val sign = sigs(n.repeated)
-      if (n.repeated.outs.size == 1)
-        FCall(sign.name, sign.args.map(sub(_, Util.findSub(n.repeated.expr, n.expr))))
-      else
-        GCall(sign.name, sign.args.map(sub(_, Util.findSub(n.repeated.expr, n.expr))))
-    } else n.expr match {
-      case v: Var => v
-      case Cons(name, args) => Cons(name, n.children.map(walk))
-      case Let(_, bs) =>
-        sub(walk(n.children(0)), Map(bs.map{_._1} zip n.children.tail.map(walk) :_*))
-      case call : Call => 
-        if (n.outs(0).branch != null) {
-          val patternVar = n.outs(0).branch.v
-          val vars = (getVars(call) - patternVar).toList
-          sigs(n) = Signature(rename(call.f, false), patternVar :: vars)
-          for (e <- n.outs) defs += GFun(sigs(n).name, e.branch.pat, vars, walk(e.child))
-          GCall(sigs(n).name, patternVar :: vars)
-        } else if (!tree.leafs.exists(_.repeated == n)) walk(n.children(0)) else {
-            sigs(n) = Signature(rename(call.f, n == tree.root), getVars(call).toList)
-            val body = walk(n.children(0))
-            defs += FFun(sigs(n).name, sigs(n).args, body)
-            body
-          }
-  }
+  private def walk(n: Node): Term = if (n.fnode == null) n.expr match {
+    case v: Var => v
+    case Cons(name, args) => Cons(name, n.children.map(walk))
+    case Let(_, bs) => sub(walk(n.children(0)), Map(bs.map{_._1}.zip(n.children.tail.map(walk)):_*))
+    case call: Call =>
+      if (n.outs(0).branch != null) {
+        val patternVar = n.outs(0).branch.v
+        val vars = (getVars(call) - patternVar).toList
+        sigs(n) = Signature(rename(call.f, false), patternVar :: vars)
+        for (e <- n.outs) defs += GFun(sigs(n).name, e.branch.pat, vars, walk(e.child))
+        GCall(sigs(n).name, patternVar :: vars)
+      } else if (tree.leafs.exists(_.fnode == n)) {
+        sigs(n) = Signature(rename(call.f, n == tree.root), getVars(call).toList)
+        val body = walk(n.children(0))
+        defs += FFun(sigs(n).name, sigs(n).args, body)
+        body
+      } else walk(n.children(0))
+  } else if (n.fnode.outs.size == 1)
+    FCall(sigs(n.fnode).name, sigs(n.fnode).args.map(sub(_, Util.findSub(n.fnode.expr, n.expr))))
+  else
+    GCall(sigs(n.fnode).name, sigs(n.fnode).args.map(sub(_, Util.findSub(n.fnode.expr, n.expr))))
   
   private var sigs = scala.collection.mutable.Map[Node, Signature]()
   private val defs = new scala.collection.mutable.ListBuffer[Def]
