@@ -1,8 +1,6 @@
 package spsc
-
 import Util._
 import scala.collection.jcl.LinkedHashSet
-
 class ResidualProgramGenerator(val tree: Tree) {
   import ResidualProgramGenerator._
   private def walk(n: Node): Term = if (n.fnode == null) n.expr match {

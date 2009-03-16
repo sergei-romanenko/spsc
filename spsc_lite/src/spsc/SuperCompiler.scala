@@ -3,7 +3,7 @@ import Util._
 class SuperCompiler(p: Program){
   def driveExp(expr: Term): List[(Term, Branch)] = expr match {
     case Cons(name, args) => args.map((_,null))
-    case FCall(name, args)  => List((sub(p.f(name).term, Map(p.f(name).args zip args : _*)), null))
+    case FCall(name, args)  => List((sub(p.f(name).term, Map(p.f(name).args.zip(args): _*)), null))
     case GCall(name, Cons(cname, cargs) :: args) =>
       val g = p.g(name, cname)  
       List((sub(g.term, Map((g.p.args:::g.args) zip (cargs ::: args): _*)), null))
