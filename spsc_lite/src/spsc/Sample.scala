@@ -43,7 +43,7 @@ object Sample {
     g1(A(a)) = f1(a);
     g1(B(b)) = f1(b);
     """
-    val inputText = "f3(z)"
+    val inputText = "f1(z)"
     val program = SLanguageParsers.parseProgram(programText)
     val inputTerm = SLanguageParsers.parseTerm(inputText)
     
