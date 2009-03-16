@@ -9,12 +9,12 @@ class ResidualProgramGenerator(val tree: Tree) {
     case call: Call =>
       if (n.outs(0).branch != null) {
         val patternVar = n.outs(0).branch.v
-        val vars = (getVars(call) - patternVar).toList
+        val vars = getVars(call) - patternVar
         sigs(n) = Signature(rename(call.f, false, false), patternVar :: vars)
         for (e <- n.outs) defs += GFun(sigs(n).name, e.branch.pat, vars, walk(e.child))
         GCall(sigs(n).name, patternVar :: vars)
       } else if (tree.leafs.exists(_.fnode == n)) {
-        sigs(n) = Signature(rename(call.f, n == tree.root, true), getVars(call).toList)
+        sigs(n) = Signature(rename(call.f, n == tree.root, true), getVars(call))
         val body = walk(n.children(0))
         defs += FFun(sigs(n).name, sigs(n).args, body)
         body
