@@ -7,7 +7,7 @@ class ResidualProgramGenerator(val tree: Tree) {
   import ResidualProgramGenerator._
   private def walk(node: Node): Term = 
     if (node.repeated != null) {
-      val sign = signatures(node.repeated)
+      val sign = sigs(node.repeated)
       if (node.repeated.outs.size == 1)
         FCall(sign.name, sign.args.map(sub(_, Util.findSub(node.repeated.expr, node.expr))))
       else
@@ -21,25 +21,23 @@ class ResidualProgramGenerator(val tree: Tree) {
         if (node.outs(0).branch == null) {
           tree.leafs.find(_.repeated == node) match {
             case None => walk(node.children(0))
-            case Some(fc1) => {
-              val signature = Signature(rename(call.f, node == tree.root), getVars(call).toList)
-              signatures(node) = signature
+            case Some(_) => {
+              sigs(node) = Signature(rename(call.f, node == tree.root), getVars(call).toList)
               val body = walk(node.children(0))
-              defs += FFun(signature.name, signature.args, body)
+              defs += FFun(sigs(node).name, sigs(node).args, body)
               body
             }
           }
         } else {
           val patternVar = node.outs(0).branch.v
           val vars = (getVars(call) - patternVar).toList
-          val sig = Signature(rename(call.f, false), patternVar :: vars)
-          signatures(node) = sig
-          for (edge <- node.outs) defs += GFun(sig.name, edge.branch.pat, vars, walk(edge.child))
-          GCall(sig.name, patternVar :: vars)
+          sigs(node) = Signature(rename(call.f, false), patternVar :: vars)
+          for (e <- node.outs) defs += GFun(sigs(node).name, e.branch.pat, vars, walk(e.child))
+          GCall(sigs(node).name, patternVar :: vars)
       }
   }
   
-  private var signatures = scala.collection.mutable.Map[Node, Signature]()
+  private var sigs = scala.collection.mutable.Map[Node, Signature]()
   private val defs = new scala.collection.mutable.ListBuffer[Def]
   private val fnames = scala.collection.mutable.Set[String]()
   private val rootName = tree.root.expr.asInstanceOf[FCall].name
@@ -47,7 +45,7 @@ class ResidualProgramGenerator(val tree: Tree) {
   private def generateProgram(): Program = {
     val t = walk(tree.root)
     val rootCall = tree.root.expr.asInstanceOf[FCall]
-    signatures.get(tree.root) match {
+    sigs.get(tree.root) match {
       case None => defs += FFun(rootCall.name, rootCall.args.map(_.asInstanceOf[Var]), t)
       case _ =>
     }    
