@@ -5,7 +5,6 @@ import scala.collection.jcl.LinkedHashSet
 
 class ResidualProgramGenerator(val tree: Tree) {
   import ResidualProgramGenerator._
-  
   private def walk(node: Node): Term = 
     if (node.repeated != null) {
       val sign = signatures(node.repeated)
@@ -15,24 +14,23 @@ class ResidualProgramGenerator(val tree: Tree) {
         GCall(sign.name, sign.args.map(sub(_, Util.findSub(node.repeated.expr, node.expr))))
     } else node.expr match {
       case v: Var => v
-      case Cons(name, args) => Cons(name, node.outs.map(e => walk(e.child)))
+      case Cons(name, args) => Cons(name, node.children.map(walk))
       case Let(term, bs) =>
-        val s = Map(bs.map{_._1} zip node.outs.tail.map(e => walk(e.child)) :_*)
-        sub(walk(node.outs.head.child), s)
+        sub(walk(node.children(0)), Map(bs.map{_._1} zip node.children.tail.map(walk) :_*))
       case call : Call => 
-        if (node.outs.head.branch == null) {
+        if (node.outs(0).branch == null) {
           tree.leafs.find(_.repeated == node) match {
-            case None => walk(node.outs.head.child)
+            case None => walk(node.children(0))
             case Some(fc1) => {
               val signature = Signature(rename(call.f, node == tree.root), getVars(call).toList)
               signatures(node) = signature
-              val body = walk(node.outs.head.child)
+              val body = walk(node.children(0))
               defs += FFun(signature.name, signature.args, body)
               body
             }
           }
         } else {
-          val patternVar = node.outs.head.branch.v
+          val patternVar = node.outs(0).branch.v
           val vars = (getVars(call) - patternVar).toList
           val sig = Signature(rename(call.f, false), patternVar :: vars)
           signatures(node) = sig

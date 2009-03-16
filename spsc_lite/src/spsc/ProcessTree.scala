@@ -5,8 +5,8 @@ class Edge(val parent: Node, var child: Node, val branch: Branch)
 class Node(val expr: Term, val in: Edge, var outs: List[Edge]) {
   var repeated: Node = null
   def ancestors(): List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
-  def leafs(): List[Node] = 
-    if (outs.isEmpty) List(this) else List.flatten((outs map {_.child.leafs()}))
+  def leafs(): List[Node] = if (outs.isEmpty) List(this) else List.flatten(children map {_.leafs})
+  def children : List[Node] = outs map {_.child}
   def isProcessed: Boolean = expr match {
     case Cons(_, Nil) => true
     case v: Var => true
