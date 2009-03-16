@@ -4,15 +4,15 @@ object Sample {
   def main(args : Array[String]) : Unit = {
     val programText = 
     """
-    fGoal(x, y, z) = gAppend(gAppend(x,y), Nil());
-    gAppend(Nil(), vs) = vs;
+    fGoal(x, y, z) = gAppend(gAppend(x, y), z);
+    gAppend(Nil(), vs1) = vs1;
     gAppend(Cons(u, us), vs) = Cons(u, gAppend(us, vs));
     
     f(a, b) = g1(a, b);
     g1(Nil(), v) = Nil();
     g2(Cons(x, y)) = Nil();
     """
-    val inputText = "f(x, y)"  //"fGoal(a, b, c)"
+    val inputText = "fGoal(x1, y1, z1)"  //"fGoal(a, b, c)"
     val inputTerm = SLanguageParsers.parseTerm(inputText)
     val program = SLanguageParsers.parseProgram(programText)
 

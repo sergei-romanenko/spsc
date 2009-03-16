@@ -33,5 +33,5 @@ class SuperCompiler(p: Program){
   def split(t: Tree, a: Node, b: Node) = t.replace(a, Let(a.expr, findSub(a.expr, b.expr).toList))
   def trivial(expr: Term): Boolean = expr match {case x: Call => false; case _ => true}
   private var i = 0
-  private def freshPat(p: Pattern) = Pattern(p.name, p.args.map {a => i += 1; Var("$" + i)})
+  private def freshPat(p: Pattern) = Pattern(p.name, p.args.map {a => i += 1; Var("v" + i)})
 }

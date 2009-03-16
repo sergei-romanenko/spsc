@@ -36,24 +36,16 @@ class ResidualProgramGenerator(val tree: Tree) {
     sigs.get(tree.root) match {
       case None => defs += FFun(rootCall.name, rootCall.args.map(_.asInstanceOf[Var]), t)
       case _ =>
-    }    
-    val newDefs = new scala.collection.mutable.ListBuffer[Def]
-    for (d <- defs) {
-      newDefs += renameVarsInDefinition(d)
     }
-    Program(newDefs.toList.sort((e1, e2) => (e1.name compareTo e2.name) < 0))
+    Program(defs.toList)
   }
   
-  private def getVars(t: Term): LinkedHashSet[Var] = {
-    val vars = new LinkedHashSet[Var]()
-    t match {
-      case v: Var => vars + v
-      case c: Cons => c.args.map(arg => {vars ++ getVars(arg)})
-      case f: FCall => f.args.map(arg => {vars ++ getVars(arg)})
-      case g: GCall => (g.args).map(arg => {vars ++ getVars(arg)})
+  private def getVars(t: Term): List[Var] = t match {
+      case v: Var   => (List(v))
+      case c: Cons  => (List[Var]() /: c.args) {case (l, a) => l union getVars(a)}
+      case f: FCall => (List[Var]() /: f.args) {case (l, a) => l union getVars(a)}
+      case g: GCall => (List[Var]() /: g.args) {case (l, a) => l union getVars(a)}
     }
-    vars
-  }
   
   private def rename(name: String, isOriginalNameAllowed: Boolean) = {
     if (isOriginalNameAllowed && !fnames.contains(name)){
@@ -75,16 +67,4 @@ class ResidualProgramGenerator(val tree: Tree) {
 object ResidualProgramGenerator{
   case class Signature(name: String, args: List[Var])
   def generateResidualProgram(tree: Tree) = new ResidualProgramGenerator(tree).generateProgram()
-  val letters = "abcdefghijklmnopqrstuvwxyz".toArray
-  def getVar(n: Int): Var = Var(new String(letters.slice(n, n+1)))
-  def renameVarsInDefinition(d: Def) = d match {
-    case f: FFun =>
-      val args = f.args
-      val renaming = Map() ++ ((args) zip (args.indices.map(getVar(_)))) 
-      FFun(f.name, f.args.map(renaming(_)), sub(f.term, renaming))
-    case g: GFun =>
-      val args = g.p.args ::: g.args
-      val renaming = Map() ++ ((args) zip (args.indices.map(getVar(_))))
-      GFun(g.name, Pattern(g.p.name, g.p.args.map(renaming(_))), g.args.map(renaming(_)), sub(g.term, renaming))    
-  }
 }
