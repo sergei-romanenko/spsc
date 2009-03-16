@@ -18,20 +18,18 @@ class ResidualProgramGenerator(val tree: Tree) {
       case Let(_, bs) =>
         sub(walk(n.children(0)), Map(bs.map{_._1} zip n.children.tail.map(walk) :_*))
       case call : Call => 
-        if (n.outs(0).branch == null) {
-          if (!tree.leafs.exists(_.repeated == n)) walk(n.children(0)) else {
-            sigs(n) = Signature(rename(call.f, n == tree.root), getVars(call).toList)
-            val body = walk(n.children(0))
-            defs += FFun(sigs(n).name, sigs(n).args, body)
-            body
-          } 
-        } else {
+        if (n.outs(0).branch != null) {
           val patternVar = n.outs(0).branch.v
           val vars = (getVars(call) - patternVar).toList
           sigs(n) = Signature(rename(call.f, false), patternVar :: vars)
           for (e <- n.outs) defs += GFun(sigs(n).name, e.branch.pat, vars, walk(e.child))
           GCall(sigs(n).name, patternVar :: vars)
-      }
+        } else if (!tree.leafs.exists(_.repeated == n)) walk(n.children(0)) else {
+            sigs(n) = Signature(rename(call.f, n == tree.root), getVars(call).toList)
+            val body = walk(n.children(0))
+            defs += FFun(sigs(n).name, sigs(n).args, body)
+            body
+          }
   }
   
   private var sigs = scala.collection.mutable.Map[Node, Signature]()
