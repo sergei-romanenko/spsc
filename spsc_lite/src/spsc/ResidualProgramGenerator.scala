@@ -1,6 +1,6 @@
 package spsc
 import Util._
-case class Signature(name: String, args: List[Var])
+
 class ResidualProgramGenerator(val tree: Tree) {
   private def walk(n: Node): Term = if (n.fnode == null) n.expr match {
     case v: Var => v
