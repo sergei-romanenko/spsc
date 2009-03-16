@@ -20,6 +20,6 @@ object Util {
       case (GCall(n1, xs), GCall(n2, ys)) => n1 == n2 && List.forall2(xs, ys)(walk)
       case _ => false
     }
-    if (walk(t1, t2)) Map(map.toList:_*).filter{case (k, v) => k == v} else null
+    if (walk(t1, t2)) Map(map.toList:_*).filter{case (k, v) => k != v} else null
   }
 }
