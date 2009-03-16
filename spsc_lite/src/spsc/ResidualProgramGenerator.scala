@@ -5,32 +5,32 @@ import scala.collection.jcl.LinkedHashSet
 
 class ResidualProgramGenerator(val tree: Tree) {
   import ResidualProgramGenerator._
-  private def walk(node: Node): Term = 
-    if (node.repeated != null) {
-      val sign = sigs(node.repeated)
-      if (node.repeated.outs.size == 1)
-        FCall(sign.name, sign.args.map(sub(_, Util.findSub(node.repeated.expr, node.expr))))
+  private def walk(n: Node): Term = 
+    if (n.repeated != null) {
+      val sign = sigs(n.repeated)
+      if (n.repeated.outs.size == 1)
+        FCall(sign.name, sign.args.map(sub(_, Util.findSub(n.repeated.expr, n.expr))))
       else
-        GCall(sign.name, sign.args.map(sub(_, Util.findSub(node.repeated.expr, node.expr))))
-    } else node.expr match {
+        GCall(sign.name, sign.args.map(sub(_, Util.findSub(n.repeated.expr, n.expr))))
+    } else n.expr match {
       case v: Var => v
-      case Cons(name, args) => Cons(name, node.children.map(walk))
-      case Let(term, bs) =>
-        sub(walk(node.children(0)), Map(bs.map{_._1} zip node.children.tail.map(walk) :_*))
+      case Cons(name, args) => Cons(name, n.children.map(walk))
+      case Let(_, bs) =>
+        sub(walk(n.children(0)), Map(bs.map{_._1} zip n.children.tail.map(walk) :_*))
       case call : Call => 
-        if (node.outs(0).branch == null) {
-          if (!tree.leafs.exists(_.repeated == node)) walk(node.children(0)) else {
-            sigs(node) = Signature(rename(call.f, node == tree.root), getVars(call).toList)
-            val body = walk(node.children(0))
-            defs += FFun(sigs(node).name, sigs(node).args, body)
+        if (n.outs(0).branch == null) {
+          if (!tree.leafs.exists(_.repeated == n)) walk(n.children(0)) else {
+            sigs(n) = Signature(rename(call.f, n == tree.root), getVars(call).toList)
+            val body = walk(n.children(0))
+            defs += FFun(sigs(n).name, sigs(n).args, body)
             body
           } 
         } else {
-          val patternVar = node.outs(0).branch.v
+          val patternVar = n.outs(0).branch.v
           val vars = (getVars(call) - patternVar).toList
-          sigs(node) = Signature(rename(call.f, false), patternVar :: vars)
-          for (e <- node.outs) defs += GFun(sigs(node).name, e.branch.pat, vars, walk(e.child))
-          GCall(sigs(node).name, patternVar :: vars)
+          sigs(n) = Signature(rename(call.f, false), patternVar :: vars)
+          for (e <- n.outs) defs += GFun(sigs(n).name, e.branch.pat, vars, walk(e.child))
+          GCall(sigs(n).name, patternVar :: vars)
       }
   }
   
