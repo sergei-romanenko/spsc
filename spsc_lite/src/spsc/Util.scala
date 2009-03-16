@@ -20,10 +20,10 @@ object Util {
     }
     if (walk(t1, t2)) Map(map.toList:_*).filter{case (k, v) => k != v} else null
   }
-  def getVars(t: Term): List[Var] = t match {
+  def vars(t: Term): List[Var] = t match {
     case v: Var   => (List(v))
-    case c: Cons  => (List[Var]() /: c.args) {case (l, a) => l union getVars(a)}
-    case f: FCall => (List[Var]() /: f.args) {case (l, a) => l union getVars(a)}
-    case g: GCall => (List[Var]() /: g.args) {case (l, a) => l union getVars(a)}
+    case c: Cons  => (List[Var]() /: c.args) {case (l, a) => l union vars(a)}
+    case f: FCall => (List[Var]() /: f.args) {case (l, a) => l union vars(a)}
+    case g: GCall => (List[Var]() /: g.args) {case (l, a) => l union vars(a)}
   }
 }

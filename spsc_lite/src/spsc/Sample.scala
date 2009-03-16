@@ -8,11 +8,12 @@ object Sample {
     gAppend(Nil(), vs1) = vs1;
     gAppend(Cons(u, us), vs) = Cons(u, gAppend(us, vs));
     
-    f(a, b) = g1(a, b);
-    g1(Nil(), v) = Nil();
-    g2(Cons(x, y)) = Nil();
+    f1(z,x)= fHead(x, y);
+    fHead(a, b) = g1(a, b);
+    g1(Nil(), v) = v;
+    g1(Cons(x, y), v) = fHead(y, v);
     """
-    val inputText = "fGoal(x1, y1, z1)"  //"fGoal(a, b, c)"
+    val inputText = "f1(a1, a2)"  //"fGoal(a, b, c)"
     val inputTerm = SLanguageParsers.parseTerm(inputText)
     val program = SLanguageParsers.parseProgram(programText)
 
