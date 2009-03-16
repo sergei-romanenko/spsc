@@ -1,6 +1,5 @@
 package spsc
 import Algebra._
-
 class ResidualProgramGenerator(val tree: Tree) {
   lazy val residualProgram: Program = {
     val t = walk(tree.root)

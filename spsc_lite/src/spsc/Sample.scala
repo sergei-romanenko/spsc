@@ -4,35 +4,15 @@ object Sample {
   def main(args : Array[String]) : Unit = {
     val programText = 
     """
-    fGoal(x, y, z) = gAppend(gAppend(x, y), z);
+    fMain(x, y, z) = gAppend(gAppend(x, y), z);
     gAppend(Nil(), vs1) = vs1;
     gAppend(Cons(u, us), vs) = Cons(u, gAppend(us, vs));
-    
-    f1(z,x)= fHead(x, y);
-    fHead(a, b) = g1(a, b);
-    g1(Nil(), v) = v;
-    g1(Cons(x, y), v) = fHead(y, v);
     """
-    val inputText = "f1(a1, a2)"  //"fGoal(a, b, c)"
-    val inputTerm = SParsers.parseTerm(inputText)
     val program = SParsers.parseProgram(programText)
-
-    
-    //val f: FFun = program.f("fApp2") // f-функция
-    //val g: GFun = program.g("gApp", "Nil") // g-функция, соответствующей образцу
-    //val gs: List[GFun] = program.gs("gApp") // список g-функций
-    
     val sc = new SuperCompiler(program)
-    val pt = sc.buildProcessTree(inputTerm)
+    val pt = sc.buildProcessTree(SParsers.parseTerm("fMain(x, y, z)"))
     val residualProgram = new ResidualProgramGenerator(pt).residualProgram
-    
-    println(program)
-    println()
     println(residualProgram)
-    
-    println()
-    
-    m1()
   }
   
   def m1() : Unit = {

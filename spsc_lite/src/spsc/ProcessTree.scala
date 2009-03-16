@@ -12,17 +12,6 @@ class Node(val expr: Term, val in: Edge, var outs: List[Edge]) {
     case v: Var => true
     case _ => fnode != null
   }
-      override def toString = toString("")
-      
-    def toString(indent: String): String = {
-      val sb = new StringBuilder(indent + "|__" + expr)
-      for (edge <- outs) {
-        sb.append("\n  " + indent + "|" + edge.branch)
-        sb.append("\n" + edge.child.toString(indent + "  "))
-      }
-      sb.toString
-    }    
-
 }
 class Tree(var root: Node) {
   def leafs = root.leafs
