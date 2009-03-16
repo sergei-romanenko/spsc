@@ -24,7 +24,7 @@ object Sample {
     
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(inputTerm)
-    val residualProgram = new ResidualProgramGenerator(pt).generateProgram()
+    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
     
     println(program)
     println()
@@ -50,7 +50,7 @@ object Sample {
     
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(inputTerm)
-    val residualProgram = new ResidualProgramGenerator(pt).generateProgram()
+    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
     
     println(program)
     println()
