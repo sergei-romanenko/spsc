@@ -23,9 +23,9 @@ class ResidualProgramGenerator(val tree: Tree) {
         body
       } else walk(n.children(0))
   } else if (n.fnode.outs.size == 1)
-    FCall(sigs(n.fnode).name, sigs(n.fnode).args.map(sub(_, Util.findSub(n.fnode.expr, n.expr))))
+    sub(FCall(sigs(n.fnode).name, sigs(n.fnode).args), Util.findSub(n.fnode.expr, n.expr))
   else
-    GCall(sigs(n.fnode).name, sigs(n.fnode).args.map(sub(_, Util.findSub(n.fnode.expr, n.expr))))
+    sub(GCall(sigs(n.fnode).name, sigs(n.fnode).args), Util.findSub(n.fnode.expr, n.expr))
   
   private var sigs = scala.collection.mutable.Map[Node, Signature]()
   private val defs = new scala.collection.mutable.ListBuffer[Def]
