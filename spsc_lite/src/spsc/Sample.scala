@@ -14,8 +14,8 @@ object Sample {
     g1(Cons(x, y), v) = fHead(y, v);
     """
     val inputText = "f1(a1, a2)"  //"fGoal(a, b, c)"
-    val inputTerm = SLanguageParsers.parseTerm(inputText)
-    val program = SLanguageParsers.parseProgram(programText)
+    val inputTerm = SParsers.parseTerm(inputText)
+    val program = SParsers.parseProgram(programText)
 
     
     //val f: FFun = program.f("fApp2") // f-функция
@@ -45,8 +45,8 @@ object Sample {
     g1(B(b)) = f1(b);
     """
     val inputText = "f1(z)"
-    val program = SLanguageParsers.parseProgram(programText)
-    val inputTerm = SLanguageParsers.parseTerm(inputText)
+    val program = SParsers.parseProgram(programText)
+    val inputTerm = SParsers.parseTerm(inputText)
     
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(inputTerm)
