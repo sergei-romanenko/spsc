@@ -19,15 +19,12 @@ class ResidualProgramGenerator(val tree: Tree) {
         sub(walk(node.children(0)), Map(bs.map{_._1} zip node.children.tail.map(walk) :_*))
       case call : Call => 
         if (node.outs(0).branch == null) {
-          tree.leafs.find(_.repeated == node) match {
-            case None => walk(node.children(0))
-            case Some(_) => {
-              sigs(node) = Signature(rename(call.f, node == tree.root), getVars(call).toList)
-              val body = walk(node.children(0))
-              defs += FFun(sigs(node).name, sigs(node).args, body)
-              body
-            }
-          }
+          if (!tree.leafs.exists(_.repeated == node)) walk(node.children(0)) else {
+            sigs(node) = Signature(rename(call.f, node == tree.root), getVars(call).toList)
+            val body = walk(node.children(0))
+            defs += FFun(sigs(node).name, sigs(node).args, body)
+            body
+          } 
         } else {
           val patternVar = node.outs(0).branch.v
           val vars = (getVars(call) - patternVar).toList
