@@ -1,5 +1,5 @@
 package spsc
-import Util._
+import Algebra._
 
 class ResidualProgramGenerator(val tree: Tree) {
   private def walk(n: Node): Term = if (n.fnode == null) n.expr match {

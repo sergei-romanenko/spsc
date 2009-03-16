@@ -1,6 +1,6 @@
 package spsc
 
-object Util {
+object Algebra {
   def sub(term: Term, map: Map[Var, Term]): Term = term match {
     case v: Var => map.getOrElse(v, v)
     case Cons(n, vs)  => Cons(n,  vs.map(sub(_, map)))

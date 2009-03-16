@@ -1,5 +1,5 @@
 package spsc
-import Util._
+import Algebra._
 class SuperCompiler(p: Program){
   def driveExp(expr: Term): List[(Term, Branch)] = expr match {
     case Cons(name, args) => args.map((_,null))
