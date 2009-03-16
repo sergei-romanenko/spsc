@@ -22,10 +22,10 @@ class ResidualProgramGenerator(val tree: Tree) {
         defs += FFun(sigs(n).name, sigs(n).args, body)
         body
       } else walk(n.children(0))
-  } else if (n.fnode.outs.size == 1)
-    sub(FCall(sigs(n.fnode).name, sigs(n.fnode).args), Util.findSub(n.fnode.expr, n.expr))
+  } else if (n.fnode.outs(0).branch == null)
+    sub(FCall(sigs(n.fnode).name, sigs(n.fnode).args), findSub(n.fnode.expr, n.expr))
   else
-    sub(GCall(sigs(n.fnode).name, sigs(n.fnode).args), Util.findSub(n.fnode.expr, n.expr))
+    sub(GCall(sigs(n.fnode).name, sigs(n.fnode).args), findSub(n.fnode.expr, n.expr))
   
   private var sigs = scala.collection.mutable.Map[Node, Signature]()
   private val defs = new scala.collection.mutable.ListBuffer[Def]
