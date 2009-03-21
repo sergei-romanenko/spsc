@@ -26,4 +26,21 @@ object Algebra {
     case f: FCall => (List[Var]() /: f.args) {case (l, a) => l union vars(a)}
     case g: GCall => (List[Var]() /: g.args) {case (l, a) => l union vars(a)}
   }
+  def he(t1: Term, t2: Term): Boolean = heByVar(t1, t2) || heByDiving(t1, t2) || heByCoupling(t1, t2)  
+  private def heByVar(t1: Term, t2: Term): Boolean = (t1, t2) match {
+    case (Var(_), Var(_)) => true
+    case _ => false
+  }
+  private def heByDiving(t1: Term, t2: Term): Boolean = t2 match {
+    case (Cons(_, args)) => args exists (he(t1, _))
+    case (FCall(_, args)) => args exists (he(t1, _))
+    case (GCall(_, args)) => args exists (he(t1, _))
+    case _ => false
+  }
+  private def heByCoupling(t1: Term, t2: Term): Boolean = (t1, t2) match {
+    case (Cons(n1, args1), Cons(n2, args2)) if n1 == n2 => List.forall2(args1, args2)(he)
+    case (FCall(n1, args1), FCall(n2, args2)) if n1 == n2 => List.forall2(args1, args2)(he)
+    case (GCall(n1, args1), GCall(n2, args2)) if n1 == n2 => List.forall2(args1, args2)(he)
+    case _ => false
+  }
 }
