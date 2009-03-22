@@ -52,7 +52,7 @@ object Algebra {
   }
   
   def msg(t1: Term, t2: Term): Gen = {
-    val v = freshVar()
+    val v = nv()
     var g = Gen(v, Map(v -> t1), Map(v -> t2))
     var exp = g.t
     do {exp = g.t; g = commonSub(commonFun(g))} while (exp != g.t)
@@ -62,15 +62,15 @@ object Algebra {
   def commonFun(g: Gen): Gen = {
     for (v <- g.m1.keys) (g.m1(v), g.m2(v)) match {
       case (Cons(n1, args1), Cons(n2, args2)) if n1 == n2 => {
-        val vs = args1.map(arg => freshVar())
+        val vs = args1.map(nv)
         return Gen(sub(g.t, Map(v -> Cons(n1, vs))), g.m1 ++ vs.zip(args1), g.m2 ++ vs.zip(args2))
       }
       case (FCall(n1, args1), FCall(n2, args2)) if n1 == n2 => {
-        val vs = args1.map(arg => freshVar())
+        val vs = args1.map(nv)
         return Gen(sub(g.t, Map(v -> FCall(n1, vs))), g.m1 ++ vs.zip(args1), g.m2 ++ vs.zip(args2))
       }
       case (GCall(n1, args1), GCall(n2, args2)) if n1 == n2 => {
-        val vs = args1.map(arg => freshVar())
+        val vs = args1.map(nv)
         return Gen(sub(g.t, Map(v -> GCall(n1, vs))), g.m1 ++ vs.zip(args1), g.m2 ++ vs.zip(args2))
       }
       case _ =>
@@ -86,5 +86,5 @@ object Algebra {
   }
   
   private var i = 0
-  def freshVar() = {i += 1; Var("v" + i)}
+  def nv(x: AnyRef) = {i += 1; Var("v" + i)}
 }
