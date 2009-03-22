@@ -88,11 +88,9 @@ object Algebra {
   
   private var i = 0
   def nv(x: AnyRef) = {i += 1; Var("v" + i)}
-  
   private def b(t: Term): Int = t match {
-    case g: GCall => b(g.args(0))
-    case f: FCall => 0
-    case c: Cons => 0
-    case v: Var => 1 
+    case GCall(_, args) => b(args(0))
+    case Var(_) => 1
+    case _ => 0
   }
 }
