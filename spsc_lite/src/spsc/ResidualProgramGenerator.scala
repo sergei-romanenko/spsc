@@ -14,11 +14,11 @@ class ResidualProgramGenerator(val tree: Tree) {
     case Let(_,bs) => sub(walk(n.children(0)), Map(bs.map{_._1}.zip(n.children.tail.map(walk)):_*))
     case call: Call =>
       if (n.outs(0).branch != null) {
-        sigs(n) = (rename(call.f, false, "g"), vars(call))
+        sigs(n) = (rename(call.name, false, "g"), vars(call))
         for (e <- n.outs) defs += GFun(sigs(n)._1, e.branch.pat, vars(call).tail, walk(e.child))
         GCall(sigs(n)._1, vars(call))
       } else if (tree.leafs.exists(_.fnode == n)) {
-        sigs(n) = (rename(call.f, n == tree.root, "f"), vars(call))
+        sigs(n) = (rename(call.name, n == tree.root, "f"), vars(call))
         defs += FFun(sigs(n)._1, sigs(n)._2, walk(n.children(0)))
         FCall(sigs(n)._1, vars(call))
       } else walk(n.children(0))
