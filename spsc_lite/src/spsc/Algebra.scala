@@ -34,7 +34,7 @@ object Algebra {
     case g: GCall => (List[Var]() /: g.args) {case (l, a) => l union vars(a)}
   }
   
-  def strictHE(t1: Term, t2: Term): Boolean = he(t1, t2) && b(t1) == b(t2)
+  def he_*(t1: Term, t2: Term): Boolean = he(t1, t2) && b(t1) == b(t2)
   def he(t1: Term, t2: Term): Boolean = heByDiving(t1, t2) || heByCoupling(t1, t2)  
   
   private def heByDiving(t1: Term, t2: Term): Boolean = t2 match {

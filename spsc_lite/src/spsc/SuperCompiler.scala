@@ -20,7 +20,7 @@ class SuperCompiler(p: Program){
       if (trivial(b.expr)) {
         t.addChildren(b, driveExp(b.expr)) //drive
       } else {
-        b.ancestors.find(a => !trivial(a.expr) && strictHE(a.expr, b.expr)) match {
+        b.ancestors.find(a => !trivial(a.expr) && he_*(a.expr, b.expr)) match {
           case Some(a) => { 
             if (equiv(a.expr, b.expr)) b.fnode = a 
             else if (inst(a.expr, b.expr)) abs(t, b, a)
