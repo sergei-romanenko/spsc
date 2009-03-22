@@ -1,7 +1,13 @@
 package spsc
-import scala.util.parsing.input.CharArrayReader
 object Sample {
+  
   def main(args : Array[String]) : Unit = {
+    m0()
+    m1()
+    m2()
+  }
+  
+  def m0() : Unit = {
     val programText = 
     """
     fMain(x, y, z) = gAppend(gAppend(x, y), z);
@@ -34,6 +40,27 @@ object Sample {
     
     println(program)
     println()
+    println(residualProgram)
+  }
+  
+  def m2() : Unit = {
+    val programText = 
+    """
+    gEq(Z(), y) = gEqZ(y);
+    gEq(S(x), y) = gEqS(y, x);
+
+    gEqZ(Z()) = True();
+    gEqZ(S(x)) = False();
+
+    gEqS(Z(), x) = False();
+    gEqS(S(y), x) = gEq(x, y);
+
+    fEqxx(x) = gEq(x, x);
+    """
+    val program = SParsers.parseProgram(programText)
+    val sc = new SuperCompiler(program)
+    val pt = sc.buildProcessTree(SParsers.parseTerm("fEqxx(x)"))
+    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
     println(residualProgram)
   }
 }
