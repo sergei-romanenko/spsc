@@ -13,9 +13,11 @@ class Node(val expr: Term, val in: Edge, var outs: List[Edge]) {
     case _ => fnode != null
   }
 }
-class Tree(var root: Node) {
+case class Tree(var root: Node) {
   def leafs = root.leafs
-  def replace(node: Node, exp: Term) =  node.in.child = new Node(exp, node.in, Nil)
+  def replace(node: Node, exp: Term) = 
+    if (node == root) root = new Node(exp, null, Nil) 
+    else node.in.child = new Node(exp, node.in, Nil)
   def addChildren(node: Node, children: List[(Term, Branch)]) =
     node.outs = for ((term, b) <- children) yield {
       val edge = new Edge(node, null, b)
