@@ -56,7 +56,7 @@ object SmallLanguageTermAlgebra {
     val l2 = new scala.collection.mutable.ListBuffer[DoubleSubstitution]()
     var t = g.term;
     for (dSub <- g.dSub) dSub match {
-      case (v, s1 @ Constructor(name1, args1), s2 @ Constructor(name2, args2)) if name1 == name2 => {
+      case (v, Constructor(name1, args1), Constructor(name2, args2)) if name1 == name2 => {
         val newVars = args1.map(arg => nextVar())
         val addDSubs = ((newVars zip args1) zip (newVars zip args2)) map (pair => (pair._1._1, pair._1._2, pair._2._2)) 
         t = applySubstitution(t, (v, Constructor(name1, newVars)))
