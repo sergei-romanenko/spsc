@@ -18,7 +18,10 @@ object Sample {
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(SParsers.parseTerm("fMain(x, y, z)"))
     val residualProgram = new ResidualProgramGenerator(pt).residualProgram
+    println(program)
+    println()
     println(residualProgram)
+    println()
   }
   
   def m1() : Unit = {
@@ -41,6 +44,7 @@ object Sample {
     println(program)
     println()
     println(residualProgram)
+    println()
   }
   
   def m2() : Unit = {
@@ -61,6 +65,9 @@ object Sample {
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(SParsers.parseTerm("fEqxx(x)"))
     val residualProgram = new ResidualProgramGenerator(pt).residualProgram
+    println(program)
+    println()
     println(residualProgram)
+    println()
   }
 }
