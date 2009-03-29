@@ -8,7 +8,7 @@ class Node(val expr: Term, val in: Edge, var outs: List[Edge]) {
   def leafs(): List[Node] = if (outs.isEmpty) List(this) else List.flatten(children map {_.leafs})
   def children : List[Node] = outs map {_.child}
   def isProcessed: Boolean = expr match {
-    case Cons(_, Nil) => true
+    case Ctr(_, Nil) => true
     case v: Var => true
     case _ => fnode != null
   }

@@ -4,7 +4,7 @@ abstract class Term
 case class Var(name: String) extends Term {
   override def toString = name
 }
-case class Cons(name: String, args: List[Term]) extends Term {
+case class Ctr(name: String, args: List[Term]) extends Term {
   override def toString = name + args.mkString("(", ", " ,")")
 }
 abstract class Call extends Term {def name: String}
