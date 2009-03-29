@@ -42,12 +42,17 @@ object Algebra {
     case (Var(_), Var(_)) => true
     case _ => false
   }
+  private def b(t: Term): Int = t match {
+    case GCall(_, args) => b(args(0))
+    case Var(_) => 1
+    case _ => 0
+  }
   def msg(t1: Term, t2: Term): Gen = {
     val v = nv()
-    var g = Gen(v, Map(v -> t1), Map(v -> t2))
-    var exp = g.t
-    do {exp = g.t; g = commonSub(commonFun(g))} while (exp != g.t)
-    g
+    var gen = Gen(v, Map(v -> t1), Map(v -> t2))
+    var exp = gen.t
+    do {exp = gen.t; gen = commonSub(commonFun(gen))} while (exp != gen.t)
+    gen
   }
   def commonFun(g: Gen): Gen = {
     for (v <- g.m1.keys) (g.m1(v), g.m2(v)) match {
@@ -73,10 +78,6 @@ object Algebra {
         return Gen(sub(gen.t, Map(v1 -> v2)), gen.m1 - v1, gen.m2 - v1)
     gen
   }
-  def nv(x: AnyRef) = {i += 1; Var("v" + i)}; private var i = 0;
-  private def b(t: Term): Int = t match {
-    case GCall(_, args) => b(args(0))
-    case Var(_) => 1
-    case _ => 0
-  }
+  private var i = 0
+  def nv(x: AnyRef) = {i += 1; Var("v" + i)}
 }
