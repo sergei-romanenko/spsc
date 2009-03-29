@@ -18,7 +18,7 @@ class SuperCompiler(p: Program){
     while (!t.leafs.forall{_.isProcessed}) {
       val b = t.leafs.find(!_.isProcessed).get
       if (trivial(b.expr)) {
-        t.addChildren(b, driveExp(b.expr)) //drive
+        t.addChildren(b, driveExp(b.expr))
       } else {
         b.ancestors.find(a => !trivial(a.expr) && he_*(a.expr, b.expr)) match {
           case Some(a) => { 
@@ -27,7 +27,7 @@ class SuperCompiler(p: Program){
             else if (equiv(msg(a.expr, b.expr).t, Var("z"))) split(t, a)
             else abs(t, a, b)
           }
-          case None => t.addChildren(b, driveExp(b.expr)) // drive
+          case None => t.addChildren(b, driveExp(b.expr))
         }
       }
     }   
