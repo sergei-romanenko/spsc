@@ -53,15 +53,18 @@ object Algebra {
     for (v <- g.m1.keys) (g.m1(v), g.m2(v)) match {
       case (Ctr(n1, args1), Ctr(n2, args2)) if n1 == n2 => {
         val vs = args1.map(nv)
-        return Gen(sub(g.t, Map(v -> Ctr(n1, vs))), (g.m1 - v) ++ vs.zip(args1), (g.m2 - v) ++ vs.zip(args2))
+        val t = sub(g.t, Map(v -> Ctr(n1, vs)))
+        return Gen(t, (g.m1 - v) ++ vs.zip(args1), (g.m2 - v) ++ vs.zip(args2))
       }
       case (FCall(n1, args1), FCall(n2, args2)) if n1 == n2 => {
         val vs = args1.map(nv)
-        return Gen(sub(g.t, Map(v -> FCall(n1, vs))), (g.m1 - v) ++ vs.zip(args1), (g.m2 - v) ++ vs.zip(args2))
+        val t = sub(g.t, Map(v -> FCall(n1, vs)))
+        return Gen(t, (g.m1 - v) ++ vs.zip(args1), (g.m2 - v) ++ vs.zip(args2))
       }
       case (GCall(n1, args1), GCall(n2, args2)) if n1 == n2 => {
         val vs = args1.map(nv)
-        return Gen(sub(g.t, Map(v -> GCall(n1, vs))), (g.m1 - v) ++ vs.zip(args1), (g.m2 - v) ++ vs.zip(args2))
+        val t = sub(g.t, Map(v -> GCall(n1, vs)))
+        return Gen(t, (g.m1 - v) ++ vs.zip(args1), (g.m2 - v) ++ vs.zip(args2))
       }
       case _ =>
     }
