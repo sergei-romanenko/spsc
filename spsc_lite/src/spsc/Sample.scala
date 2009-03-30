@@ -2,9 +2,10 @@ package spsc
 object Sample {
   
   def main(args : Array[String]) : Unit = {
-    m0()
-    m1()
-    m2()
+    //m0()
+    //m1()
+    //m2()
+    m3()
   }
   
   def m0() : Unit = {
@@ -18,10 +19,21 @@ object Sample {
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(SParsers.parseTerm("fMain(x, y, z)"))
     val residualProgram = new ResidualProgramGenerator(pt).residualProgram
-    println(program)
-    println()
     println(residualProgram)
-    println()
+  }
+  
+  def m3() : Unit = {
+    val programText = 
+    """
+    fMain(x, y, z) = gAppend(gAppend(x, y), z);
+    gAppend(Nil(), vs1) = vs1;
+    gAppend(Cons(u, us), vs) = Cons(u, gAppend(us, vs));
+    """
+    val program = SParsers.parseProgram(programText)
+    val sc = new SuperCompiler(program)
+    val pt = sc.buildProcessTree(SParsers.parseTerm("fMain(x, y, x)"))
+    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
+    println(residualProgram)
   }
   
   def m1() : Unit = {
@@ -44,7 +56,6 @@ object Sample {
     println(program)
     println()
     println(residualProgram)
-    println()
   }
   
   def m2() : Unit = {
@@ -65,9 +76,6 @@ object Sample {
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(SParsers.parseTerm("fEqxx(x)"))
     val residualProgram = new ResidualProgramGenerator(pt).residualProgram
-    println(program)
-    println()
     println(residualProgram)
-    println()
   }
 }
