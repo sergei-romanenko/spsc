@@ -10,7 +10,7 @@ class ResidualProgramGenerator(val tree: Tree) {
   
   private def walk(n: Node): Term = if (n.fnode == null) n.expr match {
     case v: Var => v
-    case Cons(name,args) => Cons(name, n.children.map(walk))
+    case Ctr(name,args) => Ctr(name, n.children.map(walk))
     case Let(_,bs) => sub(walk(n.children(0)), Map(bs.map{_._1}.zip(n.children.tail.map(walk)):_*))
     case call: Call =>
       if (n.outs(0).branch != null) {
