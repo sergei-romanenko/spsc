@@ -25,11 +25,11 @@ object SmallLanguageTermAlgebra {
   
   private def heByCoupling(term1: Term, term2: Term): Boolean = (term1, term2) match {
     case (Constructor(name1, args1), Constructor(name2, args2)) if name1 == name2 => 
-      (args1 zip args2) forall (args => he(args._1, args._2))      
+      List.forall2(args1, args2)(he)    
     case (FCall(name1, args1), FCall(name2, args2)) if name1 == name2 => 
-      (args1 zip args2) forall (args => he(args._1, args._2))
+      List.forall2(args1, args2)(he)
     case (GCall(name1, arg01, args1), GCall(name2, arg02, args2)) if name1 == name2 => 
-      ((arg01 :: args1) zip (arg02 :: args2)) forall (args => he(args._1, args._2))
+      List.forall2(args1, args2)(he)
     case _ => false
   }
   
@@ -62,13 +62,13 @@ object SmallLanguageTermAlgebra {
         t = applySubstitution(t, (v, Constructor(name1, newVars)))
         l2 ++= addDSubs
       }
-      case (v, s1 @ FCall(name1, args1), s2 @ FCall(name2, args2)) if name1 == name2 => {
+      case (v, FCall(name1, args1), FCall(name2, args2)) if name1 == name2 => {
         val newVars = args1.map(arg => nextVar())
         val addDSubs = ((newVars zip args1) zip (newVars zip args2)) map (pair => (pair._1._1, pair._1._2, pair._2._2)) 
         t = applySubstitution(t, (v, FCall(name1, newVars)))
         l2 ++= addDSubs
       }
-      case (v, s1 @ GCall(name1, arg01, args1), s2 @ GCall(name2, arg02, args2)) if name1 == name2 => {
+      case (v, GCall(name1, arg01, args1), GCall(name2, arg02, args2)) if name1 == name2 => {
         val newVars = (arg01 :: args1).map(arg => nextVar())
         val addDSubs = ((newVars zip (arg01 :: args1)) zip (newVars zip (arg02 :: args2))) map (pair => (pair._1._1, pair._1._2, pair._2._2)) 
         t = applySubstitution(t, (v, GCall(name1, newVars.head, newVars.tail)))
