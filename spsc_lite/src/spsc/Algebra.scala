@@ -3,8 +3,8 @@ package spsc
 case class Gen(t: Term, m1: Map[Var, Term], m2: Map[Var, Term])
 object Algebra {
   def sub(term: Term, map: Map[Var, Term]): Term = term match {
-    case v: Var => map.getOrElse(v, v)
-    case Ctr(n, vs)  => Ctr(n,  vs.map(sub(_, map)))
+    case v: Var       => map.getOrElse(v, v)
+    case Ctr(n, vs)   => Ctr(n,  vs.map(sub(_, map)))
     case FCall(n, vs) => FCall(n, vs.map(sub(_, map)))
     case GCall(n, vs) => GCall(n, vs.map(sub(_, map)))
   }
@@ -14,7 +14,7 @@ object Algebra {
     val map = scala.collection.mutable.Map[Var, Term]()
     def walk(t1: Term, t2: Term): Boolean = (t1, t2) match {
       case (v1: Var, _) => map.getOrElse(v1, t2) == (map+(v1 -> t2))(v1) 
-      case (Ctr(n1, xs),  Ctr(n2, ys))  => n1 == n2 && List.forall2(xs, ys)(walk)
+      case (Ctr(n1, xs),  Ctr(n2, ys))    => n1 == n2 && List.forall2(xs, ys)(walk)
       case (FCall(n1, xs), FCall(n2, ys)) => n1 == n2 && List.forall2(xs, ys)(walk)
       case (GCall(n1, xs), GCall(n2, ys)) => n1 == n2 && List.forall2(xs, ys)(walk)
       case _ => false
@@ -23,9 +23,9 @@ object Algebra {
   }
   def vars(t: Term): List[Var] = t match {
     case v: Var   => (List(v))
-    case c: Ctr  => (List[Var]() /: c.args) {case (l, a) => l union vars(a)}
-    case f: FCall => (List[Var]() /: f.args) {case (l, a) => l union vars(a)}
-    case g: GCall => (List[Var]() /: g.args) {case (l, a) => l union vars(a)}
+    case c: Ctr   => (List[Var]() /: c.args) {_ union vars(_)}
+    case f: FCall => (List[Var]() /: f.args) {_ union vars(_)}
+    case g: GCall => (List[Var]() /: g.args) {_ union vars(_)}
   }
   def he_*(t1: Term, t2: Term): Boolean = he(t1, t2) && b(t1) == b(t2)
   def he(t1: Term, t2: Term): Boolean = heByDiving(t1, t2) || heByCoupling(t1, t2)  
@@ -36,7 +36,7 @@ object Algebra {
     case _ => false
   }
   private def heByCoupling(t1: Term, t2: Term): Boolean = (t1, t2) match {
-    case (Ctr(n1, args1),  Ctr(n2, args2))  if n1 == n2 => List.forall2(args1, args2)(he)
+    case (Ctr(n1, args1),  Ctr(n2, args2))    if n1 == n2 => List.forall2(args1, args2)(he)
     case (FCall(n1, args1), FCall(n2, args2)) if n1 == n2 => List.forall2(args1, args2)(he)
     case (GCall(n1, args1), GCall(n2, args2)) if n1 == n2 => List.forall2(args1, args2)(he)
     case (Var(_), Var(_)) => true
