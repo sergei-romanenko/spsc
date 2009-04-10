@@ -7,11 +7,10 @@ case class Var(name: String) extends Term {
 case class Ctr(name: String, args: List[Term]) extends Term {
   override def toString = name + args.mkString("(", ", " ,")")
 }
-abstract class Call extends Term {def name: String}
-case class FCall(name: String, args: List[Term]) extends Call {
+case class FCall(name: String, args: List[Term]) extends Term {
   override def toString = name + args.mkString("(", ", " ,")")
 }
-case class GCall(name: String, args: List[Term]) extends Call {
+case class GCall(name: String, args: List[Term]) extends Term {
   override def toString = name + args.mkString("(", ", " ,")")
 }
 case class Let(term: Term, bindings: List[(Var, Term)]) extends Term {
@@ -99,19 +98,18 @@ class SuperCompiler(p: Program){
   
   def buildProcessTree(e: Term): Tree = {
     val t = new Tree(new Node(e, null, Nil))
+    def split(a: Node, b: Node) = t.replace(a, Let(a.expr, findSub(a.expr, b.expr).toList))
     def step(b: Node) = if (trivial(b.expr)) t.addChildren(b, driveExp(b.expr))
        else b.ancestors.find(a => inst(a.expr, b.expr)) match {
-          case Some(a) => if (inst(b.expr, a.expr)) b.fnode = a else split(t, b, a)
+          case Some(a) => if (inst(b.expr, a.expr)) b.fnode = a else split(b, a)
           case None => t.addChildren(b, driveExp(b.expr))
        }
-    while (!t.leafs.forall{_.isProcessed}) step(t.leafs.find(!_.isProcessed).get)
+    while (t.leafs.exists{!_.isProcessed}) step(t.leafs.find(!_.isProcessed).get)
     t
   }
- 
-  def split(t: Tree, a: Node, b: Node) = t.replace(a, Let(a.expr, findSub(a.expr, b.expr).toList))
-  def trivial(expr: Term): Boolean = expr match {case x: Call => false; case _ => true}
+  def trivial(expr: Term) = expr match {case FCall(_,_)=>false;case GCall(_,_)=>false;case _=>true}
   private var i = 0
-  private def freshPat(p: Pattern) = Pattern(p.name, p.args.map {a => i += 1; Var("v" + i)})
+  private def freshPat(p: Pattern) = Pattern(p.name, p.args.map {_ => i += 1; Var("v" + i)})
 }
 class ResidualProgramGenerator(val tree: Tree) {
   lazy val residualProgram: Program = {
@@ -125,7 +123,7 @@ class ResidualProgramGenerator(val tree: Tree) {
     case v: Var => v
     case Ctr(name,args) => Ctr(name, n.children.map(walk))
     case Let(_,bs) => sub(walk(n.children(0)), Map(bs.map{_._1}.zip(n.children.tail.map(walk)):_*))
-    case c: Call =>
+    case c: Term =>
       if (n.outs(0).branch != null) {
         sigs += (n -> (rename(c.name, false, "g"), vars(c)))
         for (e <- n.outs)defs+=Right(GFun(sigs(n)._1, e.branch.pat, vars(c).tail, walk(e.child)))
