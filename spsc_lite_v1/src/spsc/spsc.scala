@@ -13,13 +13,12 @@ case class FCall(name: String, args: List[Term]) extends Term {
 case class GCall(name: String, args: List[Term]) extends Term {
   override def toString = name + args.mkString("(", ", " ,")")
 }
-case class Let(term: Term, bindings: List[(Var, Term)]) extends Term {
+case class Let(term: Term, bs: List[(Var, Term)]) extends Term {
   val (name, args) = (null, Nil)
 }
 case class Pattern(name: String, args: List[Var]) {
   override def toString = name + args.mkString("(", ", " ,")")
 }
-
 case class FFun(name: String, args: List[Var], term: Term)  {
   override def toString = name + args.mkString("(", ", " ,")") + " = " + term + ";"
 }
