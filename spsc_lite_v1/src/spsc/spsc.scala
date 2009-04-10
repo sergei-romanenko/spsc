@@ -85,29 +85,26 @@ class Tree(var root: Node) {
 import Algebra._
 class SuperCompiler(p: Program){
   def driveExp(expr: Term): List[(Term, Branch)] = expr match {
-    case gCall @ GCall(name, (v : Var) :: args) =>
-      for (g <- p.gs(name); val pat = freshPat(g.p); val ctr = Ctr(pat.name, pat.args))
+    case gCall @ GCall(n, (v : Var) :: _) =>
+      for (g <- p.gs(n); val pat = freshPat(g.p); val ctr = Ctr(pat.name, pat.args))
         yield (driveExp(sub(gCall, Map(v -> ctr)))(0)._1, Branch(v, pat))
     case Ctr(name, args) => args.map((_,null))
-    case FCall(name, args)  => List((sub(p.f(name).term, Map()++p.f(name).args.zip(args)), null))
-    case GCall(name, Ctr(cname, cargs) :: args) =>
+    case FCall(n, vs)  => List((sub(p.f(n).term, Map()++p.f(n).args.zip(vs)), null))
+    case GCall(name, Ctr(cname, cargs) :: vs) =>
       val g = p.g(name, cname)  
-      List((sub(g.term, Map((g.p.args:::g.args) zip (cargs ::: args): _*)), null))
-    case GCall(name, call :: args) => driveExp(call) map {p => (GCall(name, p._1 :: args), p._2)}
+      List((sub(g.term, Map((g.p.args:::g.args) zip (cargs ::: vs): _*)), null))
+    case GCall(n, f :: vs) => driveExp(f) map {p => (GCall(n, p._1 :: vs), p._2)}
     case Let(term, bs) => (term, null) :: bs.map {pair => (pair._2, null)}
   }
- 
+  
   def buildProcessTree(e: Term): Tree = {
     val t = new Tree(new Node(e, null, Nil))
-    while (!t.leafs.forall{_.isProcessed}) {
-      val b = t.leafs.find(!_.isProcessed).get
-      if (trivial(b.expr)) t.addChildren(b, driveExp(b.expr))
-      else
-        b.ancestors.find(a => inst(a.expr, b.expr)) match {
+    def step(b: Node) = if (trivial(b.expr)) t.addChildren(b, driveExp(b.expr))
+       else b.ancestors.find(a => inst(a.expr, b.expr)) match {
           case Some(a) => if (inst(b.expr, a.expr)) b.fnode = a else split(t, b, a)
           case None => t.addChildren(b, driveExp(b.expr))
-        }
-    }   
+       }
+    while (!t.leafs.forall{_.isProcessed}) step(t.leafs.find(!_.isProcessed).get)
     t
   }
  
