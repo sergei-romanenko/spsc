@@ -2,7 +2,7 @@ package spsc
 
 abstract class Term{def name: String; def args: List[Term]} 
 case class Var(name: String) extends Term {
-  override def toString = name;val args = Nil
+  override val (toString, args) = (name, null)
 }
 case class Ctr(name: String, args: List[Term]) extends Term {
   override def toString = name + args.mkString("(", ", " ,")")
@@ -105,29 +105,23 @@ class SuperCompiler(p: Program){
     while (t.leaves.exists{!_.isProcessed}) step(t.leaves.find(!_.isProcessed).get)
     t
   }
-  def trivial(expr: Term) = expr match {case FCall(_,_)=>false;case GCall(_,_)=>false;case _=>true}
+  def trivial(expr: Term) = expr match {case _:FCall=>false;case _:GCall=>false;case _=>true}
   private var i = 0
   private def freshPat(p: Pattern) = Pattern(p.name, p.args.map {_ => i += 1; Var("v" + i)})
 }
 class ResidualProgramGenerator(val tree: Tree) {
-  lazy val residualProgram = {
-    val t = walk(tree.root)
-    val rootCall = tree.root.expr.asInstanceOf[FCall]
-    if (sigs.get(tree.root).isEmpty) defs += Left(FFun(rootCall.name, vars(rootCall), t))
-    Program(defs)
-  }
- 
+  lazy val result = (walk(tree.root), Program(defs))
   private def walk(n: Node): Term = if (n.fnode == null) n.expr match {
     case v: Var => v
     case Ctr(name,args) => Ctr(name, n.children.map(walk))
-    case Let(_,bs) => sub(walk(n.children(0)), Map(bs.map{_._1}.zip(n.children.tail.map(walk)):_*))
+    case Let(_,bs) => sub(walk(n.children(0)), Map()++bs.map{_._1}.zip(n.children.tail map walk))
     case c: Term =>
       if (n.outs(0).branch != null) {
-        sigs += (n -> (rename(c.name, false, "g"), vars(c)))
+        sigs += (n -> (rename(c.name, "g"), vars(c)))
         for (e <- n.outs)defs+=Right(GFun(sigs(n)._1, e.branch.pat, vars(c).tail, walk(e.child)))
         GCall(sigs(n)._1, vars(c))
       } else if (tree.leaves.exists(_.fnode == n)) {
-        sigs += (n -> (rename(c.name, n == tree.root, "f"), vars(c)))
+        sigs += (n -> (rename(c.name, "f"), vars(c)))
         defs += Left(FFun(sigs(n)._1, sigs(n)._2, walk(n.children(0))))
         FCall(sigs(n)._1, vars(c))
       } else walk(n.children(0))
@@ -135,9 +129,10 @@ class ResidualProgramGenerator(val tree: Tree) {
     sub(FCall(sigs(n.fnode)._1, sigs(n.fnode)._2), findSub(n.fnode.expr, n.expr))
   else
     sub(GCall(sigs(n.fnode)._1, sigs(n.fnode)._2), findSub(n.fnode.expr, n.expr))
+  
   var (sigs, defs) = (Map[Node, (String, List[Var])](),List[Either[FFun, GFun]]())
   var i = 0
-  def rename(f: String, keep: Boolean, b: String) = if (keep) f else {i+=1; b + f.drop(1) + i}
+  def rename(f: String, b: String) = {i+=1; b + f.drop(1) + i}
 }
 
 import scala.util.parsing.combinator.ImplicitConversions

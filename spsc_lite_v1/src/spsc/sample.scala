@@ -15,7 +15,7 @@ object sample {
     val program = SParsers.parseProgram(programText)
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(SParsers.parseTerm("fApp3(x, y, z)"))
-    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
+    val residualProgram = new ResidualProgramGenerator(pt).result
     println(residualProgram)
   }
 }
