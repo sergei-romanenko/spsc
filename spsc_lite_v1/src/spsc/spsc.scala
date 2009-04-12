@@ -27,7 +27,7 @@ case class GFun(name: String, p: Pattern, args: List[Var], term: Term)  {
 }
 
 case class Program(defs: List[Either[FFun, GFun]]){
-  override def toString = (defs.map(_.fold(_.toString, _.toString))).mkString("\n")
+  override def toString = defs.map(_.fold(_.toString, _.toString)).mkString("\n")
   def f(f: String) = (List.lefts(defs) find {f == _.name}).get
   def gs(g: String) = (List.rights(defs) filter {g == _.name})
   def g(g: String, p: String) = (gs(g) find {p == _.p.name}).get
@@ -118,7 +118,7 @@ class ResidualProgramGenerator(val tree: Tree) {
     case c: Term =>
       if (n.outs(0).branch != null) {
         sigs += (n -> (rename(c.name, "g"), vars(c)))
-        for (e <- n.outs)defs+Right(GFun(sigs(n)._1, e.branch.pat, vars(c).tail, walk(e.child)))
+        for (e <- n.outs) defs+Right(GFun(sigs(n)._1, e.branch.pat, vars(c).tail, walk(e.child)))
         GCall(sigs(n)._1, vars(c))
       } else if (tree.leaves.exists(_.fnode == n)) {
         sigs += (n -> (rename(c.name, "f"), vars(c)))
