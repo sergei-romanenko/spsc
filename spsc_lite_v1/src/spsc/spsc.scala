@@ -29,7 +29,7 @@ case class GFun(name: String, p: Pattern, args: List[Var], term: Term)  {
 case class Program(defs: List[Either[FFun, GFun]]){
   override def toString = defs.map(_.fold(_.toString, _.toString)).mkString("\n")
   def f(f: String) = (List.lefts(defs) find {f == _.name}).get
-  def gs(g: String) = (List.rights(defs) filter {g == _.name})
+  def gs(g: String) = List.rights(defs) filter {g == _.name}
   def g(g: String, p: String) = (gs(g) find {p == _.p.name}).get
 }
 
@@ -56,9 +56,9 @@ object Algebra {
   }
 }
 
-class Edge(val parent: Node, var out: Node, val pat: Pattern)
+class Edge(val in: Node, var out: Node, val pat: Pattern)
 case class Node(expr: Term, in: Edge, var outs: List[Edge], var fnode: Node) {
-  def ancestors: List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
+  def ancestors: List[Node] = if (in == null) Nil else in.in :: in.in.ancestors
   def leaves: List[Node] = if (outs.isEmpty) List(this) else List.flatten(children.map(_.leaves))
   def children : List[Node] = outs map {_.out}
   def isProcessed: Boolean = expr match {
