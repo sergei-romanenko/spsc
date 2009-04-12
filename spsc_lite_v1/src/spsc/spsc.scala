@@ -139,7 +139,7 @@ import scala.util.parsing.combinator.syntactical.StandardTokenParsers
 import scala.util.parsing.input.{CharSequenceReader => Reader}
 object SParsers extends StandardTokenParsers with ImplicitConversions {
   lexical.delimiters += ("(", ")", ",", "=", ";")
-  def defs = (fFun^^{Left(_)} | gFun ^^ {Right(_)})+
+  def defs = (fFun ^^ {Left(_)} | gFun ^^ {Right(_)})+
   def term: Parser[Term] = fcall | gcall | ctr | vrb
   def uid = ident ^? {case id if id.charAt(0).isUpperCase => id}
   def lid = ident ^? {case id if id.charAt(0).isLowerCase => id}
