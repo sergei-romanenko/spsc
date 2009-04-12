@@ -61,7 +61,7 @@ class Edge(val parent: Node, var child: Node, val branch: Branch)
 class Node(val expr: Term, val in: Edge, var outs: List[Edge]) {
   var fnode: Node = null
   def ancestors(): List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
-  def leafs(): List[Node] = if (outs.isEmpty) List(this) else List.flatten(children map {_.leafs})
+  def leaves(): List[Node] = if (outs.isEmpty) List(this) else List.flatten(children map {_.leaves})
   def children : List[Node] = outs map {_.child}
   def isProcessed: Boolean = expr match {
     case Ctr(_, Nil) => true
@@ -70,7 +70,7 @@ class Node(val expr: Term, val in: Edge, var outs: List[Edge]) {
   }
 }
 class Tree(var root: Node) {
-  def leafs = root.leafs
+  def leaves = root.leaves
   def replace(node: Node, exp: Term) =  node.in.child = new Node(exp, node.in, Nil)
   def addChildren(node: Node, children: List[(Term, Branch)]) =
     node.outs = for ((term, b) <- children) yield {
@@ -103,7 +103,7 @@ class SuperCompiler(p: Program){
           case Some(a) => if (inst(b.expr, a.expr)) b.fnode = a else split(b, a)
           case None => t.addChildren(b, driveExp(b.expr))
        }
-    while (t.leafs.exists{!_.isProcessed}) step(t.leafs.find(!_.isProcessed).get)
+    while (t.leaves.exists{!_.isProcessed}) step(t.leaves.find(!_.isProcessed).get)
     t
   }
   def trivial(expr: Term) = expr match {case FCall(_,_)=>false;case GCall(_,_)=>false;case _=>true}
@@ -127,7 +127,7 @@ class ResidualProgramGenerator(val tree: Tree) {
         sigs += (n -> (rename(c.name, false, "g"), vars(c)))
         for (e <- n.outs)defs+=Right(GFun(sigs(n)._1, e.branch.pat, vars(c).tail, walk(e.child)))
         GCall(sigs(n)._1, vars(c))
-      } else if (tree.leafs.exists(_.fnode == n)) {
+      } else if (tree.leaves.exists(_.fnode == n)) {
         sigs += (n -> (rename(c.name, n == tree.root, "f"), vars(c)))
         defs += Left(FFun(sigs(n)._1, sigs(n)._2, walk(n.children(0))))
         FCall(sigs(n)._1, vars(c))
