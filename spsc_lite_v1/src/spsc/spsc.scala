@@ -46,7 +46,7 @@ object Algebra {
     def walk(t1: Term, t2: Term): Boolean = (t1, t2) match {
       case (v1: Var, _) => map.getOrElse(v1, t2) == (map+(v1 -> t2))(v1)
       case _ => t1.getClass == t2.getClass && t1.name == t2.name && 
-        List.forall2(t1.args, t1.args)(walk)
+        List.forall2(t1.args, t2.args)(walk)
     }
     if (walk(t1, t2)) Map(map.toSeq:_*).filter{case (k, v) => k != v} else null
   }
@@ -110,7 +110,7 @@ class SuperCompiler(p: Program){
   private def freshPat(p: Pattern) = Pattern(p.name, p.args.map {_ => i += 1; Var("v" + i)})
 }
 class ResidualProgramGenerator(val tree: Tree) {
-  lazy val result = (walk(tree.root), Program(defs))
+  lazy val result = (walk(tree.root), Program(defs.toList))
   private def walk(n: Node): Term = if (n.fnode == null) n.expr match {
     case v: Var => v
     case Ctr(name,args) => Ctr(name, n.children.map(walk))
@@ -118,11 +118,11 @@ class ResidualProgramGenerator(val tree: Tree) {
     case c: Term =>
       if (n.outs(0).branch != null) {
         sigs += (n -> (rename(c.name, "g"), vars(c)))
-        for (e <- n.outs)defs+=Right(GFun(sigs(n)._1, e.branch.pat, vars(c).tail, walk(e.child)))
+        for (e <- n.outs)defs+Right(GFun(sigs(n)._1, e.branch.pat, vars(c).tail, walk(e.child)))
         GCall(sigs(n)._1, vars(c))
       } else if (tree.leaves.exists(_.fnode == n)) {
         sigs += (n -> (rename(c.name, "f"), vars(c)))
-        defs += Left(FFun(sigs(n)._1, sigs(n)._2, walk(n.children(0))))
+        defs + Left(FFun(sigs(n)._1, sigs(n)._2, walk(n.children(0))))
         FCall(sigs(n)._1, vars(c))
       } else walk(n.children(0))
   } else if (n.fnode.outs(0).branch == null)
@@ -130,7 +130,7 @@ class ResidualProgramGenerator(val tree: Tree) {
   else
     sub(GCall(sigs(n.fnode)._1, sigs(n.fnode)._2), findSub(n.fnode.expr, n.expr))
   
-  var (sigs, defs) = (Map[Node, (String, List[Var])](),List[Either[FFun, GFun]]())
+  var (sigs, defs) = (Map[Node, (String, List[Var])](),new scala.collection.mutable.ListBuffer[Either[FFun, GFun]]())
   var i = 0
   def rename(f: String, b: String) = {i+=1; b + f.drop(1) + i}
 }
