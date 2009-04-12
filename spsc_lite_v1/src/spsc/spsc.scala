@@ -27,7 +27,7 @@ case class GFun(name: String, p: Pattern, args: List[Var], term: Term)  {
 }
 
 case class Program(defs: List[Either[FFun, GFun]]){
-  override def toString = defs.mkString("\n")
+  override def toString = (defs.map(_.fold(_.toString, _.toString))).mkString("\n")
   def f(f: String) = (List.lefts(defs) find {f == _.name}).get
   def gs(g: String) = (List.rights(defs) filter {g == _.name})
   def g(g: String, p: String) = (gs(g) find {p == _.p.name}).get
@@ -48,7 +48,7 @@ object Algebra {
       case _ => t1.getClass == t2.getClass && t1.name == t2.name && 
         List.forall2(t1.args, t1.args)(walk)
     }
-    if (walk(t1, t2)) Map(map.toList:_*).filter{case (k, v) => k != v} else null
+    if (walk(t1, t2)) Map(map.toSeq:_*).filter{case (k, v) => k != v} else null
   }
   def vars(t: Term): List[Var] = t match {
     case v: Var => (List(v))
@@ -60,8 +60,8 @@ case class Branch(v: Var, pat: Pattern)
 class Edge(val parent: Node, var child: Node, val branch: Branch)
 class Node(val expr: Term, val in: Edge, var outs: List[Edge]) {
   var fnode: Node = null
-  def ancestors(): List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
-  def leaves(): List[Node] = if (outs.isEmpty) List(this) else List.flatten(children map {_.leaves})
+  def ancestors: List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
+  def leaves: List[Node] = if (outs.isEmpty) List(this) else List.flatten(children map {_.leaves})
   def children : List[Node] = outs map {_.child}
   def isProcessed: Boolean = expr match {
     case Ctr(_, Nil) => true
@@ -95,7 +95,7 @@ class SuperCompiler(p: Program){
     case Let(term, bs) => (term, null) :: bs.map {pair => (pair._2, null)}
   }
   
-  def buildProcessTree(e: Term): Tree = {
+  def buildProcessTree(e: Term) = {
     val t = new Tree(new Node(e, null, Nil))
     def split(a: Node, b: Node) = t.replace(a, Let(a.expr, findSub(a.expr, b.expr).toList))
     def step(b: Node) = if (trivial(b.expr)) t.addChildren(b, driveExp(b.expr))
@@ -111,7 +111,7 @@ class SuperCompiler(p: Program){
   private def freshPat(p: Pattern) = Pattern(p.name, p.args.map {_ => i += 1; Var("v" + i)})
 }
 class ResidualProgramGenerator(val tree: Tree) {
-  lazy val residualProgram: Program = {
+  lazy val residualProgram = {
     val t = walk(tree.root)
     val rootCall = tree.root.expr.asInstanceOf[FCall]
     if (sigs.get(tree.root).isEmpty) defs += Left(FFun(rootCall.name, vars(rootCall), t))
