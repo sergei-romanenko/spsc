@@ -58,8 +58,7 @@ object Algebra {
 
 case class Branch(v: Var, pat: Pattern)
 class Edge(val parent: Node, var child: Node, val branch: Branch)
-class Node(val expr: Term, val in: Edge, var outs: List[Edge]) {
-  var fnode: Node = null
+case class Node(expr: Term, in: Edge, var outs: List[Edge], var fnode: Node) {
   def ancestors: List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
   def leaves: List[Node] = if (outs.isEmpty) List(this) else List.flatten(children map {_.leaves})
   def children : List[Node] = outs map {_.child}
@@ -71,11 +70,11 @@ class Node(val expr: Term, val in: Edge, var outs: List[Edge]) {
 }
 class Tree(var root: Node) {
   def leaves = root.leaves
-  def replace(node: Node, exp: Term) =  node.in.child = new Node(exp, node.in, Nil)
+  def replace(node: Node, exp: Term) =  node.in.child = Node(exp, node.in, Nil, null)
   def addChildren(node: Node, children: List[(Term, Branch)]) =
     node.outs = for ((term, b) <- children) yield {
       val edge = new Edge(node, null, b)
-      edge.child = new Node(term, edge, Nil)
+      edge.child = Node(term, edge, Nil, null)
       edge
     }
 }
@@ -96,7 +95,7 @@ class SuperCompiler(p: Program){
   }
   
   def buildProcessTree(e: Term) = {
-    val t = new Tree(new Node(e, null, Nil))
+    val t = new Tree(Node(e, null, Nil, null))
     def split(a: Node, b: Node) = t.replace(a, Let(a.expr, findSub(a.expr, b.expr).toList))
     def step(b: Node) = if (trivial(b.expr)) t.addChildren(b, driveExp(b.expr))
        else b.ancestors.find(a => inst(a.expr, b.expr)) match {
