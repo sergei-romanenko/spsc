@@ -56,8 +56,7 @@ object Algebra {
   }
 }
 
-case class Branch(v: Var, pat: Pattern)
-class Edge(val parent: Node, var child: Node, val branch: Branch)
+class Edge(val parent: Node, var child: Node, val pat: Pattern)
 case class Node(expr: Term, in: Edge, var outs: List[Edge], var fnode: Node) {
   def ancestors: List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
   def leaves: List[Node] = if (outs.isEmpty) List(this) else List.flatten(children map {_.leaves})
@@ -71,9 +70,9 @@ case class Node(expr: Term, in: Edge, var outs: List[Edge], var fnode: Node) {
 class Tree(var root: Node) {
   def leaves = root.leaves
   def replace(node: Node, exp: Term) =  node.in.child = Node(exp, node.in, Nil, null)
-  def addChildren(node: Node, children: List[(Term, Branch)]) =
-    node.outs = for ((term, b) <- children) yield {
-      val edge = new Edge(node, null, b)
+  def addChildren(node: Node, children: List[(Term, Pattern)]) =
+    node.outs = for ((term, p) <- children) yield {
+      val edge = new Edge(node, null, p)
       edge.child = Node(term, edge, Nil, null)
       edge
     }
@@ -81,10 +80,10 @@ class Tree(var root: Node) {
 
 import Algebra._
 class SuperCompiler(p: Program){
-  def driveExp(expr: Term): List[(Term, Branch)] = expr match {
+  def driveExp(expr: Term): List[(Term, Pattern)] = expr match {
     case gCall @ GCall(n, (v : Var) :: _) =>
       for (g <- p.gs(n); val pat = freshPat(g.p); val ctr = Ctr(pat.name, pat.args))
-        yield (driveExp(sub(gCall, Map(v -> ctr)))(0)._1, Branch(v, pat))
+        yield (driveExp(sub(gCall, Map(v -> ctr)))(0)._1, pat)
     case Ctr(name, args) => args.map((_,null))
     case FCall(n, vs)  => List((sub(p.f(n).term, Map()++p.f(n).args.zip(vs)), null))
     case GCall(name, Ctr(cname, cargs) :: vs) =>
@@ -116,21 +115,21 @@ class ResidualProgramGenerator(val tree: Tree) {
     case Ctr(name,args) => Ctr(name, n.children.map(walk))
     case Let(_,bs) => sub(walk(n.children(0)), Map()++bs.map{_._1}.zip(n.children.tail map walk))
     case c: Term =>
-      if (n.outs(0).branch != null) {
+      if (n.outs(0).pat != null) {
         sigs += (n -> (rename(c.name, "g"), vars(c)))
-        for (e <- n.outs) defs+Right(GFun(sigs(n)._1, e.branch.pat, vars(c).tail, walk(e.child)))
+        for (e <- n.outs) defs = Right(GFun(sigs(n)._1, e.pat, vars(c).tail, walk(e.child))) :: defs
         GCall(sigs(n)._1, vars(c))
       } else if (tree.leaves.exists(_.fnode == n)) {
         sigs += (n -> (rename(c.name, "f"), vars(c)))
-        defs + Left(FFun(sigs(n)._1, sigs(n)._2, walk(n.children(0))))
+        defs = Left(FFun(sigs(n)._1, sigs(n)._2, walk(n.children(0)))) :: defs
         FCall(sigs(n)._1, vars(c))
       } else walk(n.children(0))
-  } else if (n.fnode.outs(0).branch == null)
-    sub(FCall(sigs(n.fnode)._1, sigs(n.fnode)._2), findSub(n.fnode.expr, n.expr))
+  } else if (n.fnode.outs(0).pat == null)
+    sub(Function.tupled(FCall)(sigs(n.fnode)), findSub(n.fnode.expr, n.expr))
   else
-    sub(GCall(sigs(n.fnode)._1, sigs(n.fnode)._2), findSub(n.fnode.expr, n.expr))
-  
-  var (sigs, defs) = (Map[Node, (String, List[Var])](),new scala.collection.mutable.ListBuffer[Either[FFun, GFun]]())
+    sub(Function.tupled(GCall)(sigs(n.fnode)), findSub(n.fnode.expr, n.expr))
+
+  var (sigs, defs) = (Map[Node, (String, List[Var])](),List[Either[FFun, GFun]]())
   var i = 0
   def rename(f: String, b: String) = {i+=1; b + f.drop(1) + i}
 }
