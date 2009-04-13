@@ -89,8 +89,8 @@ class SuperCompiler(p: Program){
     case GCall(name, Ctr(cname, cargs) :: vs) =>
       val g = p.g(name, cname)  
       List((sub(g.term, Map((g.p.args:::g.args) zip (cargs ::: vs): _*)), null))
-    case GCall(n, f :: vs) => driveExp(f) map {p => (GCall(n, p._1 :: vs), p._2)}
-    case Let(term, bs) => (term, null) :: bs.map {pair => (pair._2, null)}
+    case GCall(n, f :: vs) => driveExp(f) map {case (v, p) => (GCall(n, v :: vs), p)}
+    case Let(term, bs) => (term, null) :: bs.map {case (_, x) => (x, null)}
   }
   
   def buildProcessTree(e: Term) = {
