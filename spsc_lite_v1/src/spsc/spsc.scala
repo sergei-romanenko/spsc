@@ -59,7 +59,7 @@ object Algebra {
 class Edge(val in: Node, var out: Node, val pat: Pattern)
 case class Node(expr: Term, in: Edge, var outs: List[Edge], var fnode: Node) {
   def ancestors: List[Node] = if (in == null) Nil else in.in :: in.in.ancestors
-  def leaves: List[Node] = if (outs.isEmpty) List(this) else List.flatten(children.map(_.leaves))
+  def leaves: List[Node] = if (outs.isEmpty) List(this) else children.flatMap(_.leaves)
   def children : List[Node] = outs map {_.out}
   def isProcessed: Boolean = expr match {
     case Ctr(_, Nil) => true
