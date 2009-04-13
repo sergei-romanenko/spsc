@@ -12,12 +12,11 @@ object sample {
     gApp(Nil(), vs1) = vs1;
     gApp(Cons(u, us), vs) = Cons(u, gApp(us, vs));
     """
-    val program = SParsers.parseProgram(programText)
-    val sc = new SuperCompiler(program)
+    val p = SParsers.parseProgram(programText)
+    val sc = new SuperCompiler(p)
     val pt = sc.buildProcessTree(SParsers.parseTerm("gApp(gApp(x, y), z)"))
     val (expr, p1) = new ResidualProgramGenerator(pt).result
     println(expr)
-    
     println(p1)
   }
 }

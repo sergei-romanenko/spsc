@@ -114,7 +114,7 @@ class ResidualProgramGenerator(val tree: Tree) {
   private def walk(n: Node): Term = if (n.fnode == null) n.expr match {
     case v: Var => v
     case Ctr(name,args) => Ctr(name, n.children.map(walk))
-    case Let(_,bs) => sub(walk(n.children(0)), Map()++bs.map{_._1}.zip(n.children.tail map walk))
+    case Let(_,b) => sub(walk(n.children(0)), Map()++b.map{_._1}.zip(n.children.tail map walk))
     case c: Term =>
       if (n.outs(0).pat != null) {
         sigs += (n -> ("g" + c.name.drop(1) + sigs.size, vars(c)))
