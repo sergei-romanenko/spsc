@@ -43,8 +43,8 @@ object Algebra {
   def inst(t1: Term, t2: Term) = findSub(t1, t2) != null
   def findSub(t1: Term, t2: Term) = {
     val map = scala.collection.mutable.Map[Var, Term]()
-    def walk(t1: Term, t2: Term): Boolean = (t1, t2) match {
-      case (v1: Var, _) => map.getOrElse(v1, t2) == (map+(v1 -> t2))(v1)
+    def walk(t1: Term, t2: Term): Boolean = t1 match {
+      case v: Var => map.getOrElse(v, t2) == (map+(v -> t2))(v)
       case _ => t1.getClass == t2.getClass && t1.name == t2.name && 
         List.forall2(t1.args, t2.args)(walk)
     }
