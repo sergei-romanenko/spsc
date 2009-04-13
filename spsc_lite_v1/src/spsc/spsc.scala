@@ -118,7 +118,7 @@ class ResidualProgramGenerator(val tree: Tree) {
     case c: Term =>
       if (n.outs(0).pat != null) {
         sigs += (n -> ("g" + c.name.drop(1) + sigs.size, vars(c)))
-        for (e <- n.outs) defs = Right(GFun(sigs(n)._1, e.pat, vars(c).tail, walk(e.out))) :: defs
+        for (e <- n.outs) defs = Right(GFun(sigs(n)._1, e.pat, vars(c).tail, walk(e.out)))::defs
         GCall(sigs(n)._1, vars(c))
       } else if (tree.leaves.exists(_.fnode == n)) {
         sigs += (n -> ("f" + c.name.drop(1) + sigs.size, vars(c)))
