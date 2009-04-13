@@ -1,18 +1,15 @@
 package spsc
 
-abstract class Term{def name: String; def args: List[Term]} 
+abstract class Term{
+  def name: String; def args: List[Term]
+  override def toString = name + args.mkString("(", ", " ,")")                  
+} 
 case class Var(name: String) extends Term {
   override val (toString, args) = (name, null)
 }
-case class Ctr(name: String, args: List[Term]) extends Term {
-  override def toString = name + args.mkString("(", ", " ,")")
-}
-case class FCall(name: String, args: List[Term]) extends Term {
-  override def toString = name + args.mkString("(", ", " ,")")
-}
-case class GCall(name: String, args: List[Term]) extends Term {
-  override def toString = name + args.mkString("(", ", " ,")")
-}
+case class Ctr(name: String, args: List[Term]) extends Term
+case class FCall(name: String, args: List[Term]) extends Term
+case class GCall(name: String, args: List[Term]) extends Term
 case class Let(term: Term, bs: List[(Var, Term)]) extends Term {
   val (name, args) = (null, Nil)
 }
