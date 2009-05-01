@@ -5,7 +5,7 @@ object Sample {
     //m0()
     //m1()
     //m2()
-    m3()
+    m4()
   }
   
   def m0() : Unit = {
@@ -18,6 +18,22 @@ object Sample {
     val program = SParsers.parseProgram(programText)
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(SParsers.parseTerm("fMain(x, y, z)"))
+    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
+    println(residualProgram)
+  }
+  
+  def m4() : Unit = {
+    val programText = 
+    """
+    fMain(x) = gRev(x);
+    gApp(Nil(), vs1) = vs1;
+    gApp(Cons(u, us), vs) = Cons(u, gApp(us, vs));
+    gRev(Nil()) = Nil();
+    gRev(Cons(b, bs)) = gApp( gRev(bs), Cons(b, Nil()));
+    """
+    val program = SParsers.parseProgram(programText)
+    val sc = new SuperCompiler(program)
+    val pt = sc.buildProcessTree(SParsers.parseTerm("fMain(x)"))
     val residualProgram = new ResidualProgramGenerator(pt).residualProgram
     println(residualProgram)
   }

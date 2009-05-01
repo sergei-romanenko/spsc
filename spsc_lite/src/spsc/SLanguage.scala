@@ -14,7 +14,9 @@ case class FCall(name: String, args: List[Term]) extends Call {
 case class GCall(name: String, args: List[Term]) extends Call {
   override def toString = name + args.mkString("(", ", " ,")")
 }
-case class Let(term: Term, bindings: List[(Var, Term)]) extends Term
+case class Let(term: Term, bindings: List[(Var, Term)]) extends Term {
+  override def toString = "let " + bindings.toList.map(kv => kv._1 + "=" + kv._2).mkString("", ", ", "") + " in " + term
+}
 case class Pattern(name: String, args: List[Var]) {
   override def toString = name + args.mkString("(", ", " ,")")
 }

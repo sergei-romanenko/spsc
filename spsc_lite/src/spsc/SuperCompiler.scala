@@ -16,6 +16,8 @@ class SuperCompiler(p: Program){
   def buildProcessTree(e: Term): Tree = {
     val t = new Tree(new Node(e, null, Nil))
     while (!t.leafs.forall{_.isProcessed}) {
+      println(t)
+      println()
       val b = t.leafs.find(!_.isProcessed).get
       if (trivial(b.expr)) {
         t.addChildren(b, driveExp(b.expr)) //drive
@@ -24,7 +26,7 @@ class SuperCompiler(p: Program){
           case Some(a) => { 
             if (equiv(a.expr, b.expr)) b.fnode = a 
             else if (inst(a.expr, b.expr)) abs(t, b, a)
-            else if (equiv(msg(a.expr, b.expr).t, Var("z"))) split(t, a)
+            else if (equiv(msg(a.expr, b.expr).t, Var("z"))) split(t, b)
             else abs(t, a, b)
           }
           case None => t.addChildren(b, driveExp(b.expr)) // drive
@@ -40,6 +42,6 @@ class SuperCompiler(p: Program){
   def split(t: Tree, n: Node) = n.expr match {
     case Ctr(cn, xs)  => ((vs: List[Var]) => t.replace(n, Let(Ctr(cn, vs), vs zip xs)))  (xs map nv)
     case FCall(fn, xs) => ((vs: List[Var]) => t.replace(n, Let(FCall(fn, vs), vs zip xs))) (xs map nv)
-    case GCall(gn, xs) => ((vs: List[Var]) => t.replace(n, Let(FCall(gn, vs), vs zip xs))) (xs map nv)
+    case GCall(gn, xs) => ((vs: List[Var]) => t.replace(n, Let(GCall(gn, vs), vs zip xs))) (xs map nv)
   }
 }
