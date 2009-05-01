@@ -11,7 +11,7 @@ class SuperCompiler(p: Program){
     case gCall @ GCall(name, (v : Var) :: args) => 
       for (g <- p.gs(name); val pat = freshPat(g.p); val cons = Ctr(pat.name, pat.args))
         yield (driveExp(sub(gCall, Map(v -> cons)))(0)._1, Branch(v, pat))
-    case GCall(name, call :: args) => driveExp(call) map {p => (GCall(name, p._1 :: args), p._2)}
+    case GCall(name, args) => driveExp(args(0)) map {p => (GCall(name, p._1 :: args.tail), p._2)}
     case Let(term, bs) => (term, null) :: bs.map {pair => (pair._2, null)}
   }
   def buildProcessTree(e: Term): Tree = {
