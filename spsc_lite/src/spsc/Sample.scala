@@ -2,9 +2,9 @@ package spsc
 object Sample {
   
   def main(args : Array[String]) : Unit = {
-    //m0()
-    //m1()
-    //m2()
+    m0()
+    m1()
+    m2()
     m4()
   }
   

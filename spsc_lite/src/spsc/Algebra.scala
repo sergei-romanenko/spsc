@@ -82,4 +82,5 @@ object Algebra {
     case Var(_) => 1
     case _ => 0
   }
+  def trivial(expr: Term): Boolean = expr match {case x: Call => false; case _ => true}
 }
