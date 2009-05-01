@@ -1,6 +1,7 @@
 package spsc
 import Algebra._
 class SuperCompiler(p: Program){
+  val debug = false
   def driveExp(expr: Term): List[(Term, Branch)] = expr match {
     case Ctr(name, args) => args.map((_,null))
     case FCall(name, args)  => List((sub(p.f(name).term, Map(p.f(name).args.zip(args): _*)), null))
@@ -16,8 +17,7 @@ class SuperCompiler(p: Program){
   def buildProcessTree(e: Term): Tree = {
     var t = new Tree(new Node(e, null, null))
     while (!t.leafs.forall{_.isProcessed}) {
-      println(t)
-      println()
+      if (debug) {println(t); println()}
       val b = t.leafs.find(!_.isProcessed).get
       t = if (trivial(b.expr)) {
         t.addChildren(b, driveExp(b.expr)) //drive
@@ -32,8 +32,7 @@ class SuperCompiler(p: Program){
         }
       }
     }   
-    println(t)
-    println()
+    if (debug) {println(t); println()}
     t
   }
   def abs(t: Tree, a: Node, b: Node) =
