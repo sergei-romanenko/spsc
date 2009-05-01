@@ -1,6 +1,6 @@
 package spsc
 import Algebra._
-class ResidualProgramGenerator(val tree: Tree1) {
+class ResidualProgramGenerator(val tree: Tree) {
   lazy val residualProgram: Program = {
     val t = walk(tree.root)
     val rootCall = tree.root.expr.asInstanceOf[FCall]
@@ -8,7 +8,7 @@ class ResidualProgramGenerator(val tree: Tree1) {
     Program(defs.toList)
   }
   
-  private def walk(n: Node1): Term = if (n.fnode == null) n.expr match {
+  private def walk(n: Node): Term = if (n.fnode == null) n.expr match {
     case v: Var => v
     case Ctr(name,args) => Ctr(name, tree.children(n).map(walk))
     case Let(_,bs) => sub(walk(tree.children(n)(0)), Map(bs.map{_._1}.zip(tree.children(n).tail.map(walk)):_*))
@@ -28,7 +28,7 @@ class ResidualProgramGenerator(val tree: Tree1) {
   else
     sub(GCall(sigs(n.fnode)._1, sigs(n.fnode)._2), findSub(n.fnode.expr, n.expr))
   
-  private var sigs = scala.collection.mutable.Map[Node1, (String, List[Var])]()
+  private var sigs = scala.collection.mutable.Map[Node, (String, List[Var])]()
   private val defs = new scala.collection.mutable.ListBuffer[Def]
   var i = 0
   def rename(f: String, keep: Boolean, b: String) = if (keep) f else {i+=1; b + f.drop(1) + i}

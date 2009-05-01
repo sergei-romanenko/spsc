@@ -13,8 +13,8 @@ class SuperCompiler(p: Program){
     case GCall(name, call :: args) => driveExp(call) map {p => (GCall(name, p._1 :: args), p._2)}
     case Let(term, bs) => (term, null) :: bs.map {pair => (pair._2, null)}
   }
-  def buildProcessTree(e: Term): Tree1 = {
-    var t: Tree1 = new Tree1(new Node1(e, null, null))
+  def buildProcessTree(e: Term): Tree = {
+    var t = new Tree(new Node(e, null, null))
     while (!t.leafs.forall{_.isProcessed}) {
       println(t)
       println()
@@ -36,10 +36,10 @@ class SuperCompiler(p: Program){
     println()
     t
   }
-  def abs(t: Tree1, a: Node1, b: Node1) =
+  def abs(t: Tree, a: Node, b: Node) =
     ((g: Gen) => t.replace(a, Let(g.t, g.m1.toList))) (msg(a.expr, b.expr))
   private def freshPat(p: Pattern) = Pattern(p.name, p.args map nv)
-  def split(t: Tree1, n: Node1) = n.expr match {
+  def split(t: Tree, n: Node) = n.expr match {
     case Ctr(cn, xs)  => ((vs: List[Var]) => t.replace(n, Let(Ctr(cn, vs), vs zip xs)))  (xs map nv)
     case FCall(fn, xs) => ((vs: List[Var]) => t.replace(n, Let(FCall(fn, vs), vs zip xs))) (xs map nv)
     case GCall(gn, xs) => ((vs: List[Var]) => t.replace(n, Let(GCall(gn, vs), vs zip xs))) (xs map nv)
