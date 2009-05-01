@@ -14,7 +14,7 @@ class SuperCompiler(p: Program){
     case Let(term, bs) => (term, null) :: bs.map {pair => (pair._2, null)}
   }
   def buildProcessTree(e: Term): Tree1 = {
-    var t: Tree1 = new SingleNodeTree1(new Node1(e, null, null))
+    var t: Tree1 = new Tree1(new Node1(e, null, null))
     while (!t.leafs.forall{_.isProcessed}) {
       println(t)
       println()
