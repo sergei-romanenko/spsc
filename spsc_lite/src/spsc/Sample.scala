@@ -18,8 +18,9 @@ object Sample {
     val program = SParsers.parseProgram(programText)
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(SParsers.parseTerm("fMain(x, y, z)"))
-    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
-    println(residualProgram)
+    val result = new ResidualProgramGenerator(pt).result
+    println(result._1)
+    println(result._2)
   }
   
   def m4() : Unit = {
@@ -34,8 +35,9 @@ object Sample {
     val program = SParsers.parseProgram(programText)
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(SParsers.parseTerm("fMain(x)"))
-    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
-    println(residualProgram)
+    val result = new ResidualProgramGenerator(pt).result
+    println(result._1)
+    println(result._2)
   }
   
   def m3() : Unit = {
@@ -48,8 +50,8 @@ object Sample {
     val program = SParsers.parseProgram(programText)
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(SParsers.parseTerm("fMain(x, y, x)"))
-    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
-    println(residualProgram)
+    val result = new ResidualProgramGenerator(pt).result
+    println(result._1);println(result._2)
   }
   
   def m1() : Unit = {
@@ -67,11 +69,12 @@ object Sample {
     
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(inputTerm)
-    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
+    val result = new ResidualProgramGenerator(pt).result
     
     println(program)
     println()
-    println(residualProgram)
+    println(result._1)
+    println(result._2)
   }
   
   def m2() : Unit = {
@@ -91,7 +94,8 @@ object Sample {
     val program = SParsers.parseProgram(programText)
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(SParsers.parseTerm("fEqxx(x)"))
-    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
-    println(residualProgram)
+    val result = new ResidualProgramGenerator(pt).result
+    println(result._1)
+    println(result._2)
   }
 }
