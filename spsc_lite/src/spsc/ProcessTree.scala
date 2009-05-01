@@ -14,17 +14,14 @@ case class Node(expr: Term, parent: Node, branch: Branch) {
 
 class Tree(val root: Node) {
   def children(n: Node) = List[Node]()
-  def addChildren(node: Node, cs: List[(Term, Branch)]): Tree =  
-    new Tree(root) {
+  def addChildren(node: Node, cs: List[(Term, Branch)]) = new Tree(root) {
       val newChildren = cs map {case (t, b) => new Node(t, node, b)}
       override def children(n: Node) = if (node == n) newChildren else Tree.this.children(n)
     }
 
-  def replace(node: Node, exp: Term) : Tree = 
-    if (node == root) 
-      new Tree(node)
-    else
-      new Tree(root) {
+  def replace(node: Node, exp: Term) = 
+    if (node == root) new Tree(node)
+    else new Tree(root) {
         val newChildren = children(node.parent) map {n => if (n == node) new Node(exp, node.parent, node.branch) else n}
         override def children(n: Node) = if (node == n) newChildren else Tree.this.children(n)
       }
