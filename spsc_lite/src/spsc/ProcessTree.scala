@@ -2,7 +2,7 @@ package spsc
 import Algebra._
 
 case class Branch(v: Var, pat: Pattern)
-case class Node(expr: Term, parent: Node, branch: Branch) {
+class Node(val expr: Term, val parent: Node, val branch: Branch) {
   def ancestors(): List[Node] = if (parent == null) Nil else parent :: parent.ancestors
   
   def isProcessed: Boolean = expr match {
