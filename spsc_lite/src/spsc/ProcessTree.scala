@@ -4,16 +4,19 @@ import Algebra._
 case class Branch(v: Var, pat: Pattern)
 case class Node(expr: Term, parent: Node, branch: Branch) {
   def ancestors(): List[Node] = if (parent == null) Nil else parent :: parent.ancestors
+  
   def isProcessed: Boolean = expr match {
     case Ctr(_, Nil) => true
     case v: Var => true
     case _ => fnode != null
   }
+  
   def fnode() = (ancestors find {n => !trivial(n.expr) && equiv(expr, n.expr)}).getOrElse(null)
 }
 
 class Tree(val root: Node) {
   def children(n: Node) = List[Node]()
+  
   def addChildren(node: Node, cs: List[(Term, Branch)]) = new Tree(root) {
       val newChildren = cs map {case (t, b) => new Node(t, node, b)}
       override def children(n: Node) = if (node == n) newChildren else Tree.this.children(n)
