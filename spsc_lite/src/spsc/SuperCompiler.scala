@@ -17,7 +17,8 @@ class SuperCompiler(p: Program){
   }
   
   def buildProcessTree(e: Term): Tree = {
-    var t = new Tree(new Node(e, null, null))
+    val n = new Node(e, null, null)
+    var t = new Tree(n, Map().withDefaultValue(Nil))
     while (!t.leafs.forall{_.isProcessed}) {
       if (debug) {println(t); println()}
       val b = t.leafs.find(!_.isProcessed).get
