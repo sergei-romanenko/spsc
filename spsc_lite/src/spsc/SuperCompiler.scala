@@ -19,7 +19,7 @@ class SuperCompiler(p: Program){
   def buildProcessTree(e: Term): Tree = {
     val n = new Node(e, null, null)
     var t = new Tree(n, Map().withDefaultValue(Nil))
-    while (!t.leafs.forall{_.isProcessed}) {
+    while (t.leafs.exists{!_.isProcessed}) {
       if (debug) {println(t); println()}
       val b = t.leafs.find(!_.isProcessed).get
       t = if (trivial(b.expr)) {
