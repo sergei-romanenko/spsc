@@ -23,10 +23,10 @@ class Tree(val root: Node, val children: Map[Node, List[Node]]) {
     if (n == root) new Tree(n, Map().withDefaultValue(Nil))
     else new Tree(root, children + (n -> ( children(n.parent) map {m => if (m == n) new Node(exp, n.parent, n.branch) else m} ) )) 
   
-  def leafs_(node: Node): List[Node] = 
-    if (children(node).isEmpty) List(node) else List.flatten(children(node) map leafs_)
+  def leaves_(node: Node): List[Node] = 
+    if (children(node).isEmpty) List(node) else List.flatten(children(node) map leaves_)
   
-  def leafs() = leafs_(root)
+  def leaves() = leaves_(root)
   
   def toString(node: Node, indent: String): String = {
     val sb = new StringBuilder(indent + "|__" + node.expr)

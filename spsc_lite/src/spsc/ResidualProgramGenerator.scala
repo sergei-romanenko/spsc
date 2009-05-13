@@ -15,7 +15,7 @@ class ResidualProgramGenerator(val tree: Tree) {
         for (cn <- tree.children(n)) 
           defs += GFun(sigs(n)._1, cn.branch.pat, vars(call).tail, walk(cn))
         GCall(sigs(n)._1, vars(call))
-      } else if (tree.leafs.exists(_.fnode == n)) {
+      } else if (tree.leaves.exists(_.fnode == n)) {
         sigs(n) = (rename(call.name, "f"), vars(call))
         defs += FFun(sigs(n)._1, sigs(n)._2, walk(tree.children(n)(0)))
         FCall(sigs(n)._1, vars(call))
