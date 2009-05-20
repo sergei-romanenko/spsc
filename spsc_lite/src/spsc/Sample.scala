@@ -2,39 +2,66 @@ package spsc
 object Sample {
   
   def main(args : Array[String]) : Unit = {
-    val tasks = List((
+    m0()
+    m1()
+    m2()
+    m3()
+  }
+  
+  def m0() : Unit = {
+    val programText = 
     """
     fMain(x, y, z) = gAppend(gAppend(x, y), z);
     gAppend(Nil(), vs1) = vs1;
     gAppend(Cons(u, us), vs) = Cons(u, gAppend(us, vs));
-    """,
-    "fMain(x, y, z)"
-    ),(
     """
-    fMain(x) = gRev(x);
-    gApp(Nil(), vs1) = vs1;
-    gApp(Cons(u, us), vs) = Cons(u, gApp(us, vs));
-    gRev(Nil()) = Nil();
-    gRev(Cons(b, bs)) = gApp( gRev(bs), Cons(b, Nil()));
-    """, 
-    "fMain(x)"
-    ),(
+    val program = SParsers.parseProgram(programText)
+    val sc = new SuperCompiler(program)
+    val pt = sc.buildProcessTree(SParsers.parseTerm("fMain(x, y, z)"))
+    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
+    println()
+    println(residualProgram)
+  }
+  
+  def m3() : Unit = {
+    val programText = 
     """
     fMain(x, y, z) = gAppend(gAppend(x, y), z);
     gAppend(Nil(), vs1) = vs1;
     gAppend(Cons(u, us), vs) = Cons(u, gAppend(us, vs));
-    """, 
-    "fMain(x, y, x)"
-    ),(
+    """
+    val program = SParsers.parseProgram(programText)
+    val sc = new SuperCompiler(program)
+    val pt = sc.buildProcessTree(SParsers.parseTerm("fMain(x, y, x)"))
+    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
+    println()
+    println(residualProgram)
+  }
+  
+  def m1() : Unit = {
+    val programText = 
     """
     f1(x) = f2(x);
     f2(x) = g1(x);
     f3(x) = f1(x);
     g1(A(a)) = f1(a);
     g1(B(b)) = f1(b);
-    """,
-    "f1(z)"
-    ),(
+    """
+    val inputText = "f1(z)"
+    val program = SParsers.parseProgram(programText)
+    val inputTerm = SParsers.parseTerm(inputText)
+    
+    val sc = new SuperCompiler(program)
+    val pt = sc.buildProcessTree(inputTerm)
+    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
+    
+    println(program)
+    println()
+    println(residualProgram)
+  }
+  
+  def m2() : Unit = {
+    val programText = 
     """
     gEq(Z(), y) = gEqZ(y);
     gEq(S(x), y) = gEqS(y, x);
@@ -46,20 +73,12 @@ object Sample {
     gEqS(S(y), x) = gEq(x, y);
 
     fEqxx(x) = gEq(x, x);
-    """, 
-    "fEqxx(x)"))
-    tasks map {case (p, t) => runSample(p, t)}
-  }
-  
-  def runSample(programText: String, termText: String) = {
+    """
     val program = SParsers.parseProgram(programText)
     val sc = new SuperCompiler(program)
-    val pt = sc.buildProcessTree(SParsers.parseTerm(termText))
-    val result = new ResidualProgramGenerator(pt).result
-    println("---------")
-    println(program)
+    val pt = sc.buildProcessTree(SParsers.parseTerm("fEqxx(x)"))
+    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
     println()
-    println(result._1)
-    println(result._2)
+    println(residualProgram)
   }
 }
