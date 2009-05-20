@@ -18,7 +18,7 @@ object Sample {
     val program = SParsers.parseProgram(programText)
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(SParsers.parseTerm("fMain(x, y, z)"))
-    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
+    val residualProgram = new ResidualProgramGenerator(pt).result
     println()
     println(residualProgram)
   }
@@ -33,7 +33,7 @@ object Sample {
     val program = SParsers.parseProgram(programText)
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(SParsers.parseTerm("fMain(x, y, x)"))
-    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
+    val residualProgram = new ResidualProgramGenerator(pt).result
     println()
     println(residualProgram)
   }
@@ -53,7 +53,7 @@ object Sample {
     
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(inputTerm)
-    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
+    val residualProgram = new ResidualProgramGenerator(pt).result
     
     println(program)
     println()
@@ -77,7 +77,7 @@ object Sample {
     val program = SParsers.parseProgram(programText)
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(SParsers.parseTerm("fEqxx(x)"))
-    val residualProgram = new ResidualProgramGenerator(pt).residualProgram
+    val residualProgram = new ResidualProgramGenerator(pt).result
     println()
     println(residualProgram)
   }
