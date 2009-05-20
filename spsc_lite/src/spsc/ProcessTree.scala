@@ -1,8 +1,9 @@
 package spsc
 import Algebra._
 
-case class Branch(v: Var, pat: Pattern)
-class Node(val expr: Term, val parent: Node, val branch: Branch) {
+case class Contraction(v: Var, pat: Pattern)
+
+class Node(val expr: Term, val parent: Node, val contr: Contraction) {
   def ancestors(): List[Node] = if (parent == null) Nil else parent :: parent.ancestors
   
   def isProcessed: Boolean = expr match {
@@ -16,12 +17,12 @@ class Node(val expr: Term, val parent: Node, val branch: Branch) {
 
 class Tree(val root: Node, val children: Map[Node, List[Node]]) {
   
-  def addChildren(node: Node, cs: List[(Term, Branch)]) = 
+  def addChildren(node: Node, cs: List[(Term, Contraction)]) = 
     new Tree(root, children + (node -> (cs map {case (t, b) => new Node(t, node, b)})))
 
   def replace(n: Node, exp: Term) = 
     if (n == root) new Tree(n, Map().withDefaultValue(Nil))
-    else new Tree(root, children + (n -> ( children(n.parent) map {m => if (m == n) new Node(exp, n.parent, n.branch) else m} ) )) 
+    else new Tree(root, children + (n -> ( children(n.parent) map {m => if (m == n) new Node(exp, n.parent, n.contr) else m} ) )) 
   
   def leaves_(node: Node): List[Node] = 
     if (children(node).isEmpty) List(node) else List.flatten(children(node) map leaves_)
@@ -31,7 +32,7 @@ class Tree(val root: Node, val children: Map[Node, List[Node]]) {
   def toString(node: Node, indent: String): String = {
     val sb = new StringBuilder(indent + "|__" + node.expr)
     for (n <- children(node)) {
-      sb.append("\n  " + indent + "|" + n.branch)
+      sb.append("\n  " + indent + "|" + n.contr)
       sb.append("\n" + toString(n, indent + "  "))
     }
     sb.toString

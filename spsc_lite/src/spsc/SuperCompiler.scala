@@ -1,19 +1,25 @@
 package spsc
+
 import Algebra._
+
 class SuperCompiler(p: Program){
+  
   val debug = false
   
-  def driveExp(expr: Term): List[(Term, Branch)] = expr match {
+  def driveExp(expr: Term): List[(Term, Contraction)] = expr match {
     case Ctr(name, args) => args.map((_,null))
-    case FCall(name, args)  => List((sub(p.f(name).term, Map(p.f(name).args.zip(args): _*)), null))
+    case FCall(name, args)  =>
+      List((subst(p.f(name).term, Map(p.f(name).args.zip(args): _*)), null))
     case GCall(name, Ctr(cname, cargs) :: args) =>
       val g = p.g(name, cname)  
-      List((sub(g.term, Map((g.p.args:::g.args) zip (cargs ::: args): _*)), null))
+      List((subst(g.term, Map((g.p.args:::g.args) zip (cargs ::: args): _*)), null))
     case gCall @ GCall(name, (v : Var) :: args) => 
       for (g <- p.gs(name); val pat = freshPat(g.p); val cons = Ctr(pat.name, pat.args))
-        yield (driveExp(sub(gCall, Map(v -> cons)))(0)._1, Branch(v, pat))
-    case GCall(name, args) => driveExp(args(0)) map {p => (GCall(name, p._1 :: args.tail), p._2)}
-    case Let(term, bs) => (term, null) :: bs.map {pair => (pair._2, null)}
+        yield (driveExp(subst(gCall, Map(v -> cons)))(0)._1, Contraction(v, pat))
+    case GCall(name, args) => driveExp(args(0)) map {p =>
+      (GCall(name, p._1 :: args.tail), p._2)}
+    case Let(term, bs) =>
+      (term, null) :: bs.map {pair => (pair._2, null)}
   }
   
   def buildProcessTree(e: Term): Tree = {
@@ -42,11 +48,11 @@ class SuperCompiler(p: Program){
   def abs(t: Tree, a: Node, b: Node) =
     ((g: Gen) => t.replace(a, Let(g.t, g.m1.toList))) (msg(a.expr, b.expr))
   
-  private def freshPat(p: Pattern) = Pattern(p.name, p.args map nv)
+  private def freshPat(p: Pattern) = Pattern(p.name, p.args map freshVar)
   
-  def split(t: Tree, n: Node) = n.expr match {
-    case Ctr(cn, xs)  => ((vs: List[Var]) => t.replace(n, Let(Ctr(cn, vs), vs zip xs)))  (xs map nv)
-    case FCall(fn, xs) => ((vs: List[Var]) => t.replace(n, Let(FCall(fn, vs), vs zip xs))) (xs map nv)
-    case GCall(gn, xs) => ((vs: List[Var]) => t.replace(n, Let(GCall(gn, vs), vs zip xs))) (xs map nv)
+  def split(t: Tree, n: Node) : Tree = {
+    val e = n.expr.asInstanceOf[CFGTerm]
+    val vs = e.args map freshVar
+    t.replace(n, Let(e.replaceArgs(vs), vs zip e.args))
   }
 }
