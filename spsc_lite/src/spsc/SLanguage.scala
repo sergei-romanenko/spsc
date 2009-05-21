@@ -6,33 +6,34 @@ case class Var(name: String) extends Term {
   override def toString = name
 }
 
-object TermKind extends Enumeration {
+object TKind extends Enumeration {
   val Ctr, FCall, GCall = Value
 }
 
-abstract class CFGTerm extends Term {
-  def kind: TermKind.Value
-  def name: String;
-  def args: List[Term];
-  def replaceArgs(newArgs: List[Term]): CFGTerm
+case class CFGTerm(kind: TKind.Value, name: String, args: List[Term]) extends Term {
+  def replaceArgs(newArgs: List[Term]) : CFGTerm = CFGTerm(kind, name, newArgs)
   override def toString = name + args.mkString("(", ", " ,")")
 }
 
-case class Ctr(name: String, args: List[Term]) extends CFGTerm {
-  override def kind = TermKind.Ctr
-  override def replaceArgs(newArgs: List[Term]) : Ctr = Ctr(name, newArgs)
+object Ctr extends ((String, List[Term]) => CFGTerm) {
+  def apply(name: String, args: List[Term]): CFGTerm =
+    CFGTerm(TKind.Ctr, name, args)
+  def unapply(e: CFGTerm) : Option[(String, List[Term])] =
+    if (e.kind == TKind.Ctr) Some(e.name, e.args) else None
 }
 
-abstract class Call extends CFGTerm
-
-case class FCall(name: String, args: List[Term]) extends Call {
-  override def kind = TermKind.FCall
-  override def replaceArgs(newArgs: List[Term]) : FCall = FCall(name, newArgs)
+object FCall extends ((String, List[Term]) => CFGTerm) {
+  def apply(name: String, args: List[Term]): CFGTerm =
+    CFGTerm(TKind.Ctr, name, args)
+  def unapply(e: CFGTerm) : Option[(String, List[Term])] =
+    if (e.kind == TKind.FCall) Some(e.name, e.args) else None
 }
 
-case class GCall(name: String, args: List[Term]) extends Call {
-  override def kind = TermKind.GCall
-  override def replaceArgs(newArgs: List[Term]) : GCall = GCall(name, newArgs)
+object GCall extends ((String, List[Term]) => CFGTerm) {
+  def apply(name: String, args: List[Term]): CFGTerm =
+    CFGTerm(TKind.Ctr, name, args)
+  def unapply(e: CFGTerm) : Option[(String, List[Term])] =
+    if (e.kind == TKind.GCall) Some(e.name, e.args) else None
 }
 
 case class Let(term: Term, bindings: List[(Var, Term)]) extends Term {

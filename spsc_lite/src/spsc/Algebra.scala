@@ -4,7 +4,7 @@ case class Gen(t: Term, m1: Map[Var, Term], m2: Map[Var, Term])
 
 object Algebra {
   
-  def shallowEq(e1: CFGTerm, e2: CFGTerm) =
+  def shallowEq(e1: CFGTerm, e2: CFGTerm): Boolean =
     e1.kind == e2.kind && e1.name == e2.name
   
   def subst(term: Term, m: Map[Var, Term]): Term = term match {
@@ -82,7 +82,8 @@ object Algebra {
   }
   
   def trivial(expr: Term): Boolean = expr match {
-    case x: Call => false
+    case FCall(_, _) => false
+    case GCall(_, _) => false
     case _ => true
   }
 }

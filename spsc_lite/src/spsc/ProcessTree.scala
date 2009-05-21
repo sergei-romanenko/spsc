@@ -7,7 +7,7 @@ class Node(val expr: Term, val parent: Node, val contr: Contraction) {
   def ancestors(): List[Node] = if (parent == null) Nil else parent :: parent.ancestors
   
   def isProcessed: Boolean = expr match {
-    case Ctr(_, Nil) => true
+    case CFGTerm(kind, _, Nil) if kind == TKind.Ctr => true
     case v: Var => true
     case _ => fnode != null
   }
