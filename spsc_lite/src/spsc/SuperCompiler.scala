@@ -50,9 +50,9 @@ class SuperCompiler(p: Program){
   
   private def freshPat(p: Pattern) = Pattern(p.name, p.args map freshVar)
   
-  def split(t: Tree, n: Node) : Tree = {
-    val e = n.expr.asInstanceOf[CFGTerm]
-    val vs = e.args map freshVar
-    t.replace(n, Let(e.replaceArgs(vs), vs zip e.args))
-  }
+  def split(t: Tree, n: Node) : Tree = n.expr match {
+    case e : CFGTerm =>
+      val vs = e.args map freshVar
+      t.replace(n, Let(e.replaceArgs(vs), vs zip e.args))
+    }
 }

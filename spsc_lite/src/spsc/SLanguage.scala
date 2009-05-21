@@ -6,31 +6,33 @@ case class Var(name: String) extends Term {
   override def toString = name
 }
 
+object TermKind extends Enumeration {
+  val Ctr, FCall, GCall = Value
+}
+
 abstract class CFGTerm extends Term {
+  def kind: TermKind.Value
   def name: String;
   def args: List[Term];
-  def eqAtTop(e: CFGTerm): Boolean
   def replaceArgs(newArgs: List[Term]): CFGTerm
+  override def toString = name + args.mkString("(", ", " ,")")
 }
 
 case class Ctr(name: String, args: List[Term]) extends CFGTerm {
-  override def eqAtTop(e:CFGTerm) = e.isInstanceOf[Ctr] && name == e.name
+  override def kind = TermKind.Ctr
   override def replaceArgs(newArgs: List[Term]) : Ctr = Ctr(name, newArgs)
-  override def toString = name + args.mkString("(", ", " ,")")
 }
 
 abstract class Call extends CFGTerm
 
 case class FCall(name: String, args: List[Term]) extends Call {
-  override def eqAtTop(e:CFGTerm) = e.isInstanceOf[FCall] && name == e.name
+  override def kind = TermKind.FCall
   override def replaceArgs(newArgs: List[Term]) : FCall = FCall(name, newArgs)
-  override def toString = name + args.mkString("(", ", " ,")")
 }
 
 case class GCall(name: String, args: List[Term]) extends Call {
-  override def eqAtTop(e:CFGTerm) = e.isInstanceOf[GCall] && name == e.name
+  override def kind = TermKind.GCall
   override def replaceArgs(newArgs: List[Term]) : GCall = GCall(name, newArgs)
-  override def toString = name + args.mkString("(", ", " ,")")
 }
 
 case class Let(term: Term, bindings: List[(Var, Term)]) extends Term {

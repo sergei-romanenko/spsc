@@ -4,6 +4,9 @@ case class Gen(t: Term, m1: Map[Var, Term], m2: Map[Var, Term])
 
 object Algebra {
   
+  def shallowEq(e1: CFGTerm, e2: CFGTerm) =
+    e1.kind == e2.kind && e1.name == e2.name
+  
   def subst(term: Term, m: Map[Var, Term]): Term = term match {
     case v: Var     => m.getOrElse(v, v)
     case e: CFGTerm => e.replaceArgs(e.args.map(subst(_, m)))
@@ -17,7 +20,7 @@ object Algebra {
     val map = scala.collection.mutable.Map[Var, Term]()
     def walk(t1: Term, t2: Term): Boolean = (t1, t2) match {
       case (v1: Var, _) => map.getOrElse(v1, t2) == (map+(v1 -> t2))(v1)
-      case (e1: CFGTerm, e2:CFGTerm) if e1.eqAtTop(e2) =>
+      case (e1: CFGTerm, e2:CFGTerm) if shallowEq(e1, e2) =>
         List.forall2(e1.args, e2.args)(walk)
       case _ => false
     }
@@ -39,7 +42,7 @@ object Algebra {
   }
   
   private def heByCoupling(t1: Term, t2: Term): Boolean = (t1, t2) match {
-    case (e1:CFGTerm, e2:CFGTerm) if e1.eqAtTop(e2) => List.forall2(e1.args, e2.args)(he)
+    case (e1:CFGTerm, e2:CFGTerm) if shallowEq(e1, e2) => List.forall2(e1.args, e2.args)(he)
     case (Var(_), Var(_)) => true
     case _ => false
   }
@@ -54,7 +57,7 @@ object Algebra {
   
   def commonFun(g: Gen): Gen = {
     for (v <- g.m1.keys) (g.m1(v), g.m2(v)) match {
-      case (e1:CFGTerm, e2:CFGTerm) if e1.eqAtTop(e2) =>
+      case (e1:CFGTerm, e2:CFGTerm) if shallowEq(e1, e2) =>
         val vs = e1.args map freshVar
         val t = subst(g.t, Map(v -> e1.replaceArgs(vs)))
         return Gen(t, (g.m1 - v) ++ vs.zip(e1.args), (g.m2 - v) ++ vs.zip(e2.args))        
