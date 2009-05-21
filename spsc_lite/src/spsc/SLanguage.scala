@@ -24,14 +24,14 @@ object Ctr extends ((String, List[Term]) => CFG) {
 
 object FCall extends ((String, List[Term]) => CFG) {
   def apply(name: String, args: List[Term]): CFG =
-    CFG(TKind.Ctr, name, args)
+    CFG(TKind.FCall, name, args)
   def unapply(e: CFG) : Option[(String, List[Term])] =
     if (e.kind == TKind.FCall) Some(e.name, e.args) else None
 }
 
 object GCall extends ((String, List[Term]) => CFG) {
   def apply(name: String, args: List[Term]): CFG =
-    CFG(TKind.Ctr, name, args)
+    CFG(TKind.GCall, name, args)
   def unapply(e: CFG) : Option[(String, List[Term])] =
     if (e.kind == TKind.GCall) Some(e.name, e.args) else None
 }
