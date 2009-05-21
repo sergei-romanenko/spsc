@@ -11,7 +11,7 @@ object TKind extends Enumeration {
 }
 
 case class CFG(kind: TKind.Value, name: String, args: List[Term]) extends Term {
-  def replaceArgs(newArgs: List[Term]) : CFG = CFG(kind, name, newArgs)
+  def replaceArgs(newArgs: List[Term]) = CFG(kind, name, newArgs)
   override def toString = name + args.mkString("(", ", " ,")")
 }
 
