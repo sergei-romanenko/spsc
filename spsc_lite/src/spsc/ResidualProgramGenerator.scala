@@ -1,6 +1,5 @@
 package spsc
 import Algebra._
-import CFGTerm._
 
 class ResidualProgramGenerator(val tree: Tree) {
   

@@ -4,8 +4,6 @@ import scala.util.parsing.combinator.ImplicitConversions
 import scala.util.parsing.combinator.syntactical.StandardTokenParsers
 import scala.util.parsing.input.{CharSequenceReader => Reader}
 
-import CFGTerm._
-
 object SParsers extends StandardTokenParsers with ImplicitConversions {
   lexical.delimiters += ("(", ")", ",", "=", ";")
   def program = definition+

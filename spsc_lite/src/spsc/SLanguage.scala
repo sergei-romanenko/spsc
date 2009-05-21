@@ -10,29 +10,29 @@ object TKind extends Enumeration {
   val Ctr, FCall, GCall = Value
 }
 
-case class CFGTerm(kind: TKind.Value, name: String, args: List[Term]) extends Term {
-  def replaceArgs(newArgs: List[Term]) : CFGTerm = CFGTerm(kind, name, newArgs)
+case class CFG(kind: TKind.Value, name: String, args: List[Term]) extends Term {
+  def replaceArgs(newArgs: List[Term]) : CFG = CFG(kind, name, newArgs)
   override def toString = name + args.mkString("(", ", " ,")")
 }
 
-object Ctr extends ((String, List[Term]) => CFGTerm) {
-  def apply(name: String, args: List[Term]): CFGTerm =
-    CFGTerm(TKind.Ctr, name, args)
-  def unapply(e: CFGTerm) : Option[(String, List[Term])] =
+object Ctr extends ((String, List[Term]) => CFG) {
+  def apply(name: String, args: List[Term]): CFG =
+    CFG(TKind.Ctr, name, args)
+  def unapply(e: CFG) : Option[(String, List[Term])] =
     if (e.kind == TKind.Ctr) Some(e.name, e.args) else None
 }
 
-object FCall extends ((String, List[Term]) => CFGTerm) {
-  def apply(name: String, args: List[Term]): CFGTerm =
-    CFGTerm(TKind.Ctr, name, args)
-  def unapply(e: CFGTerm) : Option[(String, List[Term])] =
+object FCall extends ((String, List[Term]) => CFG) {
+  def apply(name: String, args: List[Term]): CFG =
+    CFG(TKind.Ctr, name, args)
+  def unapply(e: CFG) : Option[(String, List[Term])] =
     if (e.kind == TKind.FCall) Some(e.name, e.args) else None
 }
 
-object GCall extends ((String, List[Term]) => CFGTerm) {
-  def apply(name: String, args: List[Term]): CFGTerm =
-    CFGTerm(TKind.Ctr, name, args)
-  def unapply(e: CFGTerm) : Option[(String, List[Term])] =
+object GCall extends ((String, List[Term]) => CFG) {
+  def apply(name: String, args: List[Term]): CFG =
+    CFG(TKind.Ctr, name, args)
+  def unapply(e: CFG) : Option[(String, List[Term])] =
     if (e.kind == TKind.GCall) Some(e.name, e.args) else None
 }
 
