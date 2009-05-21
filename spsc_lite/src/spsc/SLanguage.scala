@@ -15,13 +15,13 @@ case class CFG(kind: TKind.Value, name: String, args: List[Term]) extends Term {
   override def toString = name + args.mkString("(", ", " ,")")
 }
 
-abstract class Proxy(kind: TKind.Value) extends ((String, List[Term]) => CFG) {
+abstract class CFGObject(kind: TKind.Value) extends ((String, List[Term]) => CFG) {
   def apply(name: String, args: List[Term]) = CFG(kind, name, args)
   def unapply(e: CFG) = if (e.kind == kind) Some(e.name, e.args) else None
 }
-object Ctr extends Proxy(TKind.Ctr)
-object FCall extends Proxy(TKind.FCall)
-object GCall extends Proxy(TKind.GCall)
+object Ctr extends CFGObject(TKind.Ctr)
+object FCall extends CFGObject(TKind.FCall)
+object GCall extends CFGObject(TKind.GCall)
 
 
 case class Let(term: Term, bindings: List[(Var, Term)]) extends Term {
