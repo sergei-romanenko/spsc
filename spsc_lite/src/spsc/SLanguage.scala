@@ -15,20 +15,14 @@ case class CFG(kind: TKind.Value, name: String, args: List[Term]) extends Term {
   override def toString = name + args.mkString("(", ", " ,")")
 }
 
-object Ctr extends ((String, List[Term]) => CFG) {
-  def apply(name: String, args: List[Term]) = CFG(TKind.Ctr, name, args)
-  def unapply(e: CFG) = if (e.kind == TKind.Ctr) Some(e.name, e.args) else None
+abstract class Proxy(kind: TKind.Value) extends ((String, List[Term]) => CFG) {
+  def apply(name: String, args: List[Term]) = CFG(kind, name, args)
+  def unapply(e: CFG) = if (e.kind == kind) Some(e.name, e.args) else None
 }
+object Ctr extends Proxy(TKind.Ctr)
+object FCall extends Proxy(TKind.FCall)
+object GCall extends Proxy(TKind.GCall)
 
-object FCall extends ((String, List[Term]) => CFG) {
-  def apply(name: String, args: List[Term]) = CFG(TKind.FCall, name, args)
-  def unapply(e: CFG) = if (e.kind == TKind.FCall) Some(e.name, e.args) else None
-}
-
-object GCall extends ((String, List[Term]) => CFG) {
-  def apply(name: String, args: List[Term]) = CFG(TKind.GCall, name, args)
-  def unapply(e: CFG) = if (e.kind == TKind.GCall) Some(e.name, e.args) else None
-}
 
 case class Let(term: Term, bindings: List[(Var, Term)]) extends Term {
   override def toString = "let " + bindings.map{case (v, t) => v + "=" + t}.mkString(", ") + " in " + term
