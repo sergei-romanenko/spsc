@@ -53,7 +53,7 @@ object MSG {
       case (e1:CFG, e2:CFG) if shallowEq(e1, e2) =>
         val vs = e1.args map freshVar
         val t = subst(g.t, Map(v -> e1.replaceArgs(vs)))
-        return Gen(t, (g.m1 - v) ++ vs.zip(e1.args), (g.m2 - v) ++ vs.zip(e2.args))        
+        return Gen(t, g.m1 - v ++ vs.zip(e1.args), g.m2 - v ++ vs.zip(e2.args))        
       case _ =>
     }
     g
