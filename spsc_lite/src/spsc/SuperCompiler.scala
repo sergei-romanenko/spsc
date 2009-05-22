@@ -12,17 +12,16 @@ class SuperCompiler(p: Program){
       val g = p.g(name, cname)  
       List((subst(g.term, Map((g.p.args:::g.args) zip (cargs:::args): _*)), null))
     case gCall @ GCall(name, (v : Var) :: args) => 
-      for (g <- p.gs(name); fp = freshPat(g.p); cons = Ctr(fp.name, fp.args))
-        yield (driveExp(subst(gCall, Map(v -> cons)))(0)._1, Contraction(v, fp))
+      for (g <- p.gs(name); fp = freshPat(g.p); cons = Ctr(fp.name, fp.args)) 
+        yield driveExp(subst(gCall, Map(v -> cons))) match 
+          {case (k, _) :: _ => (k, Contraction(v, fp))} 
     case GCall(name, args) => 
-      driveExp(args(0)) map {p => (GCall(name, p._1 :: args.tail), p._2)}
-    case Let(term, bs) =>
-      (term, null) :: bs.map {pair => (pair._2, null)}
+      driveExp(args(0)) map {case (k, v) => (GCall(name, k :: args.tail), v)}
+    case Let(term, bs) => (term, null) :: bs.map {case (_, v) => (v, null)}
   }
   
   def buildProcessTree(e: Term): Tree = {
-    val n = new Node(e, null, null)
-    var t = new Tree(n, Map().withDefaultValue(Nil))
+    var t = new Tree(new Node(e, null, null), Map().withDefaultValue(Nil))
     while (t.leaves.exists{!_.isProcessed}) {
       val b = t.leaves.find(!_.isProcessed).get
       t = if (trivial(b.expr)) {
