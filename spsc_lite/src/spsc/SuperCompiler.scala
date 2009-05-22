@@ -2,7 +2,7 @@ package spsc
 
 import Algebra._
 
-class SuperCompiler(p: Program) extends SuperCompiler0(p){
+class SuperCompiler(p: Program) extends BaseSuperCompiler(p){
   
   override def buildProcessTree(e: Term): Tree = {
     var t = new Tree(new Node(e, null, null), Map().withDefaultValue(Nil))

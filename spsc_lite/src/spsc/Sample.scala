@@ -27,7 +27,7 @@ object Sample {
     gAppend(Cons(u, us), vs) = Cons(u, gAppend(us, vs));
     """
     val program = SParsers.parseProg(programText)
-    val sc = new SuperCompiler0(program)
+    val sc = new BaseSuperCompiler(program)
     val pt = sc.buildProcessTree(SParsers.parseTerm("fMain(x, y, z)"))
     val result = new ResidualProgramGenerator(pt).result
     println(program)
