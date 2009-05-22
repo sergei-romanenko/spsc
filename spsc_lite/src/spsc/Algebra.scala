@@ -4,8 +4,7 @@ case class Gen(t: Term, m1: Map[Var, Term], m2: Map[Var, Term])
 
 object Algebra {
   
-  def shallowEq(e1: CFG, e2: CFG): Boolean =
-    e1.kind == e2.kind && e1.name == e2.name
+  def shallowEq(e1: CFG, e2: CFG) = e1.kind == e2.kind && e1.name == e2.name
   
   def subst(term: Term, m: Map[Var, Term]): Term = term match {
     case v: Var     => m.getOrElse(v, v)
