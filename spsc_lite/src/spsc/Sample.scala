@@ -15,7 +15,7 @@ object Sample {
     gAppend(Nil(), vs1) = vs1;
     gAppend(Cons(u, us), vs) = Cons(u, gAppend(us, vs));
     """
-    val program = SParsers.parseProgram(programText)
+    val program = SParsers.parseProg(programText)
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(SParsers.parseTerm("fMain(x, y, z)"))
     val result = new ResidualProgramGenerator(pt).result
@@ -33,7 +33,7 @@ object Sample {
     gAppend(Nil(), vs1) = vs1;
     gAppend(Cons(u, us), vs) = Cons(u, gAppend(us, vs));
     """
-    val program = SParsers.parseProgram(programText)
+    val program = SParsers.parseProg(programText)
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(SParsers.parseTerm("fMain(x, y, x)"))
     val result = new ResidualProgramGenerator(pt).result
@@ -54,7 +54,7 @@ object Sample {
     g1(B(b)) = f1(b);
     """
     val inputText = "f1(z)"
-    val program = SParsers.parseProgram(programText)
+    val program = SParsers.parseProg(programText)
     val inputTerm = SParsers.parseTerm(inputText)
     
     val sc = new SuperCompiler(program)
@@ -81,7 +81,7 @@ object Sample {
 
     fEqxx(x) = gEq(x, x);
     """
-    val program = SParsers.parseProgram(programText)
+    val program = SParsers.parseProg(programText)
     val sc = new SuperCompiler(program)
     val pt = sc.buildProcessTree(SParsers.parseTerm("fEqxx(x)"))
     val result = new ResidualProgramGenerator(pt).result

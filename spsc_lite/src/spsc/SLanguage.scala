@@ -26,7 +26,7 @@ object GCall extends CFGObject(TKind.GCall)
 
 case class Let(term: Term, bindings: List[(Var, Term)]) extends Term
 
-case class Pattern(name: String, args: List[Var]) {
+case class Pat(name: String, args: List[Var]) {
   override def toString = name + args.mkString("(", ", " ,")")
 }
 
@@ -35,7 +35,7 @@ case class FFun(name: String, args: List[Var], term: Term) extends Def {
   override def toString = name + args.mkString("(", ", " ,")") + " = " + term + ";"
 }
 
-case class GFun(name: String, p: Pattern, args: List[Var], term: Term) extends Def {
+case class GFun(name: String, p: Pat, args: List[Var], term: Term) extends Def {
   override def toString = name + (p :: args).mkString("(", ", " ,")")  + " = " + term + ";"
 }
 

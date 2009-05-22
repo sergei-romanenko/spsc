@@ -1,7 +1,7 @@
 package spsc
 import Algebra._
 
-case class Contraction(v: Var, pat: Pattern)
+case class Contraction(v: Var, pat: Pat)
 
 class Node(val expr: Term, val parent: Node, val contr: Contraction) {
   
