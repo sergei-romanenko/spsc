@@ -17,7 +17,7 @@ class ResidualProgramGenerator(val tree: Tree) {
   } else sigs(n.fnode) match {
     case (name, args) => if (tree.children(n.fnode)(0).contr == null) 
            subst(FCall(name, args), findSubst(n.fnode.expr, n.expr))
-      else subst(FCall(name, args), findSubst(n.fnode.expr, n.expr))
+      else subst(GCall(name, args), findSubst(n.fnode.expr, n.expr))
   }
 
   def walkCall(n: Node, name: String, args: List[Term]): Term = {
