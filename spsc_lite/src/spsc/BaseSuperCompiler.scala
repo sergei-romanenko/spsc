@@ -30,5 +30,5 @@ class BaseSuperCompiler(p: Program){
     t
   } 
  
-  private def freshPat(p: Pat) = Pat(p.name, p.args map freshVar)
+  def freshPat(p: Pat) = Pat(p.name, p.args map freshVar)
 }

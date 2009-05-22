@@ -25,8 +25,6 @@ class SuperCompiler(p: Program) extends BaseSuperCompiler(p){
   def abs(t: Tree, a: Node, b: Node) =
     ((g: Gen) => t.replace(a, Let(g.t, g.m1.toList))) (MSG.msg(a.expr, b.expr))
   
-  def freshPat(p: Pat) = Pat(p.name, p.args map freshVar)
-  
   def split(t: Tree, n: Node) : Tree = n.expr match {
     case e : CFG =>
       val vs = e.args map freshVar
