@@ -15,7 +15,8 @@ class ResidualProgramGenerator(val tree: Tree) {
     case FCall(name, args) => walkCall(n, name, args)
     case GCall(name, args) => walkCall(n, name, args)
   } else sigs(n.fnode) match {
-    case (name, args) => if (tree.children(n.fnode)(0).contr == null) 
+    case (name, args) => 
+      if (tree.children(n.fnode)(0).contr == null) 
            subst(FCall(name, args), findSubst(n.fnode.expr, n.expr))
       else subst(GCall(name, args), findSubst(n.fnode.expr, n.expr))
   }
