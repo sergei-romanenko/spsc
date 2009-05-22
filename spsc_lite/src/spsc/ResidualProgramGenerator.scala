@@ -7,19 +7,16 @@ class ResidualProgramGenerator(val tree: Tree) {
   private val defs = new scala.collection.mutable.ListBuffer[Def]
   lazy val result = (walk(tree.root), Program(defs.toList))
   
-  private def walk(n: Node): Term =
-    if (n.fnode == null) n.expr match {
-      case v: Var => v
-      case Let(_,bs) => subst(walk(tree.children(n)(0)), 
-                         Map(bs.map{_._1}.zip(tree.children(n).tail.map(walk)):_*))
-      case Ctr(name, _) => Ctr(name, tree.children(n).map(walk))
-      case FCall(name, args) => walkCall(n, name, args)
-      case GCall(name, args) => walkCall(n, name, args)
-    } else {
-      val (sub, (name, args)) = (findSubst(n.fnode.expr, n.expr), sigs(n.fnode))
-      if (tree.children(n.fnode)(0).contr == null) subst(FCall(name, args), sub)
-      else subst(GCall(name, args), sub)
-    }
+  private def walk(n: Node): Term = if (n.fnode == null) n.expr match {
+    case v: Var => v
+    case Let(_,bs) => subst(walk(tree.children(n)(0)), 
+                       Map(bs.map{_._1}.zip(tree.children(n).tail.map(walk)):_*))
+    case Ctr(name, _) => Ctr(name, tree.children(n).map(walk))
+    case FCall(name, args) => walkCall(n, name, args)
+    case GCall(name, args) => walkCall(n, name, args)
+  } else if (tree.children(n.fnode)(0).contr == null) 
+      subst(Function.tupled(FCall)(sigs(n.fnode)), findSubst(n.fnode.expr, n.expr))
+ else subst(Function.tupled(GCall)(sigs(n.fnode)), findSubst(n.fnode.expr, n.expr))
 
   def walkCall(n: Node, name: String, args: List[Term]): Term = {
     val vs = vars(n.expr)
