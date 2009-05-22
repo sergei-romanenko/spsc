@@ -34,9 +34,7 @@ class SuperCompiler(p: Program){
             else abs(t, a, b)
           }
           case None => t.addChildren(b, driveExp(b.expr)) // drive
-        }
-      }
-    }
+        }}}
     t
   }
   
