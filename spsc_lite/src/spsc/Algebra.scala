@@ -1,7 +1,5 @@
 package spsc
 
-case class Gen(t: Term, m1: Map[Var, Term], m2: Map[Var, Term])
-
 object Algebra {
   
   def shallowEq(e1: CFG, e2: CFG) = e1.kind == e2.kind && e1.name == e2.name
@@ -31,21 +29,17 @@ object Algebra {
     case e: CFG => (List[Var]() /: e.args) {_ union vars(_)}
   }
   
-  def he_*(t1: Term, t2: Term): Boolean = he(t1, t2) && b(t1) == b(t2)
+  def freshVar(x: AnyRef) = {i += 1; Var("v" + i)}; private var i = 0;
   
-  def he(t1: Term, t2: Term) = heByDiving(t1, t2) || heByCoupling(t1, t2)
-  
-  private def heByDiving(t1: Term, t2: Term): Boolean = t2 match {
-    case e: CFG => e.args exists (he(t1, _))
-    case _ => false
+  def trivial(expr: Term): Boolean = expr match {
+    case FCall(_, _) => false
+    case GCall(_, _) => false
+    case _ => true
   }
-  
-  private def heByCoupling(t1: Term, t2: Term): Boolean = (t1, t2) match {
-    case (e1:CFG, e2:CFG) if shallowEq(e1, e2) => List.forall2(e1.args, e2.args)(he)
-    case (Var(_), Var(_)) => true
-    case _ => false
-  }
-  
+}
+import Algebra._
+case class Gen(t: Term, m1: Map[Var, Term], m2: Map[Var, Term])
+object MSG {
   def msg(t1: Term, t2: Term): Gen = {
     val v = freshVar()
     var g = Gen(v, Map(v -> t1), Map(v -> t2))
@@ -71,18 +65,28 @@ object Algebra {
         return Gen(subst(gen.t, Map(v1 -> v2)), gen.m1 - v1, gen.m2 - v1)
     gen
   }
+}
+
+object HE {
+  def he_*(t1: Term, t2: Term): Boolean = he(t1, t2) && b(t1) == b(t2)
   
-  def freshVar(x: AnyRef) = {i += 1; Var("v" + i)}; private var i = 0;
-                                              
+  def he(t1: Term, t2: Term) = heByDiving(t1, t2) || heByCoupling(t1, t2)
+  
+  private def heByDiving(t1: Term, t2: Term): Boolean = t2 match {
+    case e: CFG => e.args exists (he(t1, _))
+    case _ => false
+  }
+  
+  private def heByCoupling(t1: Term, t2: Term): Boolean = (t1, t2) match {
+    case (e1:CFG, e2:CFG) if shallowEq(e1, e2) => List.forall2(e1.args, e2.args)(he)
+    case (Var(_), Var(_)) => true
+    case _ => false
+  }
+  
   private def b(t: Term): Int = t match {
-    case GCall(_, args) => b(args(0))
+    case GCall(_, args) => b(args.head)
     case Var(_) => 1
     case _ => 0
-  }
-  
-  def trivial(expr: Term): Boolean = expr match {
-    case FCall(_, _) => false
-    case GCall(_, _) => false
-    case _ => true
-  }
+  } 
 }
+

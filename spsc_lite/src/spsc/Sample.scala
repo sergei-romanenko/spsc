@@ -10,21 +10,13 @@ object Sample {
   }
   
   def m0() : Unit = {
-    val programText = 
-    """
-    fMain(x, y, z) = gAppend(gAppend(x, y), z);
-    gAppend(Nil(), vs1) = vs1;
-    gAppend(Cons(u, us), vs) = Cons(u, gAppend(us, vs));
-    """
-    val program = SParsers.parseProg(programText)
-    val sc = new SuperCompiler(program)
-    val pt = sc.buildProcessTree(SParsers.parseTerm("fMain(x, y, z)"))
-    val result = new ResidualProgramGenerator(pt).result
-    println(program)
-    println()
-    println(result._1)
-    println(result._2)
-    println("-------")
+    val code = """gApp(Nil(), vs) = vs; 
+                  gApp(Cons(u, us), vs) = Cons(u, gApp(us, vs));"""
+    val sc = new SuperCompiler(SParsers.parseProg(code))
+    val pt = sc.buildProcessTree(SParsers.parseTerm("gApp(gApp(x, y), z)"))
+    val (resTerm, resProgram) = new ResidualProgramGenerator(pt).result
+    println(resTerm)
+    println(resProgram)
   }
   
   def m01() : Unit = {
