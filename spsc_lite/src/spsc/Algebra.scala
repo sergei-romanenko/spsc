@@ -34,7 +34,7 @@ object Algebra {
   
   def he_*(t1: Term, t2: Term): Boolean = he(t1, t2) && b(t1) == b(t2)
   
-  def he(t1: Term, t2: Term): Boolean = heByDiving(t1, t2) || heByCoupling(t1, t2)
+  def he(t1: Term, t2: Term) = heByDiving(t1, t2) || heByCoupling(t1, t2)
   
   private def heByDiving(t1: Term, t2: Term): Boolean = t2 match {
     case e: CFG => e.args exists (he(t1, _))
