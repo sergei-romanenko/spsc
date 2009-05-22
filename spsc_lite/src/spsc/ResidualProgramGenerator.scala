@@ -21,7 +21,7 @@ class ResidualProgramGenerator(val tree: Tree) {
       else subst(GCall(name, args), findSubst(n.fnode.expr, n.expr))
   }
 
-  def walkCall(n: Node, name: String, args: List[Term]): Term = {
+  def walkCall(n: Node, name: String, args: List[Term]) = {
     val vs = vars(n.expr)
     if (tree.children(n).head.contr != null) {
       val (gname, _) = sigs.getOrElseUpdate(n, (rename(name, "g"), vs))
@@ -35,5 +35,5 @@ class ResidualProgramGenerator(val tree: Tree) {
     } else walk(tree.children(n).head)
   }
   
-  def rename(f: String, b: String) = {b + f.drop(1) + sigs.size}
+  def rename(f: String, b: String) = {b + f.drop(1) + (sigs.size + 1)}
 }
