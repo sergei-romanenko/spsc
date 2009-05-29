@@ -1,4 +1,5 @@
 package spsc
+
 import Algebra._
 
 class ResidualProgramGenerator(val tree: Tree) {

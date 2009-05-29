@@ -1,4 +1,5 @@
 package spsc
+
 import Algebra._
 
 case class Contraction(v: Var, pat: Pat)

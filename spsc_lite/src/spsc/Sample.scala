@@ -1,4 +1,5 @@
 package spsc
+
 object Sample {
   
   def main(args : Array[String]) : Unit = {
@@ -36,7 +37,6 @@ object Sample {
     println(result._2)
     println("-------")
   }
-
   
   def m3() : Unit = {
     val programText = 

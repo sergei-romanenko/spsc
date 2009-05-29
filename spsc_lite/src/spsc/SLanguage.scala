@@ -19,10 +19,10 @@ abstract class CFGObject(kind: TKind.Value) extends ((String, List[Term]) => CFG
   def apply(name: String, args: List[Term]) = CFG(kind, name, args)
   def unapply(e: CFG) = if (e.kind == kind) Some(e.name, e.args) else None
 }
+
 object Ctr extends CFGObject(TKind.Ctr)
 object FCall extends CFGObject(TKind.FCall)
 object GCall extends CFGObject(TKind.GCall)
-
 
 case class Let(term: Term, bindings: List[(Var, Term)]) extends Term
 
@@ -31,6 +31,7 @@ case class Pat(name: String, args: List[Var]) {
 }
 
 abstract class Def {def name: String}
+
 case class FFun(name: String, args: List[Var], term: Term) extends Def {
   override def toString = name + args.mkString("(", ", " ,")") + " = " + term + ";"
 }

@@ -1,7 +1,9 @@
 package spsc
 
 import Algebra._
+
 class BaseSuperCompiler(p: Program){
+  
   def driveExp(expr: Term): List[(Term, Contraction)] = expr match {
     case Ctr(name, args) => args.map((_,null))
     case FCall(name, args)  =>
