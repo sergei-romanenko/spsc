@@ -24,7 +24,7 @@ class BaseSuperCompiler(p: Program){
       val b = t.leaves.find(!_.isProcessed).get
       t = b.ancestors.find(a => !trivial(a.expr) && inst(a.expr, b.expr)) match {
         case Some(a) => t.replace(b, Let(b.expr, findSubst(b.expr, a.expr).toList))
-        case None => t.addChildren(b, driveExp(b.expr))
+        case None => t.addChildren(b, driveExp(b.expr)) // drive
       }
     }
     t

@@ -9,7 +9,7 @@ class SuperCompiler(p: Program) extends BaseSuperCompiler(p){
     while (t.leaves.exists{!_.isProcessed}) {
       val b = t.leaves.find(!_.isProcessed).get
       t = if (trivial(b.expr)) {
-        t.addChildren(b, driveExp(b.expr)) //drive
+        t.addChildren(b, driveExp(b.expr)) // drive
       } else {
         b.ancestors.find(a => !trivial(a.expr) && HE.he_*(a.expr, b.expr)) match {
           case Some(a) => {  
