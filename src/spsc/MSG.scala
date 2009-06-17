@@ -13,7 +13,7 @@ object MSG {
   
   def commonFun(g: Gen): Gen = {
     for (v <- g.m1.keys) (g.m1(v), g.m2(v)) match {
-      case (e1:CFG, e2:CFG) if shallowEq(e1, e2) =>
+      case (e1:CFG, e2:CFG) if shellEq(e1, e2) =>
         val vs = e1.args map freshVar
         val t = subst(g.t, Map(v -> e1.replaceArgs(vs)))
         return Gen(t, g.m1 - v ++ vs.zip(e1.args), g.m2 - v ++ vs.zip(e2.args))        
