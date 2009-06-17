@@ -41,10 +41,10 @@ case class GFun(name: String, p: Pat, args: List[Var], term: Term) extends Def {
 
 case class Program(defs: List[Def]){
   val f = (defs :\ (Map[String, FFun]())) 
-    {case (x: FFun, m) => m + (x.name -> x); case (_, m) => m}
+    {case (d: FFun, m) => m + (d.name -> d); case (_, m) => m}
   val g = (defs :\ (Map[(String, String), GFun]())) 
-    {case (x: GFun, m) => m + ((x.name, x.p.name) -> x); case (_, m) => m}
-  val gs = (defs :\ Map[String, List[GFun]]().withDefaultValue(Nil)) 
-    {case (x: GFun, m) => m + (x.name -> (x :: m(x.name))); case (_, m) => m}
+    {case (d: GFun, m) => m + ((d.name, d.p.name) -> d); case (_, m) => m}
+  val gs = (g :\ Map[String, List[GFun]]())
+    {case (((n, _), d), m) => m + (n -> (d :: m.getOrElse(n, Nil)))}
   override def toString = defs.mkString("\n")
 }
