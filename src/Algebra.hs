@@ -1,17 +1,20 @@
 module Algebra where
 
+import qualified Data.Map as M
+
 import SLanguage
 
 --topEq (Call kind1 name1 _) (Call kind2 name2 _) =
 --  kind1 == kind2 && name1 == name2
 --topEq _ _ false
 
---  def shellEq(e1: CFG, e2: CFG) = e1.kind == e2.kind && e1.name == e2.name
---  
---  def subst(term: Term, m: Map[Var, Term]): Term = term match {
---    case v: Var => m.getOrElse(v, v)
---    case e: CFG => e.replaceArgs(e.args.map(subst(_, m)))
---  }
+substExp m e =
+  case e of
+    Var name ->
+      M.findWithDefault e name m
+    Call kind name args ->
+      Call kind name (map (substExp m) args)
+
 --  
 --  def equiv(t1: Term, t2: Term): Boolean = inst(t1, t2) && inst(t2, t1)
 --  

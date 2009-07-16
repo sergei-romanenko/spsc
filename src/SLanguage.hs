@@ -11,6 +11,7 @@ data CKind = Ctr | FCall | GCall
 data Exp
   = Var Name
   | Call CKind Name Args
+      deriving Eq
 
 data Pattern = Pattern Name Params
 
