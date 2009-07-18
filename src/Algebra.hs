@@ -1,12 +1,13 @@
 module Algebra where
 
 import qualified Data.Map as M
+import Control.Monad.State
 
 import SLanguage
 
---topEq (Call kind1 name1 _) (Call kind2 name2 _) =
---  kind1 == kind2 && name1 == name2
---topEq _ _ false
+theSameFunctor (Call kind1 name1 _) (Call kind2 name2 _) =
+  kind1 == kind2 && name1 == name2
+theSameFunctor _ _ = False
 
 substExp m e =
   case e of
@@ -42,3 +43,16 @@ substExp m e =
 --    case GCall(_, _) => false
 --    case _ => true
 --  }
+
+mkName t = "$" ++ show t
+
+freshName :: State Int Name
+freshName =
+  do t <- get
+     put $ t+1
+     return $ mkName t
+
+freshNameList n =
+  do t <- get
+     put $ t + n
+     return $ map mkName [t..(t+n-1)]
