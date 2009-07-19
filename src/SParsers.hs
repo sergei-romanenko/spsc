@@ -73,6 +73,7 @@ program :: Parser Program
 
 program =
   do ruleList <- many(rule)
+     eof
      return (Program ruleList)
 
 rule = fRule <|> gRule
@@ -96,12 +97,12 @@ gRule =
      symbol ";"
      return (GRule functionName pat paramList ruleRhs)
 
-pattern :: Parser Pattern
+pattern :: Parser Pat
 
 pattern =
   do constructorName <- uIdent
      variableList <- option [] (parens( commaSep lIdent ))
-     return (Pattern constructorName variableList)
+     return (Pat constructorName variableList)
 
 expression =   constructor <|> variableOrFunctionCall
 
@@ -128,3 +129,11 @@ run p input =
     
 parseSLL :: String -> IO ()
 parseSLL = run program
+
+pProg input =
+  case parse program "" input of
+    Right x -> x
+
+pExp input =
+  case parse expression "" input of
+    Right x -> x

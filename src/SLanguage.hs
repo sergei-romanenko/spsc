@@ -13,10 +13,10 @@ data Exp
   | Call CKind Name Args
       deriving Eq
 
-data Pattern = Pattern Name Params
+data Pat = Pat Name Params
 
 data Rule
   = FRule Name Params Exp
-  | GRule Name Pattern Params Exp
+  | GRule Name Pat Params Exp
 
 data Program = Program [Rule]

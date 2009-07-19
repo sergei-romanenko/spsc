@@ -18,6 +18,9 @@ substExp m e =
 
 --  
 --  def equiv(t1: Term, t2: Term): Boolean = inst(t1, t2) && inst(t2, t1)
+
+equiv exp1 exp2 = True
+
 --  
 --  def inst(t1: Term, t2: Term): Boolean = findSubst(t1, t2) != null
 --  
@@ -43,6 +46,10 @@ substExp m e =
 --    case GCall(_, _) => false
 --    case _ => true
 --  }
+
+isFGCall (Call FCall _ _) = True
+isFGCall (Call GCall _ _) = True
+isFGCall _ = False 
 
 mkName t = "$" ++ show t
 

@@ -19,9 +19,9 @@ instance Show Exp where
   show (Call Ctr name []) = name
   show (Call _ name args) = name ++ showArgs args
 
-instance Show Pattern where
-  show (Pattern name []) = name
-  show (Pattern name params) =
+instance Show Pat where
+  show (Pat name []) = name
+  show (Pat name params) =
     name ++ "(" ++ showParams params ++ ")"
 
 instance Show Rule where
