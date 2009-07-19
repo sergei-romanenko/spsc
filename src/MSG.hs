@@ -1,9 +1,11 @@
--- Most General Unifier
-module MGU where
+-- Most Specific Generalization
+module MSG where
 
 import SLanguage
 import SLanguageShow
 import Algebra
+
+import SParsers
 
 import qualified Data.Map as Map
 
@@ -12,20 +14,20 @@ import Control.Monad.State
 data Uni = Uni Exp (Map.Map Name Exp) (Map.Map Name Exp)
              deriving (Eq, Show)
 
-mgu :: Exp -> Exp -> State Int Uni
+msg :: Exp -> Exp -> State Int Uni
 
-mgu e1 e2 =
+msg e1 e2 =
   do k <- freshName
      let u = Uni (Var k) (Map.singleton k e1) (Map.singleton k e2) in
-       mguLoop u
+       msgLoop u
 
-mguLoop :: Uni -> State Int Uni
+msgLoop :: Uni -> State Int Uni
 
-mguLoop u =
+msgLoop u =
   do u' <- return (mergeSubexp u)
      u'' <- commonFunctor u'
      if u'' == u then return u
-                 else mguLoop u''
+                 else msgLoop u''
 
 commonFunctor :: Uni -> State Int Uni
 
@@ -56,10 +58,15 @@ mergeSubexp u @ (Uni e m1 m2) =
       in Uni e' m1' m2'
 
 
-mgu1 = evalState $ mgu
-  (Call Ctr "A" [Var "a1", Call Ctr "C" [Var "a2", Var "a3"]])
-  (Call Ctr "A" [Var "b1", Call Ctr "C" [Var "b2", Var "b3"]])
+msg1 = evalState $ msg
+  (pExp "A(a1,C(a2,a3))")
+  (pExp "A(b1,C(b2,b3))")
+--  (Call Ctr "A" [Var "a1", Call Ctr "C" [Var "a2", Var "a3"]])
+--  (Call Ctr "A" [Var "b1", Call Ctr "C" [Var "b2", Var "b3"]])
 
-mgu2 = evalState $ mgu
-  (Call Ctr "f" [Var "a1",Var "a2",Var "a1"])
-  (Call Ctr "f" [Var "b1",Var "b2",Var "b1"])
+
+msg2 = evalState $ msg
+  (pExp "f(a1,a2,a1)")
+  (pExp "f(b1,b2,b1)")
+--  (Call Ctr "f" [Var "a1",Var "a2",Var "a1"])
+--  (Call Ctr "f" [Var "b1",Var "b2",Var "b1"])
