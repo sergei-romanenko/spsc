@@ -8,7 +8,7 @@ import Text.ParserCombinators.Parsec.Language
 --import Text.ParserCombinators.Parsec.Expr
 
 import SLanguage
-import SLanguageShow
+import ShowUtil
 
 ---------
 -- Tokens
@@ -89,20 +89,20 @@ fRule =
 gRule =
   do functionName <- gIdent
      symbol "("
-     pat <- pattern
+     (cname, cparamList) <- pattern
      paramList <- many( symbol "," >> lIdent)
      symbol ")"
      symbol "="
      ruleRhs <- expression
      symbol ";"
-     return (GRule functionName pat paramList ruleRhs)
+     return (GRule functionName cname cparamList paramList ruleRhs)
 
-pattern :: Parser Pat
+pattern :: Parser (Name, Params)
 
 pattern =
   do constructorName <- uIdent
      variableList <- option [] (parens( commaSep lIdent ))
-     return (Pat constructorName variableList)
+     return (constructorName, variableList)
 
 expression =   constructor <|> variableOrFunctionCall
 

@@ -2,7 +2,7 @@
 module MSG where
 
 import SLanguage
-import SLanguageShow
+import ShowUtil
 import Algebra
 
 import SParsers

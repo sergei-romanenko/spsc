@@ -7,7 +7,8 @@ import Algebra
 
 type Key = Int
 
-data Contraction = Contraction Name Pat
+data Contraction = Contraction Name Name Params
+
 data Node = Node {key::Key, expr::Exp, parent::(Maybe Key), contr::Contraction}
 
 -- By convention, the root node's key is 0.

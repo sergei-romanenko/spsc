@@ -11,12 +11,13 @@ data CKind = Ctr | FCall | GCall
 data Exp
   = Var Name
   | Call CKind Name Args
+  | Let Exp [(Name, Exp)]
       deriving Eq
 
-data Pat = Pat Name Params
+--data Pat = Pat Name Params
 
 data Rule
   = FRule Name Params Exp
-  | GRule Name Pat Params Exp
+  | GRule Name Name Params Params Exp
 
 data Program = Program [Rule]

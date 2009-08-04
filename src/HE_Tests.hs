@@ -1,9 +1,9 @@
 module HE_Tests where
 
+import Test.HUnit
+
 import SLanguage
 import HE
-
-import Test.HUnit
 
 heTests = TestLabel "HE" ( TestList [
   testVV, testVF, testFV, testDiving, testCoupling1, testCoupling2
