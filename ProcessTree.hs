@@ -1,17 +1,26 @@
 module ProcessTree where
 
 import qualified Data.IntMap as IntMap
+import Control.Monad.State
 
 import SLanguage
 import Algebra
 
-type Key = Int
+type NodeId = Int
 
 data Contraction = Contraction Name Name Params
 
-data Node = Node {key::Key, expr::Exp, parent::(Maybe Key), contr::Contraction}
+type Branch = (Exp, Maybe Contraction)
 
--- By convention, the root node's key is 0.
+data Node = Node
+  { nodeId  ::NodeId
+  , nodeExp ::Exp
+  , contr   ::Maybe Contraction
+  , parent  ::(Maybe NodeId)
+  , children::[NodeId]
+  }
+
+-- By convention, the root node's id is 0.
 type Tree = IntMap.IntMap Node
 
 ancestors :: Tree -> Node -> [Node]
@@ -19,12 +28,12 @@ ancestors :: Tree -> Node -> [Node]
 ancestors tree node =
   case parent node of
     Nothing -> []
-    Just parentKey ->
-      let parentNode = tree IntMap.! parentKey in
+    Just parentId ->
+      let parentNode = tree IntMap.! parentId in
       parentNode : ancestors tree parentNode
 
 isProcessed tree node =
-  case expr node of
+  case nodeExp node of
     Var _ -> True
     Call Ctr name args -> null args
     Call _ _ _ ->
@@ -32,26 +41,38 @@ isProcessed tree node =
         Nothing -> False
         Just _ -> True
 
---equivCall expr expr' =
---  isFGCall expr' && expr `equiv` expr'
+equivCall e e' =
+  isFGCall e' && e `equiv` e'
 
 funcNode tree node =
-  case [node' | node' <- ancestors tree node, expr node `equiv` expr node' ] of
+  case [node' | node' <- ancestors tree node,
+                nodeExp node `equiv` nodeExp node' ] of
     [] -> Nothing
     (node' : _) -> Just node'
 
---class Node(val expr: Term, val parent: Node, val contr: Contraction) {
---  
---  
---  def fnode =
---    ancestors.find{n => !trivial(n.expr) && equiv(expr, n.expr)}.getOrElse(null)
---}
---
---class Tree(val root: Node, val children: Map[Node, List[Node]]) {
---  
---  def addChildren(n: Node, cs: List[(Term, Contraction)]) = 
---    new Tree(root, children + (n -> (cs map {case (t, b) => new Node(t, n, b)})))
---
+addChildren :: Tree -> NodeId -> [Branch] -> State Int Tree
+
+addChildren tree nId branches =
+  do let Node _ e c p chIds = tree IntMap.! nId
+     chIds' <- freshNodeIdList (length branches)
+     let tree' = IntMap.insert nId (Node nId e c p (chIds++chIds')) tree
+         chNodes = [ Node nId' e' c' (Just nId) [] | (nId', (e', c')) <- chIds' `zip` branches]
+         tree'' = tree' `IntMap.union` IntMap.fromList (chIds `zip` chNodes)
+     return $ tree'' 
+
+freshNodeId :: State Int NodeId
+freshNodeId =
+  do t <- get
+     put $ t+1
+     return $ t
+
+freshNodeIdList :: (MonadState NodeId m) => NodeId -> m [NodeId]
+
+freshNodeIdList n =
+  do t <- get
+     put $ t + n
+     return $ [t..(t+n-1)]
+
 --  def replace(n: Node, exp: Term) = 
 --    if (n == root) new Tree(n, Map().withDefaultValue(Nil))
 --    else {

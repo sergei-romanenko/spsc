@@ -28,7 +28,7 @@ lookupG prog name =
     GRule name' cname cparams params body <- rules,
     name == name' ]
 
-drivingStep :: Program -> Exp -> State Int [(Exp, Maybe Contraction)]
+drivingStep :: Program -> Exp -> State Int [Branch]
 
 drivingStep prog e =
   case e of

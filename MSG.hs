@@ -1,15 +1,13 @@
 -- Most Specific Generalization
 module MSG where
 
+import qualified Data.Map as Map
+import Control.Monad.State
+
+import SParsers
 import SLanguage
 import ShowUtil
 import Algebra
-
-import SParsers
-
-import qualified Data.Map as Map
-
-import Control.Monad.State
 
 data Uni = Uni Exp (Map.Map Name Exp) (Map.Map Name Exp)
              deriving (Eq, Show)
