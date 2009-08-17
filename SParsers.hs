@@ -5,7 +5,6 @@ import Char
 import Text.ParserCombinators.Parsec
 import qualified Text.ParserCombinators.Parsec.Token as P
 import Text.ParserCombinators.Parsec.Language
---import Text.ParserCombinators.Parsec.Expr
 
 import SLanguage
 import ShowUtil
@@ -19,12 +18,6 @@ tokenDefs = emptyDef
   , commentEnd   = "-}"
   , identStart = letter
   , identLetter = alphaNum
---  , opStart = oneOf "~&=:"
---  , opLetter = oneOf "~&=:"
---  , reservedOpNames = ["~", "&", "=", ":="]
---  , reservedNames = ["true", "false", "nop",
---                     "if", "then", "else", "fi",
---                     "while", "do", "od"]
   }
 
 lexer = P.makeTokenParser tokenDefs

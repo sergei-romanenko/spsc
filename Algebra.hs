@@ -1,11 +1,12 @@
 module Algebra where
 
-import qualified Data.Map as M
+import qualified Data.Map as Map
 import qualified Data.List as List
 import Control.Monad.State
 
-
 import SLanguage
+
+type Subst = Map.Map Name Exp
 
 theSameFunctor :: Exp -> Exp -> Bool
 
@@ -13,14 +14,14 @@ theSameFunctor (Call kind1 name1 _) (Call kind2 name2 _) =
   kind1 == kind2 && name1 == name2
 theSameFunctor _ _ = False
 
-substExp :: M.Map Name Exp -> Exp -> Exp
+applySubst :: Subst -> Exp -> Exp
 
-substExp m e =
+applySubst m e =
   case e of
     Var name ->
-      M.findWithDefault e name m
+      Map.findWithDefault e name m
     Call kind name args ->
-      Call kind name (map (substExp m) args)
+      Call kind name (map (applySubst m) args)
 
 equiv :: Exp -> Exp -> Bool
 
@@ -33,16 +34,15 @@ instOf e' e =
     Nothing -> False
     Just _ -> True
 
-matchAgainst :: Exp -> Exp -> Maybe (M.Map Name Exp)
+matchAgainst :: Exp -> Exp -> Maybe (Subst)
 
-matchAgainst e e' = matchAgainstAcc (Just M.empty) e e'
+matchAgainst e e' = matchAgainstAcc (Just Map.empty) e e'
 
-matchAgainstAcc :: Maybe (M.Map Name Exp) -> Exp -> Exp ->
-                   Maybe (M.Map Name Exp)
+matchAgainstAcc :: Maybe (Subst) -> Exp -> Exp -> Maybe (Subst)
 
 matchAgainstAcc (Just m) (Var vname) e' =
-  case M.lookup vname m of
-    Nothing -> Just $ M.insert vname e' m
+  case Map.lookup vname m of
+    Nothing -> Just $ Map.insert vname e' m
     Just e'' ->
       if e' /= e'' then Nothing else Just m
 matchAgainstAcc (Just m) (Call kind name args) (Call kind' name' args')
@@ -50,8 +50,7 @@ matchAgainstAcc (Just m) (Call kind name args) (Call kind' name' args')
         matchAgainstAccL (Just m) args args'
 matchAgainstAcc _ _ _ = Nothing
 
-matchAgainstAccL :: Maybe (M.Map Name Exp) -> Args -> Args ->
-                    Maybe (M.Map Name Exp)
+matchAgainstAccL :: Maybe (Subst) -> Args -> Args -> Maybe (Subst)
 
 matchAgainstAccL (Just m) [] [] = (Just m)
 matchAgainstAccL (Just m) (e : es) (e' : es') =
@@ -71,7 +70,7 @@ isFGCall _ = False
 
 mkName :: (Show a) => a -> [Char]
 
-mkName t = "$" ++ show t
+mkName t = "v" ++ show t
 
 freshName :: State Int Name
 freshName =
