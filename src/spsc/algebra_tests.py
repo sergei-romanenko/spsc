@@ -8,7 +8,7 @@ import itertools
 
 from sll_language import *
 from sll_parser import pExp
-from algebra import matchAgainst
+from algebra import matchAgainst, equiv
 
 class Test(unittest.TestCase):
 
@@ -25,13 +25,6 @@ class Test(unittest.TestCase):
         "Vars"
         e = pExp("A(x,B(y,z),a)")
         self.assertEqual(['x', 'y', 'z', 'a'], e.vars())
-
-#showMatchRes Nothing = "*"
-#showMatchRes (Just subst) =
-#  concat[ vname ++ "->" ++ show e ++ ";" | (vname, e) <- Map.toAscList subst ]
-#
-#testMatch label alpha beta expected = TestCase $ assertEqual
-#  label expected (showMatchRes (matchAgainst (pExp alpha) (pExp beta)))
 
     def matchOK(self, pat, exp, expected):
         subst = matchAgainst(pExp(pat), pExp(exp))
@@ -70,16 +63,22 @@ class Test(unittest.TestCase):
         "MatchX_X_Eq"
         self.matchOK("C(x,x)", "C(A,A)", "x->A;")
 
-#testMatchX_X_Ne = testMatch "testMatchC_C_Ne" "C(x,x)" "C(A,B)" "*"
+    def testMatch_X_XY(self):
+        "Match_X_XY"
+        self.matchNone("C(x,y)", "C(A,B,C)")
 
-#
-#testEquiv label e1 e2 expected = TestCase $ assertEqual
-#  label expected ((pExp e1) `equiv` (pExp e2))
-#
+    def testMatch_XY_X(self):
+        "Match_X_XY"
+        self.matchNone("C(x,y,z)", "C(A,B)")
 
-#testEquiv_yes = testEquiv "testEquiv_yes"
-#  "gA(fB(x,y),C)" "gA(fB(a,b),C)" True
-#
+    def equivYes(self, e1, e2):
+        self.assertTrue(equiv(pExp(e1), pExp(e2)))
 
-#testEquiv_no = testEquiv "testEquiv_yes"
-#  "gA(fB(x,y),x)" "gA(fB(a,a),b)" False
+    def testEquivYes(self):
+        self.equivYes("gA(fB(x,y),C)", "gA(fB(a,b),C)")
+
+    def equivNo(self, e1, e2):
+        self.assertFalse(equiv(pExp(e1), pExp(e2)))
+
+    def testEquivNo(self):
+        self.equivNo("gA(fB(x,y),x)", "gA(fB(a,a),b)")

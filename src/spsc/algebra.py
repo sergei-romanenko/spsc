@@ -8,51 +8,6 @@ import itertools
 
 from sll_language import *
 
-#import qualified Data.Map as Map
-#import qualified Data.List as List
-#import Control.Monad.State
-#
-#import SLanguage
-#
-#type Subst = Map.Map Name Exp
-
-
-
-#equiv :: Exp -> Exp -> Bool
-#
-#equiv e1 e2 = e1 `instOf` e2 && e2 `instOf` e1 
-#
-#instOf :: Exp -> Exp -> Bool
-#
-#instOf e' e =
-#  case matchAgainst e e' of
-#    Nothing -> False
-#    Just _ -> True
-
-
-#matchAgainst :: Exp -> Exp -> Maybe (Subst)
-#
-#matchAgainst e e' = matchAgainstAcc (Just Map.empty) e e'
-#
-#matchAgainstAcc :: Maybe (Subst) -> Exp -> Exp -> Maybe (Subst)
-#
-#matchAgainstAcc (Just m) (Var vname) e' =
-#  case Map.lookup vname m of
-#    Nothing -> Just $ Map.insert vname e' m
-#    Just e'' ->
-#      if e' /= e'' then Nothing else Just m
-#matchAgainstAcc (Just m) (Call kind name args) (Call kind' name' args')
-#  | kind == kind' && name == name' =
-#        matchAgainstAccL (Just m) args args'
-#matchAgainstAcc _ _ _ = Nothing
-#
-#matchAgainstAccL :: Maybe (Subst) -> Args -> Args -> Maybe (Subst)
-#
-#matchAgainstAccL (Just m) [] [] = (Just m)
-#matchAgainstAccL (Just m) (e : es) (e' : es') =
-#  matchAgainstAccL (matchAgainstAcc (Just m) e e') es es'
-#matchAgainstAccL _ _ _ = Nothing
-
 class Matcher(object):
     def __init__(self):
         self.subst = dict()
@@ -63,8 +18,10 @@ class Matcher(object):
                 self.subst[pat.vname] = exp
             elif e != exp:
                 self.subst = None
-        elif isinstance(pat, Call) and pat.hasTheSameFunctorAs(exp):
-            for p, e in itertools.izip(pat.args,exp.args):
+        elif (isinstance(pat, Call) and
+              pat.hasTheSameFunctorAs(exp) and
+              len(pat.args) == len(exp.args)):
+            for p, e in itertools.izip(pat.args, exp.args):
                 self.match(p, e)
                 if self.subst == None:
                     return
@@ -75,6 +32,12 @@ def matchAgainst(pat, exp):
     matcher = Matcher()
     matcher.match(pat, exp);
     return matcher.subst
+
+def instOf(e1, e2):
+    return matchAgainst(e2, e1) != None
+
+def equiv(e1, e2):
+    return instOf(e1, e2) and instOf(e2, e1)
 
 #mkName :: (Show a) => a -> [Char]
 #
