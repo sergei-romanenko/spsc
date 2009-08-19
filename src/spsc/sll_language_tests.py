@@ -11,7 +11,6 @@ from sll_language import *
 class SLanguage_Tests(unittest.TestCase):
 
     def testStrCall(self):
-        self.assertEqual("C(x,y)", "%s" % Call(1, "C", [Var("x"), Var("y")]))
         self.assertEqual("C(x,y)", "%s" % Ctr("C", [Var("x"), Var("y")]))
         self.assertEqual("f(x,y)", "%s" % FCall("f", [Var("x"), Var("y")]))
         self.assertEqual("g(x,y)", "%s" % GCall("g", [Var("x"), Var("y")]))

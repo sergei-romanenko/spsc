@@ -7,11 +7,6 @@ Created on Aug 17, 2009
 from sll_language import *
 from algebra import *
 
-#
-#type NodeId = Int
-#
-#data Contraction = Contraction Name Name Params
-
 class Contraction(object):
     def __init__(self, vname, cname, cparams):
         self.vname = vname

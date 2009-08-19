@@ -33,12 +33,8 @@ class Var(Exp):
     def vars(self):
         return [self.vname]
 
-#  #  data CKind = Ctr | FCall | GCall
-#  #    deriving (Eq)
-
 class Call(Exp):
-    def __init__(self, ckind, name, args):
-        self.ckind = ckind
+    def __init__(self, name, args):
         self.name = name
         self.args = args
     def __str__(self):
@@ -89,7 +85,7 @@ class Let(Exp):
 
 class Ctr(Call):
     def __init__(self, name, args):
-        Call.__init__(self, "Ctr", name, args)
+        Call.__init__(self, name, args)
     def __str__(self):
         if len(self.args) == 0:
             return self.name
@@ -98,13 +94,13 @@ class Ctr(Call):
 
 class FCall(Call):
     def __init__(self, name, args):
-        Call.__init__(self, "FCall", name, args)
+        Call.__init__(self, name, args)
     def isFGCall(self):
         return True
 
 class GCall(Call):
     def __init__(self, name, args):
-        Call.__init__(self, "GCall", name, args)
+        Call.__init__(self, name, args)
     def isFGCall(self):
         return True
 
