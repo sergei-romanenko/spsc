@@ -11,7 +11,7 @@ class Contraction(object):
     def __init__(self, vname, cname, cparams):
         self.vname = vname
         self.cname = cname
-        self,cparams = cparams
+        self.cparams = cparams
 
     def __str__(self):
         cparams_s = ",".join(self.cparams)

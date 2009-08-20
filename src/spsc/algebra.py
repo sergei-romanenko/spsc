@@ -39,6 +39,19 @@ def instOf(e1, e2):
 def equiv(e1, e2):
     return instOf(e1, e2) and instOf(e2, e1)
 
+class NameGen(object):
+    def __init__(self, prefix, seed):
+        self.prefix = prefix
+        self.tick = seed
+    def freshName(self):
+        tick = self.tick
+        self.tick = tick+1
+        return "%s%s" % (self.prefix, tick)
+    def freshNameList(self, n):
+        tick = self.tick
+        self.tick = tick + n
+        return ["%s%s" % (self.prefix, tick+k) for k in xrange(n)]
+
 #mkName :: (Show a) => a -> [Char]
 #
 #mkName t = "v" ++ show t
