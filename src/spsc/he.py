@@ -20,13 +20,13 @@ def he(e1, e2):
     return heByDiving(e1, e2) or heByCoupling(e1, e2)
 
 def heByDiving(e1, e2) :
-    if isinstance(e2, Var):
+    if e2.isVar():
         return False
-    elif isinstance(e2, Call):
+    elif e2.isCall():
         return any(map(lambda e: he(e1, e), e2.args))
 
 def heByCoupling(e1, e2):
-    if isinstance(e1, Var) and isinstance(e2, Var):
+    if e1.isVar() and e2.isVar():
         return True
     elif e1.hasTheSameFunctorAs(e2):
         return all(map(he, e1.args, e2.args))
@@ -35,9 +35,9 @@ def heByCoupling(e1, e2):
 # the ones that generate contractions in the process tree.
 
 def aVarIsUnderAttack(e):
-    if isinstance(e, GCall):
+    if e.isGCall():
         return aVarIsUnderAttack(e.args[0])
-    elif isinstance(e, Var):
+    elif e.isVar():
         return True
     else:
         return False

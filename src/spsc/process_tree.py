@@ -52,13 +52,13 @@ class Node(object):
         return None
 
     def isProcessed(self):
-        if isinstance(self.exp, Var):
+        if self.exp.isVar():
             return True
-        elif isInstance(self.exp, Ctr):
+        elif self.exp.isCtr():
             return self.exp.args == []
-        elif isInstance(self.exp, FCall) or isInstance(self.exp, GCall):
+        elif self.exp.isFGCall():
             return self.funcAncestor() != None
-        elif isInstance(self.exp, Let):
+        elif self.exp.isLet():
             return False
         else:
             raise ValueError("Invalid exp")

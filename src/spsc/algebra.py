@@ -12,13 +12,13 @@ class Matcher(object):
     def __init__(self):
         self.subst = dict()
     def match(self, pat, exp):
-        if isinstance(pat, Var):
+        if pat.isVar():
             e = self.subst.get(pat.vname, None)
             if e == None:
                 self.subst[pat.vname] = exp
             elif e != exp:
                 self.subst = None
-        elif (isinstance(pat, Call) and
+        elif (pat.isCall() and
               pat.hasTheSameFunctorAs(exp) and
               len(pat.args) == len(exp.args)):
             for p, e in itertools.izip(pat.args, exp.args):

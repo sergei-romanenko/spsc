@@ -13,7 +13,19 @@ class Exp(object):
         if result is NotImplemented:
             return result
         return not result
+    def isVar(self):
+        return False
+    def isCall(self):
+        return False
+    def isCtr(self):
+        return False
+    def isFCall(self):
+        return False
+    def isGCall(self):
+        return False
     def isFGCall(self):
+        return self.isFCall() or self.isGCall()
+    def isLet(self):
         return False
 
 class Var(Exp):
@@ -24,10 +36,12 @@ class Var(Exp):
     def __eq__(self, other):
         if not isinstance(other, Exp):
             return NotImplemented
-        if isinstance(other, Var):
+        if other.isVar():
             return self.vname == other.vname
         else:
             return False
+    def isVar(self):
+        return True
     def applySubst(self, subst):
         return subst.get(self.vname, self)
     def vars(self):
@@ -47,6 +61,8 @@ class Call(Exp):
             return self.name == other.name and self.args == other.args
         else:
             return False
+    def isCall(self):
+        return True
     def hasTheSameFunctorAs(self, other):
         return (self.__class__ is other.__class__ 
                 and self.name == other.name)
@@ -82,6 +98,8 @@ class Let(Exp):
     def __str__(self):
         bindings_s = ",".join(["%s" % b for b in self.bindings])
         return "let %s in %s" % (bindings_s, self.body)
+    def isLet(self):
+        return True
 
 class Ctr(Call):
     def __init__(self, name, args):
@@ -91,17 +109,19 @@ class Ctr(Call):
             return self.name
         else:
             return Call.__str__(self)
+    def isCtr(self):
+        return True
 
 class FCall(Call):
     def __init__(self, name, args):
         Call.__init__(self, name, args)
-    def isFGCall(self):
+    def isFCall(self):
         return True
 
 class GCall(Call):
     def __init__(self, name, args):
         Call.__init__(self, name, args)
-    def isFGCall(self):
+    def isGCall(self):
         return True
 
 class FRule(object):
