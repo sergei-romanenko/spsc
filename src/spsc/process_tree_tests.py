@@ -13,3 +13,9 @@ n1.children = [n2]
 n2.children = [n3]
 
 print "%s" %[n for n in n3.ancestors()]
+
+t = ProcessTree(n1)
+
+print list(t.leaves())
+print list(t.nodes())
+print t
