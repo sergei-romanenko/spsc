@@ -46,8 +46,14 @@ class Node(object):
             n = n.parent
 
     def funcAncestor(self):
-        for n in  ancestors:
+        for n in  self.ancestors():
             if equiv(self.exp, n.exp):
+                return n
+        return None
+
+    def findMoreGeneralAncestor(self):
+        for n in self.ancestors():
+            if n.isFGCall() and instOf(self.exp, n.exp):
                 return n
         return None
 
@@ -83,26 +89,29 @@ class Node(object):
 class ProcessTree(object):
     "NB: The tree is not functional, since its nodes are updated in place."
 
-    def __init__(self, root=None):
+    def __init__(self, root):
+        if not root:
+            raise ValueError("No root")
         self.root = root
         
     def __str__(self):
-        if not self.root:
-            return "{}"
         nodes_s = ",".join(["%s" % n for n in self.nodes()])
         return "{%s}" % nodes_s
 
     def nodes(self):
-        if not self.root:
-            return
-        else:
-            for n in self.root.subtreeNodes():
-                yield n
+        for n in self.root.subtreeNodes():
+            yield n
 
     def leaves(self):
         "Here, the tree is supposed not to be empty."
         for n in self.root.subtreeLeaves():
             yield n
+
+    def findUnprocessedNode(self):
+        for n in self.leaves():
+            if not n.isProcessed():
+                return n
+        return None
 
     def isFuncNode(self, node):
         for leaf in self.leaves():
@@ -111,7 +120,8 @@ class ProcessTree(object):
         return False
 
     def addChildren(self, node, branches):
-        node.children += branches
+        children = [Node(exp, contr, node, []) for (exp, contr) in branches]
+        node.children += children
 
     def replaceSubtree(selfself, exp):
         node.children = []
