@@ -103,7 +103,6 @@ genResPrCall tree (b@(Node bId bE _ _ bChIds)) name args =
   in if isVarTest tree b then
        do (sigs, rules) <- get
           (name', _) <- getFGSig tree "g" bId name params
-          let chContrs = getChContr tree bChIds
           bodies <- genResPrExps tree bChIds
           let contrs = getChContr tree bChIds
           let grules =
