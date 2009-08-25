@@ -115,6 +115,6 @@ genResPrCall tree (b@(Node bId bE _ _ bChIds)) name args =
           (name', params') <- getFGSig tree "f" bId name params
           body' <- genResPrExp tree (tree IntMap.! (head bChIds))
           putFGRules [FRule name' params' body'] 
-          return $ Call GCall name' (map Var params)
+          return $ Call FCall name' (map Var params)
      else
        genResPrExp tree (tree IntMap.! head bChIds)
