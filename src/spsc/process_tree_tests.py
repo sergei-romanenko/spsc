@@ -4,18 +4,33 @@ Created on Aug 18, 2009
 @author: Sergei Romanenko
 '''
 
+import unittest
+
+from sll_language import *
 from process_tree import *
 
-n1 = Node(None, None, None, [])
-n2 = Node(None, None, n1, [])
-n3 = Node(None, None, n2, [])
-n1.children = [n2]
-n2.children = [n3]
+class ProcessTreeTest(unittest.TestCase):
 
-print "%s" %[n for n in n3.ancestors()]
+    def setUp(self):
+        t = ProcessTree(Var("r"))
+        r = t.root
+        t.addChildren(r,[(Var("m1"), None), (Var("m2"), None)])
+        m1 = r.children[0]
+        m2 = r.children[1]
+        t.addChildren(m1, [(Var("n"), None)])
+        t.replaceSubtree(m2, Var("x"))
+        self.tree = t
 
-t = ProcessTree(n1)
+    def test01PrTreeBuilding(self):
+        self.assertEqual("{0:(r,None,None,[1,2]),1:(m1,None,0,[3]),3:(n,None,1,[]),2:(x,None,0,[])}",
+                         "%s" % self.tree)
 
-print list(t.leaves())
-print list(t.nodes())
-print t
+    def test02PrTreeNodes(self):
+        self.assertEqual([0,1,3,2], [n.nodeId for n in self.tree.nodes()])
+
+    def test03PrTreeLeaves(self):
+        self.assertEqual([3,2], [n.nodeId for n in self.tree.leaves()])
+        
+#print t
+#print list(t.leaves())
+#print list(t.nodes())

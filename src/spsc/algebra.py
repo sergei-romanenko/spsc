@@ -51,20 +51,3 @@ class NameGen(object):
         tick = self.tick
         self.tick = tick + n
         return ["%s%s" % (self.prefix, tick+k) for k in xrange(n)]
-
-#mkName :: (Show a) => a -> [Char]
-#
-#mkName t = "v" ++ show t
-#
-#freshName :: State Int Name
-#freshName =
-#  do t <- get
-#     put $ t+1
-#     return $ mkName t
-#
-#freshNameList :: (MonadState a m, Num a, Enum a) => a -> m [String]
-#
-#freshNameList n =
-#  do t <- get
-#     put $ t + n
-#     return $ map mkName [t..(t+n-1)]

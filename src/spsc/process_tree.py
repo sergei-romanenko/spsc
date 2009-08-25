@@ -22,20 +22,24 @@ class Contraction(object):
 
 def showNodeId(node):
     if node :
-        return id(node)
+        return node.nodeId
     else:
         return None
 
 class Node(object):
-    def __init__(self, exp, contr, parent, children):
+    "The constructor is supposed to be called via ProcessTree#newNode only."
+    
+    def __init__(self, tree, exp, contr, parent, children):
+        "nodeId is only used for unit testing purposes"
+        self.nodeId = tree.getFreshNodeId()
         self.exp = exp
         self.contr = contr
         self.parent = parent
         self.children = children
 
     def __str__(self):
-        children_s = ",".join(["%s" % id(n) for n in self.children])
-        return "%s:(%s,%s,%s,[%s])" % (id(self), self.exp,
+        children_s = ",".join(["%s" % n.nodeId for n in self.children])
+        return "%s:(%s,%s,%s,[%s])" % (self.nodeId, self.exp,
                                      self.contr, showNodeId(self.parent),
                                      children_s)
 
@@ -53,7 +57,7 @@ class Node(object):
 
     def findMoreGeneralAncestor(self):
         for n in self.ancestors():
-            if n.isFGCall() and instOf(self.exp, n.exp):
+            if n.exp.isFGCall() and instOf(self.exp, n.exp):
                 return n
         return None
 
@@ -89,14 +93,20 @@ class Node(object):
 class ProcessTree(object):
     "NB: The tree is not functional, since its nodes are updated in place."
 
-    def __init__(self, root):
-        if not root:
-            raise ValueError("No root")
-        self.root = root
+    def __init__(self, exp):
+        self.freshNodeId = -1
+        self.root = self.newNode(exp, None, None, [])
         
     def __str__(self):
         nodes_s = ",".join(["%s" % n for n in self.nodes()])
         return "{%s}" % nodes_s
+
+    def getFreshNodeId(self):
+        self.freshNodeId += 1
+        return self.freshNodeId
+
+    def newNode(self, exp, contr, parent, children):
+        return Node(self, exp, contr, parent, children)
 
     def nodes(self):
         for n in self.root.subtreeNodes():
@@ -120,9 +130,9 @@ class ProcessTree(object):
         return False
 
     def addChildren(self, node, branches):
-        children = [Node(exp, contr, node, []) for (exp, contr) in branches]
+        children = [self.newNode(exp, contr, node, []) for (exp, contr) in branches]
         node.children += children
 
-    def replaceSubtree(selfself, exp):
+    def replaceSubtree(self, node, exp):
         node.children = []
         node.exp = exp
