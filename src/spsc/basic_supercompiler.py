@@ -77,7 +77,7 @@ class BasicProcessTreeBuilder(object):
 
     def __init__(self, drivingEngine, exp):
         self.drivingEngine = drivingEngine
-        self.tree = ProcessTree(Node(exp, None, None, []))
+        self.tree = ProcessTree(exp)
 
     # The parts common to the basic and advanced supercompilers.
 

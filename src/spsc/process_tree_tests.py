@@ -22,15 +22,14 @@ class ProcessTreeTest(unittest.TestCase):
         self.tree = t
 
     def test01PrTreeBuilding(self):
+        "PrTreeBuilding"
         self.assertEqual("{0:(r,None,None,[1,2]),1:(m1,None,0,[3]),3:(n,None,1,[]),2:(x,None,0,[])}",
                          "%s" % self.tree)
 
     def test02PrTreeNodes(self):
+        "PrTreeNodes"
         self.assertEqual([0,1,3,2], [n.nodeId for n in self.tree.nodes()])
 
     def test03PrTreeLeaves(self):
+        "PrTreeLeaves"
         self.assertEqual([3,2], [n.nodeId for n in self.tree.leaves()])
-        
-#print t
-#print list(t.leaves())
-#print list(t.nodes())

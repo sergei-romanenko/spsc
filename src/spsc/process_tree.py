@@ -18,7 +18,7 @@ class Contraction(object):
         pat_s = self.cname
         if len(self.cparams) > 0 :
             pat_s += "(" + cparams_s + ")"
-        return self.vname + " = " + pat_s
+        return self.vname + "=" + pat_s
 
 def showNodeId(node):
     if node :
