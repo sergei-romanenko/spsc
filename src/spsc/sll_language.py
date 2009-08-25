@@ -84,19 +84,12 @@ class Call(Exp):
                     vs.append(v)
         return vs
 
-class Binding(object) :
-    def __init__(self, vname, exp):
-        self.vname = vname
-        self.exp = exp
-    def __str__(self):
-        return "%s=%s" % (self.vname, self.exp)
-
 class Let(Exp):
     def __init__(self, body, bindings):
         self.body = body
         self.bindings = bindings
     def __str__(self):
-        bindings_s = ",".join(["%s" % b for b in self.bindings])
+        bindings_s = ",".join(["%s=%s" % b for b in self.bindings])
         return "let %s in %s" % (bindings_s, self.body)
     def isLet(self):
         return True

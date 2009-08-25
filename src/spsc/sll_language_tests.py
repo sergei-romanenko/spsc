@@ -16,7 +16,7 @@ class SLanguage_Tests(unittest.TestCase):
         self.assertEqual("g(x,y)", "%s" % GCall("g", [Var("x"), Var("y")]))
 
     def testStrLet(self):
-        self.assertEqual("let x=a in x", "%s" % Let(Var("x"), [Binding("x", Var("a"))]))
+        self.assertEqual("let x=a in x", "%s" % Let(Var("x"), [("x", Var("a"))]))
 
     def testTheSameFunctor(self):
         self.assertTrue(Ctr("A", []).hasTheSameFunctorAs(Ctr("A", [])))

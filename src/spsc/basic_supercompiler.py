@@ -87,7 +87,7 @@ class BasicProcessTreeBuilder(object):
 
     def loopBack(self, beta, alpha):
         subst = matchAgainst(alpha.exp, beta.exp)
-        bindings = list(subst)
+        bindings = list(subst.items())
         bindings.sort()
         letExp = Let(alpha.exp, bindings)
         self.tree.replaceSubtree(beta, letExp)
