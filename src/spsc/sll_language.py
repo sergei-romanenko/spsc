@@ -27,6 +27,8 @@ class Exp(object):
         return self.isFCall() or self.isGCall()
     def isLet(self):
         return False
+    def hasTheSameFunctorAs(self, other):
+        return False
 
 class Var(Exp):
     def __init__(self, vname):
@@ -69,6 +71,10 @@ class Call(Exp):
     def applySubst(self, subst):
         newCall = copy.copy(self)
         newCall.args = [ e.applySubst(subst) for e in self.args]
+        return newCall
+    def cloneFunctor(self, newArgs):
+        newCall = copy.copy(self)
+        newCall.args = newArgs
         return newCall
     def vars(self):
         '''
