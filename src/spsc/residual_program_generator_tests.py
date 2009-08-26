@@ -8,7 +8,7 @@ import unittest
 
 from sll_language import *
 from sll_parser import pExp, pProg
-from basic_supercompiler import *
+from basic_process_tree_builder import *
 from residual_program_generator import *
 
 

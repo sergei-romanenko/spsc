@@ -8,7 +8,7 @@ import unittest
 
 from sll_parser import pExp, pProg
 from algebra import *
-from basic_supercompiler import *
+from basic_process_tree_builder import *
 
 class BasicScpTest(unittest.TestCase):
 
