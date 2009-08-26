@@ -11,19 +11,19 @@ from algebra import *
 
 class Gen(object):
 
-    def __init__(self, exp, subst1, subst2):
+    def __init__(self, exp, substA, substB):
         self.exp = exp
-        self.subst1 = subst1
-        self.subst2 = subst2
+        self.substA = substA
+        self.substB = substB
 
     def __str__(self):
-        assoc1 = list(self.subst1.items())
-        assoc1.sort()
-        assoc1_s = ",".join(["%s=%s" % a for a in assoc1])
-        assoc2 = list(self.subst2.items())
-        assoc2.sort()       
-        assoc2_s = ",".join(["%s=%s" % a for a in assoc2])
-        return "%s =>> {%s}{%s}" % (self.exp, assoc1_s, assoc2_s)
+        assocA = list(self.substA.items())
+        assocA.sort()
+        assocA_s = ",".join(["%s=%s" % a for a in assocA])
+        assocB = list(self.substB.items())
+        assocB.sort()       
+        assocB_s = ",".join(["%s=%s" % a for a in assocB])
+        return "%s =>> {%s}{%s}" % (self.exp, assocA_s, assocB_s)
 
 class MSGBuilder(object):
 

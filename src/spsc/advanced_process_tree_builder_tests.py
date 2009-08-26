@@ -1,29 +1,19 @@
 '''
-Created on Aug 20, 2009
+Created on Aug 26, 2009
 
 @author: Sergei Romanenko
 '''
-
 import unittest
 
 from sll_parser import pExp, pProg
 from algebra import *
-from basic_process_tree_builder import *
+from advanced_process_tree_builder import *
 
-class BasicScpTest(unittest.TestCase):
-
-    def drStep(self, prog, e, expected):
-        self.drStep0(pProg(prog), pExp(e), expected)
-
-    def drStep0(self, prog, e, expected):
-        trBuilder = DrivingEngine(NameGen("v", 100), prog)
-        branches = trBuilder.drivingStep(e)
-        branches_s = "".join(["(%s,%s)" % (exp, contr) for exp, contr in branches])
-        self.assertEqual(expected, branches_s)
+class AdvancedScpTest(unittest.TestCase):
 
     def buildPrTree1(self, prog, e):
         nameGen = NameGen("v", 100)
-        return buildBasicProcessTree(nameGen, 1, prog, e)
+        return buildAdvancedProcessTree(nameGen, 1, prog, e)
 
     def buildPrTree1OK(self, prog, e, expected):
         tree = self.buildPrTree1(pProg(prog), pExp(e))
@@ -31,7 +21,7 @@ class BasicScpTest(unittest.TestCase):
 
     def buildPrTree(self, prog, e):
         nameGen = NameGen("v", 100)
-        return buildBasicProcessTree(nameGen, 100, prog, e)
+        return buildAdvancedProcessTree(nameGen, 100, prog, e)
 
     def buildPrTreeOK(self, prog, e, expected):
         tree = self.buildPrTree(pProg(prog), pExp(e))
@@ -39,42 +29,6 @@ class BasicScpTest(unittest.TestCase):
 
     pAdd = "gAdd(Z,y)=y;gAdd(S(x),y)=S(gAdd(x,y));"
     pAddAcc = "gAddAcc(Z,y)=y;gAddAcc(S(x),y)=gAddAcc(x,S(y));"
-
-    def test101Ctr(self):
-        "Ctr"
-        self.drStep("", "C(a,b)", "(a,None)(b,None)")
-
-    def test102FCall(self):
-        "FCall"
-        self.drStep("f(x)=x;", "f(A(z))", "(A(z),None)")
-
-    def test103GCallCtr(self):
-        "GCallCtr"
-        self.drStep(
-            self.pAddAcc,
-            "gAddAcc(S(S(Z)), Z)",
-            "(gAddAcc(S(Z),S(Z)),None)")
-
-    def test104GCallVar(self):
-        "GCallVar"
-        self.drStep(
-            self.pAddAcc,
-            "gAddAcc(a,b)",
-            "(b,a=Z)(gAddAcc(v100,S(b)),a=S(v100))")
-
-    def test105GCallGeneral(self):
-        "GCallGeneral"
-        self.drStep(
-            self.pAddAcc,
-            "gAddAcc(gAddAcc(a,b),c)",
-            "(gAddAcc(b,c),a=Z)(gAddAcc(gAddAcc(v100,S(b)),c),a=S(v100))")
-
-    def test106Let(self):
-        "Let"
-        self.drStep0(
-             Program([]),
-             Let(Ctr("C", [Var("x"), Var("y")]), [("x", Var("a")), ("y", Var("b"))]),
-             "(C(x,y),None)(a,None)(b,None)")
 
     def test201PrTrVar1(self):
         "PrTrVar1"
@@ -130,8 +84,8 @@ class BasicScpTest(unittest.TestCase):
            self.pAdd, "gAdd(gAdd(a,b),c)",
             "{0:(gAdd(gAdd(a,b),c),None,None,[1,2]),1:(gAdd(b,c),a=Z,0,[3,4]),3:(c,b=Z,1,[]),4:(S(gAdd(v101,c)),b=S(v101),1,[5]),5:(gAdd(v101,c),None,4,[]),2:(gAdd(S(gAdd(v100,b)),c),a=S(v100),0,[6]),6:(S(gAdd(gAdd(v100,b),c)),None,2,[7]),7:(gAdd(gAdd(v100,b),c),None,6,[])}")
 
-#testAPTVar = testBPT1Adv "" "x"
-#testAPTCtr = testBPT1Adv "" "S(Z)"
-#testAAdd1_0 = testBPT1Adv pAddAcc "gAddAcc(S(Z), Z)"
-#testAAddAB = testBPT1Adv pAdd "gAdd(a, b)"
-#testAAddAdd = testBPT1Adv pAdd "gAdd(gAdd(a,b),c)"
+    def test401AddAA(self):
+        "AddAA"
+        self.buildPrTreeOK(
+           self.pAdd, "gAdd(a, a)",
+           "{0:(let v102=a,v103=a in gAdd(v102,v103),None,None,[4,5,6]),4:(gAdd(v102,v103),None,0,[7,8]),7:(v103,v102=Z,4,[]),8:(S(gAdd(v104,v103)),v102=S(v104),4,[9]),9:(gAdd(v104,v103),None,8,[]),5:(a,None,0,[]),6:(a,None,0,[])}")
