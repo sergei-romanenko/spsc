@@ -1,7 +1,6 @@
 require 'rubygems'
 require 'rparsec'
 require 'rparsec/parsers'
-
 require 'SLL'
 
 include RParsec
@@ -53,5 +52,12 @@ module SLLParser
 
   Program = alt(FRuleDecl, GRuleDecl).many
 
+  def pExp(input)
+    (Expression << Parsers::eof).parse(input)
+  end
+
+  def pProg(input)
+    (Program << Parsers::eof).parse(input)
+  end
 end
 

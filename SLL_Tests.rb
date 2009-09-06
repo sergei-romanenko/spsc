@@ -40,6 +40,7 @@ class SLL_Tests < Test::Unit::TestCase
     assert(GCall.new("A", []).hasTheSameFunctorAs?(GCall.new("A", [])))
     assert(! Ctr.new("A", []).hasTheSameFunctorAs?(Ctr.new("B", [])))
     assert(! Ctr.new("A", []).hasTheSameFunctorAs?(FCall.new("A", [])))
+    assert(! Ctr.new("A", []).hasTheSameFunctorAs?(Ctr.new("A", [Var.new("y")])))
   end
 
   def test301Eq()

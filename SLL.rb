@@ -46,7 +46,7 @@ module SLL
     end
 
     def to_s
-      args_s = @args.each {|arg| arg.to_s}.join(',')
+      args_s = @args.map {|arg| arg.to_s}.join(',')
       "#{@name}(#{args_s})"
     end
 
@@ -57,7 +57,10 @@ module SLL
     def isCall() true end
 
     def hasTheSameFunctorAs?(e)
-      e.is_a?(Call) && self.class == e.class && @name == e.name
+      e.is_a?(Call) &&
+      self.class == e.class &&
+      @name == e.name &&
+      @args.length == e.args.length
     end
   end
 
@@ -104,6 +107,7 @@ module SLL
       bindings_s = @bindings.map {|binding| "#{binding[0]}=#{binding[1]}"}.join(',')
       "let #{bindings_s} in #{@exp.to_s}"
     end
+
     def isLet() true end
   end
 
