@@ -36,10 +36,19 @@ module SLL
     end
 
     def isVar() true end
+
+    def applySubst(subst)
+      subst.fetch(@vname, self)
+    end
+
+    def vars()
+      [@vname]
+    end
   end
 
   class Call < Exp
-    attr_reader :name, :args
+    attr_reader :name
+    attr_accessor :args
     def initialize(name, args)
       @name = name
       @args = args
@@ -61,6 +70,28 @@ module SLL
       self.class == e.class &&
       @name == e.name &&
       @args.length == e.args.length
+    end
+
+    def cloneFunctor(newArgs)
+      newCall = self.clone
+      newCall.args = newArgs
+      newCall
+    end
+
+    def applySubst(subst)
+      cloneFunctor(@args.map{|e| e.applySubst(subst)})
+    end
+
+    def vars()
+      # We don't use sets here, in order to preserve
+      # the original order of variables in the expression.
+      # (The order is preserved just for readability of
+      # residual programs.)
+      vs = []
+      @args.each do |arg|
+        arg.vars.each{|v| vs << v}
+      end
+      vs
     end
   end
 
@@ -97,15 +128,15 @@ module SLL
   end
 
   class Let < Exp
-    attr_reader :exp, :bindings
-    def initialize(exp, bindings)
-      @exp = exp
+    attr_reader :body, :bindings
+    def initialize(body, bindings)
+      @body = body
       @bindings = bindings
     end
 
     def to_s
       bindings_s = @bindings.map {|binding| "#{binding[0]}=#{binding[1]}"}.join(',')
-      "let #{bindings_s} in #{@exp.to_s}"
+      "let #{bindings_s} in #{@body.to_s}"
     end
 
     def isLet() true end
@@ -143,6 +174,7 @@ module SLL
   end
 
   class Program
+    attr_reader :rules
     def initialize(rules)
       @rules = rules
     end

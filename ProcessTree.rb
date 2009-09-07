@@ -10,16 +10,16 @@ module ProcessTree
     end
 
     def to_s
-      cparams_s = @cparams * ","
       pat_s = @cname
-      if cparams.length > 0
-        pat_s += "(#{cparams_s})"
+      if @cparams.length > 0
+        pat_s += "(#{@cparams * ","})"
       end
-      "#{vname}=#{pat_s}"
+      "#{@vname}=#{pat_s}"
     end
   end
 
   class Node
+    include Algebra
     attr_reader :nodeId
     attr_accessor :exp
     attr_reader:contr, :parent

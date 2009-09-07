@@ -50,7 +50,7 @@ module SLLParser
     | name, pat, params, body | SLL::GRule.new(name, pat[0], pat[1], params, body)
   end
 
-  Program = alt(FRuleDecl, GRuleDecl).many
+  Program = alt(FRuleDecl, GRuleDecl).many.map{|rules| SLL::Program.new(rules)}
 
   def pExp(input)
     (Expression << Parsers::eof).parse(input)

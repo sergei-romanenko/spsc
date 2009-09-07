@@ -19,6 +19,19 @@ class Algebra_Tests < Test::Unit::TestCase
     to_s_test('let x=y in y', Let.new(Var.new("y"), [["x", Var.new("y")]]))
   end
 
+  def test002Subst()
+    e1 = pExp("E1")
+    e2 = pExp("E2")
+    e = pExp("Cons(x1,Cons(x2,Cons(x3,Nil)))")
+    subst = {"x1"=>e1, "x2"=>e2}
+    assert_equal("Cons(E1,Cons(E2,Cons(x3,Nil)))", e.applySubst(subst).to_s)
+  end
+
+  def test003Vars()
+    e = pExp("A(x,B(y,z),a)")
+    assert_equal(['x', 'y', 'z', 'a'], e.vars())
+  end
+
   def matchOK(pat, exp, expected)
     subst = matchAgainst(pExp(pat), pExp(exp))
     if subst != nil
@@ -45,39 +58,39 @@ class Algebra_Tests < Test::Unit::TestCase
   end
 
   def test104MatchC1_C2()
-      matchNo("C(x,y)", "D(A,B)")
+    matchNo("C(x,y)", "D(A,B)")
   end
-  
+
   def test105MatchC_F()
-      matchNo("C(x,y)", "f(A,B)")
+    matchNo("C(x,y)", "f(A,B)")
   end
-  
+
   def test106MatchX_X_Eq()
-      matchOK("C(x,x)", "C(A,A)", "x->A;")
+    matchOK("C(x,x)", "C(A,A)", "x->A;")
   end
-  
+
   def test107Match_X_XY()
-      matchNo("C(x,y)", "C(A,B,C)")
+    matchNo("C(x,y)", "C(A,B,C)")
   end
-  
+
   def testMatch_XY_X()
-      matchNo("C(x,y,z)", "C(A,B)")
+    matchNo("C(x,y,z)", "C(A,B)")
   end
 
   def equivYes(e1, e2)
-      assert(equiv(pExp(e1), pExp(e2)))
+    assert(equiv(pExp(e1), pExp(e2)))
   end
-  
+
   def test201EquivYes()
-      equivYes("gA(fB(x,y),C)", "gA(fB(a,b),C)")
+    equivYes("gA(fB(x,y),C)", "gA(fB(a,b),C)")
   end
-  
+
   def equivNo(e1, e2)
-      assert(!equiv(pExp(e1), pExp(e2)))
+    assert(!equiv(pExp(e1), pExp(e2)))
   end
-  
+
   def test301EquivNo()
-      equivNo("gA(fB(x,y),x)", "gA(fB(a,a),b)")
+    equivNo("gA(fB(x,y),x)", "gA(fB(a,a),b)")
   end
 
 end
