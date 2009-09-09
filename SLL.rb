@@ -169,7 +169,7 @@ module SLL
       pat_s = "#{@cname}"
       pat_s << "(#{@cparams.join(',')})" if @cparams.length > 0
       pat_s << "," if @params.length > 0
-      "#{@name}(#{pat_s}#{params.to_s})=#{body.to_s};"
+      "#{@name}(#{pat_s}#{params * ","})=#{body.to_s};"
     end
   end
 

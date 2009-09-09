@@ -3,6 +3,7 @@ require 'Algebra'
 
 module ProcessTree
   class Contraction
+    attr_accessor :vname, :cname, :cparams
     def initialize(vname, cname, cparams)
       @vname = vname
       @cname = cname
