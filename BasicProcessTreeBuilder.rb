@@ -5,6 +5,7 @@ require 'ProcessTree'
 module BasicProcessTreeBuilder
   class DrivingEngine
     include SLL
+    include Algebra
     include ProcessTree
     def initialize(nameGen, prog)
       # The program is supposed to be correct: no duplicate definitions, etc.
@@ -35,7 +36,7 @@ module BasicProcessTreeBuilder
         e.args.map{|arg| [arg, nil]}
       elsif e.isFCall()
         rule = @fRule[e.name]
-        p2a = Hash[*rule.params.zip(e.args).flatten]
+        p2a = assoc_to_h(rule.params.zip(e.args))
         body = rule.body.applySubst(p2a)
         [[body, nil]]
       elsif e.isGCall()
@@ -45,8 +46,8 @@ module BasicProcessTreeBuilder
           cname = arg0.name
           cargs = arg0.args
           rule = @gcRule[[e.name, cname]]
-          p2a1 = Hash[*rule.cparams.zip(cargs).flatten]
-          p2a2 = Hash[*rule.params.zip(args).flatten]
+          p2a1 = assoc_to_h(rule.cparams.zip(cargs))
+          p2a2 = assoc_to_h(rule.params.zip(args))
           body = rule.body.applySubst(p2a1.merge(p2a2))
           [[body, nil]]
         elsif arg0.isVar()

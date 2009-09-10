@@ -31,7 +31,7 @@ class ResidualProgramGenerator
         resExpList = genExpList(beta.children)
         vnames = exp.bindings.map{|b| b[0]}
         x = vnames.zip(resExpList[1..-1])
-        subst = Hash[*vnames.zip(resExpList[1..-1]).flatten]
+        subst = assoc_to_h(vnames.zip(resExpList[1..-1]))
         resExpList[0].applySubst(subst)
       else
         raise "Invalid expression"

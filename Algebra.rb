@@ -61,4 +61,12 @@ module Algebra
     end
   end
 
+  def assoc_to_h(assocList)
+    h = {}
+    assocList.each do |pair|
+      h[pair[0]] = pair[1]
+    end
+    h
+  end
+
 end
