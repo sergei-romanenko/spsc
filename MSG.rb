@@ -4,6 +4,7 @@ require 'Algebra'
 module MSG
   # MSG = Most Specific Generalization
   class Gen
+    attr_reader :exp, :substA, :substB
     def initialize(exp, substA, substB)
       @exp = exp
       @substA = substA

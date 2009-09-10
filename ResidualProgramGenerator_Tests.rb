@@ -21,7 +21,7 @@ class ResidualProgramGenerator_Tests < Test::Unit::TestCase
 
   def runBasicScp(prog, e)
     nameGen = NameGen.new("v", 100)
-    tree = BasicProcessTreeBuilder.build(nameGen, 100, prog, e)
+    tree = BasicBuilder.build(nameGen, 100, prog, e)
     res = ResidualProgramGenerator.new(tree).genResidualProgram()
     return res
   end

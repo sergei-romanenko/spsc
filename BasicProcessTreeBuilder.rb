@@ -2,11 +2,12 @@ require 'SLL'
 require 'Algebra'
 require 'ProcessTree'
 
-module BasicProcessTreeBuilder
+module ProcessTreeBuilder
   class DrivingEngine
     include SLL
     include Algebra
     include ProcessTree
+    attr_reader :nameGen
     def initialize(nameGen, prog)
       # The program is supposed to be correct: no duplicate definitions, etc.
       @nameGen = nameGen
@@ -77,7 +78,7 @@ module BasicProcessTreeBuilder
     end
   end
 
-  class BasicProcessTreeBuilder
+  class BasicBuilder
     include Algebra
     include ProcessTree
     attr_reader :tree
@@ -132,9 +133,9 @@ module BasicProcessTreeBuilder
     end
   end
 
-  def BasicProcessTreeBuilder.build(nameGen, k, prog, exp)
+  def BasicBuilder.build(nameGen, k, prog, exp)
     drivingEngine = DrivingEngine.new(nameGen, prog)
-    builder = BasicProcessTreeBuilder.new(drivingEngine, exp)
+    builder = BasicBuilder.new(drivingEngine, exp)
     builder.buildProcessTree(k)
     builder.tree
   end
