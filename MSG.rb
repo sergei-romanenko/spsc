@@ -60,8 +60,6 @@ module MSG
           vs = ns.map{|x| Var.new(x)}
           @exp = @exp.applySubst({vname => e1.cloneFunctor(vs)})
           @subst.delete(vname)
-          x = ns.zip(e1.args.zip(e2.args))
-          y = assoc_to_h(x)
           @subst = @subst.merge(assoc_to_h(ns.zip(e1.args.zip(e2.args))))
           return
         end
