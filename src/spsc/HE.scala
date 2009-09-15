@@ -3,7 +3,8 @@ package spsc
 import Algebra._
 
 object HE {
-  def he_*(t1: Term, t2: Term): Boolean = he(t1, t2) && b(t1) == b(t2)
+  def he_*(t1: Term, t2: Term): Boolean =
+    aVarIsUnderAttack(t1) == aVarIsUnderAttack(t2) && he(t1, t2)
   
   def he(t1: Term, t2: Term) = heByDiving(t1, t2) || heByCoupling(t1, t2)
   
@@ -18,9 +19,9 @@ object HE {
     case _ => false
   }
   
-  private def b(t: Term): Int = t match {
-    case GCall(_, args) => b(args.head)
-    case Var(_) => 1
-    case _ => 0
+  def aVarIsUnderAttack(t: Term): Boolean = t match {
+    case GCall(_, args) => aVarIsUnderAttack(args.head)
+    case Var(_) => true
+    case _ => false
   } 
 }
