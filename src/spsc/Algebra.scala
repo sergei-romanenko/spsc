@@ -32,7 +32,11 @@ object Algebra {
     case e: CFG => (List[Var]() /: e.args) {_ union vars(_)}
   }
   
-  def freshVar(x: AnyRef) = {i += 1; Var("v" + i)}; private var i = 0;
+  private var i = 0;
+
+  def resetVarGen() { i = 0; }
+  
+  def freshVar(x: AnyRef) = {i += 1; Var("v" + i)};
   
   def trivial(expr: Term): Boolean = expr match {
     case FCall(_, _) => false
