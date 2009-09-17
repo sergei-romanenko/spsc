@@ -9,16 +9,18 @@ class ResidualProgramGenerator(val tree: Tree) {
   
   private def walk(n: Node): Term = if (n.fnode == null) n.expr match {
     case v: Var => v
-    case Let(_,bs) => subst(walk(tree.children(n).head), 
-         Map(bs map {case (k, _) => k} zip (tree.children(n).tail map walk):_*))
+    case Let(_,bs) =>
+      var body = walk(tree.children(n).head)
+      applySubst(Map(bs map {case (k, _) => k} zip (tree.children(n).tail map walk):_*),
+                 body)
     case Ctr(name, _) => Ctr(name, tree.children(n).map(walk))
     case FCall(name, args) => walkCall(n, name, args)
     case GCall(name, args) => walkCall(n, name, args)
   } else sigs(n.fnode) match {
     case (name, args) => 
       if (tree.children(n.fnode).head.contr == null) 
-           subst(FCall(name, args), findSubst(n.fnode.expr, n.expr))
-      else subst(GCall(name, args), findSubst(n.fnode.expr, n.expr))
+           applySubst(matchAgainst(n.fnode.expr, n.expr), FCall(name, args))
+      else applySubst(matchAgainst(n.fnode.expr, n.expr), GCall(name, args))
   }
 
   def walkCall(n: Node, name: String, args: List[Term]) = {

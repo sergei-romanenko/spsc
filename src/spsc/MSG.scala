@@ -15,7 +15,7 @@ object MSG {
     for (v <- g.m1.keys) (g.m1(v), g.m2(v)) match {
       case (e1:CFG, e2:CFG) if shellEq(e1, e2) =>
         val vs = e1.args map freshVar
-        val t = subst(g.t, Map(v -> e1.replaceArgs(vs)))
+        val t = applySubst(Map(v -> e1.replaceArgs(vs)), g.t)
         return Gen(t, g.m1 - v ++ vs.zip(e1.args), g.m2 - v ++ vs.zip(e2.args))        
       case _ =>
     }
@@ -25,7 +25,7 @@ object MSG {
   def commonSubst(gen: Gen): Gen = {
     for ((v1, e1) <- gen.m1; (v2, e2) <- gen.m1)
       if ((v1 != v2 && e1 == e2) && (gen.m2(v1) == gen.m2(v2)))
-        return Gen(subst(gen.t, Map(v1 -> v2)), gen.m1 - v1, gen.m2 - v1)
+        return Gen(applySubst(Map(v1 -> v2), gen.t), gen.m1 - v1, gen.m2 - v1)
     gen
   }
 }

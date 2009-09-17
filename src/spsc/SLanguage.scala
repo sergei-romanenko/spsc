@@ -24,7 +24,10 @@ object FCall extends CFGObject(TKind.FCall)
 object GCall extends CFGObject(TKind.GCall)
 
 
-case class Let(term: Term, bindings: List[(Var, Term)]) extends Term
+case class Let(term: Term, bindings: List[(Var, Term)]) extends Term {
+  val bindings_s = bindings map {case (v, e) => v.toString() + "=" + e.toString()}
+  override def toString = "let " + bindings_s.mkString(",") + " in " + term.toString()
+}
 
 case class Pat(name: String, args: List[Var]) {
   override def toString = name + args.mkString("(", ", " ,")")

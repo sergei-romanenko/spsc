@@ -2,18 +2,21 @@ package spsc
 
 object Algebra {
   
-  def shellEq(e1: CFG, e2: CFG) = e1.kind == e2.kind && e1.name == e2.name
+  def shellEq(e1: CFG, e2: CFG) =
+    e1.kind == e2.kind &&
+    e1.name == e2.name &&
+    e1.args.length == e2.args.length
   
-  def subst(term: Term, m: Map[Var, Term]): Term = term match {
+  def applySubst(m: Map[Var, Term], term: Term): Term = term match {
     case v: Var => m.getOrElse(v, v)
-    case e: CFG => e.replaceArgs(e.args.map(subst(_, m)))
+    case e: CFG => e.replaceArgs(e.args.map(applySubst(m, _)))
   }
   
   def equiv(t1: Term, t2: Term): Boolean = inst(t1, t2) && inst(t2, t1)
   
-  def inst(t1: Term, t2: Term): Boolean = findSubst(t1, t2) != null
+  def inst(t1: Term, t2: Term): Boolean = matchAgainst(t1, t2) != null
   
-  def findSubst(t1: Term, t2: Term) = {
+  def matchAgainst(t1: Term, t2: Term) = {
     var map = Map[Var, Term]()
     def walk(t1: Term, t2: Term): Boolean = (t1, t2) match {
       case (v1: Var, _) => map.get(v1) match {
