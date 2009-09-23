@@ -2,18 +2,18 @@ package spsc
 
 import Algebra._
 
-class SuperCompiler(p: Program) extends BaseSuperCompiler(p){
+class AdvancedSupercompiler(p: Program) extends BasicSupercompiler(p){
   
   override def buildProcessTree(e: Term): Tree = {
     var t = new Tree(new Node(e, null, null), Map().withDefaultValue(Nil))
     while (t.leaves.exists{!_.isProcessed}) {
       val b = t.leaves.find(!_.isProcessed).get
-      t = if (trivial(b.expr)) {
+      t = if (!isFGCall(b.expr)) {
         t.addChildren(b, driveExp(b.expr)) // drive
       } else {
-        b.ancestors.find(a => !trivial(a.expr) && HE.he_*(a.expr, b.expr)) match {
+        b.ancestors.find(a => isFGCall(a.expr) && HE.embeddedIn(a.expr, b.expr)) match {
           case Some(a) => {  
-            if (inst(a.expr, b.expr)) abs(t, b, a)
+            if (instOf(b.expr, a.expr)) abs(t, b, a)
             else if (equiv(MSG.msg(a.expr, b.expr).t, Var("z"))) split(t, b)
             else abs(t, a, b)
           }

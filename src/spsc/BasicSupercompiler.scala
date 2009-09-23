@@ -1,7 +1,8 @@
 package spsc
 
 import Algebra._
-class BaseSuperCompiler(p: Program){
+
+class BasicSupercompiler(p: Program){
   def driveExp(expr: Term): List[(Term, Contraction)] = expr match {
     case Ctr(name, args) => args.map((_,null))
     case FCall(name, args)  =>
@@ -22,7 +23,7 @@ class BaseSuperCompiler(p: Program){
     var t = new Tree(new Node(e, null, null), Map().withDefaultValue(Nil))
     while (t.leaves.exists{!_.isProcessed}) {
       val b = t.leaves.find(!_.isProcessed).get
-      t = b.ancestors.find(a => !trivial(a.expr) && inst(a.expr, b.expr)) match {
+      t = b.ancestors.find(a => isFGCall(a.expr) && instOf(b.expr, a.expr)) match {
         case Some(a) => t.replace(b, Let(a.expr, matchAgainst(a.expr, b.expr).toList))
         case None => t.addChildren(b, driveExp(b.expr)) // drive
       }

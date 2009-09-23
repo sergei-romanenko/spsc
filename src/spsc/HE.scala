@@ -3,7 +3,7 @@ package spsc
 import Algebra._
 
 object HE {
-  def he_*(t1: Term, t2: Term): Boolean =
+  def embeddedIn(t1: Term, t2: Term): Boolean =
     aVarIsUnderAttack(t1) == aVarIsUnderAttack(t2) && he(t1, t2)
   
   def he(t1: Term, t2: Term) = heByDiving(t1, t2) || heByCoupling(t1, t2)

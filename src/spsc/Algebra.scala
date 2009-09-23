@@ -12,9 +12,9 @@ object Algebra {
     case e: CFG => e.replaceArgs(e.args.map(applySubst(m, _)))
   }
   
-  def equiv(t1: Term, t2: Term): Boolean = inst(t1, t2) && inst(t2, t1)
+  def equiv(t1: Term, t2: Term): Boolean = instOf(t1, t2) && instOf(t2, t1)
   
-  def inst(t1: Term, t2: Term): Boolean = matchAgainst(t1, t2) != null
+  def instOf(t1: Term, t2: Term): Boolean = matchAgainst(t2, t1) != null
   
   def matchAgainst(t1: Term, t2: Term) = {
     var map = Map[Var, Term]()
@@ -41,9 +41,9 @@ object Algebra {
   
   def freshVar(x: AnyRef) = {i += 1; Var("v" + i)};
   
-  def trivial(expr: Term): Boolean = expr match {
-    case FCall(_, _) => false
-    case GCall(_, _) => false
-    case _ => true
+  def isFGCall(expr: Term): Boolean = expr match {
+    case FCall(_, _) => true
+    case GCall(_, _) => true
+    case _ => false
   }
 }

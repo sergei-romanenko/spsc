@@ -7,7 +7,7 @@ class ResidualProgramGenerator(val tree: Tree) {
   private val defs = new scala.collection.mutable.ListBuffer[Rule]
   lazy val result = (walk(tree.root), Program(defs.toList))
   
-  private def walk(n: Node): Term = if (n.fnode == null) n.expr match {
+  private def walk(n: Node): Term = if (n.funcAncestor == null) n.expr match {
     case v: Var => v
     case Let(_,bs) =>
       var body = walk(tree.children(n).head)
@@ -16,11 +16,11 @@ class ResidualProgramGenerator(val tree: Tree) {
     case Ctr(name, _) => Ctr(name, tree.children(n).map(walk))
     case FCall(name, args) => walkCall(n, name, args)
     case GCall(name, args) => walkCall(n, name, args)
-  } else sigs(n.fnode) match {
+  } else sigs(n.funcAncestor) match {
     case (name, args) => 
-      if (tree.children(n.fnode).head.contr == null) 
-           applySubst(matchAgainst(n.fnode.expr, n.expr), FCall(name, args))
-      else applySubst(matchAgainst(n.fnode.expr, n.expr), GCall(name, args))
+      if (tree.children(n.funcAncestor).head.contr == null) 
+           applySubst(matchAgainst(n.funcAncestor.expr, n.expr), FCall(name, args))
+      else applySubst(matchAgainst(n.funcAncestor.expr, n.expr), GCall(name, args))
   }
 
   def walkCall(n: Node, name: String, args: List[Term]) = {
@@ -30,7 +30,7 @@ class ResidualProgramGenerator(val tree: Tree) {
       for (cn <- tree.children(n)) 
         defs += GRule(gname, cn.contr.pat, vs.tail, walk(cn))
       GCall(gname, vs)
-    } else if (tree.leaves.exists(_.fnode == n)) {
+    } else if (tree.leaves.exists(_.funcAncestor == n)) {
       val (fname, fargs) = sigs.getOrElseUpdate(n, (rename(name, "f"), vs))
       defs += FRule(fname, fargs, walk(tree.children(n).head))
       FCall(fname, vs)
