@@ -12,17 +12,17 @@ object TKind extends Enumeration {
 
 case class CFG(kind: TKind.Value, name: String, args: List[Term]) extends Term {
   def replaceArgs(newArgs: List[Term]) = CFG(kind, name, newArgs)
-  override def toString = name + args.mkString("(", ", " ,")")
+  override def toString = name + args.mkString("(",",",")")
 }
 
 abstract class CFGObject(kind: TKind.Value) extends ((String, List[Term]) => CFG) {
   def apply(name: String, args: List[Term]) = CFG(kind, name, args)
   def unapply(e: CFG) = if (e.kind == kind) Some(e.name, e.args) else None
 }
+
 object Ctr extends CFGObject(TKind.Ctr)
 object FCall extends CFGObject(TKind.FCall)
 object GCall extends CFGObject(TKind.GCall)
-
 
 case class Let(term: Term, bindings: List[(Var, Term)]) extends Term {
   val bindings_s = bindings map {case (v, e) => v.toString() + "=" + e.toString()}
@@ -30,24 +30,25 @@ case class Let(term: Term, bindings: List[(Var, Term)]) extends Term {
 }
 
 case class Pat(name: String, args: List[Var]) {
-  override def toString = name + args.mkString("(", ", " ,")")
+  override def toString = name + args.mkString("(",",",")")
 }
 
-abstract class Def {def name: String}
-case class FFun(name: String, args: List[Var], term: Term) extends Def {
-  override def toString = name + args.mkString("(", ", " ,")") + " = " + term + ";"
+abstract class Rule {def name: String}
+
+case class FRule(name: String, args: List[Var], term: Term) extends Rule {
+  override def toString = name + args.mkString("(",",",")") + "=" + term + ";"
 }
 
-case class GFun(name: String, p: Pat, args: List[Var], term: Term) extends Def {
-  override def toString = name + (p :: args).mkString("(", ", " ,")")  + " = " + term + ";"
+case class GRule(name: String, p: Pat, args: List[Var], term: Term) extends Rule {
+  override def toString = name + (p :: args).mkString("(",",",")")  + "=" + term + ";"
 }
 
-case class Program(defs: List[Def]){
-  val f = (defs :\ (Map[String, FFun]())) 
-    {case (d: FFun, m) => m + (d.name -> d); case (_, m) => m}
-  val g = (defs :\ (Map[(String, String), GFun]())) 
-    {case (d: GFun, m) => m + ((d.name, d.p.name) -> d); case (_, m) => m}
-  val gs = (g :\ Map[String, List[GFun]]())
+case class Program(rules: List[Rule]){
+  val f = (rules :\ (Map[String, FRule]())) 
+    {case (d: FRule, m) => m + (d.name -> d); case (_, m) => m}
+  val g = (rules :\ (Map[(String, String), GRule]())) 
+    {case (d: GRule, m) => m + ((d.name, d.p.name) -> d); case (_, m) => m}
+  val gs = (g :\ Map[String, List[GRule]]())
     {case (((n, _), d), m) => m + (n -> (d :: m.getOrElse(n, Nil)))}
-  override def toString = defs.mkString("\n")
+  override def toString = rules.mkString("")
 }

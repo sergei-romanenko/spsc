@@ -4,7 +4,7 @@ import Algebra._
 class ResidualProgramGenerator(val tree: Tree) {
   
   private val sigs = scala.collection.mutable.Map[Node, (String, List[Var])]()
-  private val defs = new scala.collection.mutable.ListBuffer[Def]
+  private val defs = new scala.collection.mutable.ListBuffer[Rule]
   lazy val result = (walk(tree.root), Program(defs.toList))
   
   private def walk(n: Node): Term = if (n.fnode == null) n.expr match {
@@ -28,11 +28,11 @@ class ResidualProgramGenerator(val tree: Tree) {
     if (tree.children(n).head.contr != null) {
       val (gname, _) = sigs.getOrElseUpdate(n, (rename(name, "g"), vs))
       for (cn <- tree.children(n)) 
-        defs += GFun(gname, cn.contr.pat, vs.tail, walk(cn))
+        defs += GRule(gname, cn.contr.pat, vs.tail, walk(cn))
       GCall(gname, vs)
     } else if (tree.leaves.exists(_.fnode == n)) {
       val (fname, fargs) = sigs.getOrElseUpdate(n, (rename(name, "f"), vs))
-      defs += FFun(fname, fargs, walk(tree.children(n).head))
+      defs += FRule(fname, fargs, walk(tree.children(n).head))
       FCall(fname, vs)
     } else walk(tree.children(n).head)
   }

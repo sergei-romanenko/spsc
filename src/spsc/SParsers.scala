@@ -7,7 +7,7 @@ import scala.util.parsing.input.{CharSequenceReader => Reader}
 object SParsers extends StandardTokenParsers with ImplicitConversions {
   lexical.delimiters += ("(", ")", ",", "=", ";")
   def prog = definition+
-  def definition: Parser[Def] = gFun | fFun
+  def definition: Parser[Rule] = gRule | fRule
   def term: Parser[Term] = fcall | gcall | ctr | vrb
   def uid = ident ^? {case id if id.charAt(0).isUpperCase => id}
   def lid = ident ^? {case id if id.charAt(0).isLowerCase => id}
@@ -15,9 +15,9 @@ object SParsers extends StandardTokenParsers with ImplicitConversions {
   def gid = ident ^? {case id if id.charAt(0) == 'g' => id}
   def vrb = lid ^^ Var
   def pat = uid ~ ("(" ~> repsep(vrb, ",") <~ ")") ^^ Pat
-  def fFun = fid ~ ("(" ~> repsep(vrb, ",") <~ ")") ~ ("=" ~> term <~ ";") ^^ FFun
-  def gFun = 
-    gid ~ ("(" ~> pat) ~ ((("," ~> vrb)*) <~ ")") ~ ("=" ~> term <~ ";") ^^ GFun
+  def fRule = fid ~ ("(" ~> repsep(vrb, ",") <~ ")") ~ ("=" ~> term <~ ";") ^^ FRule
+  def gRule = 
+    gid ~ ("(" ~> pat) ~ ((("," ~> vrb)*) <~ ")") ~ ("=" ~> term <~ ";") ^^ GRule
   def ctr = uid ~ ("(" ~> repsep(term, ",") <~ ")") ^^ Ctr
   def fcall = fid ~ ("(" ~> repsep(term, ",") <~ ")") ^^ FCall
   def gcall = gid ~ ("(" ~> repsep(term, ",") <~ ")") ^^ GCall
