@@ -6,7 +6,7 @@ import scala.util.parsing.input.{CharSequenceReader => Reader}
 
 object SParsers extends StandardTokenParsers with ImplicitConversions {
   lexical.delimiters += ("(", ")", ",", "=", ";")
-  def prog = definition+
+  def prog = definition*
   def definition: Parser[Rule] = gRule | fRule
   def term: Parser[Term] = fcall | gcall | ctr | vrb
   def uid = ident ^? {case id if id.charAt(0).isUpperCase => id}
