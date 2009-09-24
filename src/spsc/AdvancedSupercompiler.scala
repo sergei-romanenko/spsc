@@ -5,7 +5,7 @@ import Algebra._
 class AdvancedSupercompiler(p: Program) extends BasicSupercompiler(p){
   
   override def buildProcessTree(e: Term): Tree = {
-    var t = new Tree(new Node(e, null, null), Map().withDefaultValue(Nil))
+    var t = Tree.create(e)
     while (t.leaves.exists{!_.isProcessed}) {
       val b = t.leaves.find(!_.isProcessed).get
       t = if (!isFGCall(b.expr)) {
