@@ -1,173 +1,268 @@
+//////////////////////////
+//
+// Basic Parser Combinator
+//
+//////////////////////////
 
-var Parser = {
-	
-	parse_error: function (text, re) { 
-    	this.message = "cannot match '" + text.substring(0, 10) + " ...' against " + re ; 
+var parser = {
+	Success: function (result, next) {
+		this.result = result;
+		this.next = next;
+		this.successful = true;
 	},
-	
+	Error: function (s, re) { 
+    	this.message = "cannot match '" + s.substring(0, 10) + " ...' against " + re ;
+    	this.successful = false;
+	},
 	token: function(re) {
 		return function(text) {
 			var mx = text.match(re);
-			if (mx) { 
-				return ([mx[0], text.substring(mx[0].length) ]); 
-			} else { 
-				throw new Parser.parse_error(text, re); 
-			}
+			return mx ? new parser.Success(mx[0], text.substring(mx[0].length)) : new parser.Error(text, re);
 		};
 	},
-	repeat1: function(rule) {
+	repeat: function(rule) {
 		return function(text) {
-			var mx = rule.call(this, text);
-			var s = mx[1];
-			var result = [mx[0]];
-			while (s.length > 0) {
-				try {
-					r1 = rule.call(this, s);
-					result.push(r1[0]);
-					s = r1[1];
-				} catch (e) {
-					return [result, s];
-				}
-			}
-			return [result, s];
-		};
-	},
-	repeat0: function(rule) {
-		return function(text) {
-			var result = [];
+			var final_result = [];
 			var s = text;
-			try {
-				mx = rule.call(this, text);
-				result.push(mx[0]);
-				s = mx[1];
-			} catch (e) {
-				return [[], text];
-			}
+			var pr;
 			while (s.length > 0) {
-				try {
-					r1 = rule.call(this, s);
-					result.push(r1[0]);
-					s = r1[1];
-				} catch (e) {
-					return [result, s];
+				pr = rule.call(this, s);
+				if (pr.successful) {
+					final_result.push(pr.result);
+					s = pr.next;
+				} else {
+					break;
 				}
 			}
-			return [result, s];
+			return new parser.Success(final_result, s);
 		};
 	},
-	repeat0_del: function(rule, del_rule) {
+	repeat_sep: function(rule, del_rule) {
 		return function(text) {
-			try {
-				mx1 = rule.call(this, text);
-				var result = [mx1[0]];
-				var s = mx1[1];
-				mx2 = Parser.repeat0(Parser.and([del_rule, rule]))(s);
-				rs = mx2[0];
-				for (var i = 0; i < rs.length; i ++) {
-					result.push(rs[i][1]);
-				}
-				return [result, mx2[1]];
-			} catch (e) {
-				return [[], text];
+			var pr1 = rule.call(this, text);
+			if (!pr1.successful) {
+				return new parser.Success([], text);
 			}
-		};
-	},
-	repeat1_del: function(rule, del_rule) {
-		return function(text) {
-			mx1 = rule.call(this, text);
-			var result = [mx1[0]];
-			var s = mx1[1];
-			mx2 = Parser.repeat0(Parser.and([del_rule, rule]))(s);
-			rs = mx2[0];
-			for (var i = 0; i < rs.length; i ++) {
-				result.push(rs[i][1]);
+			var pr2 = parser.repeat(parser.and([del_rule, rule]))(pr1.next);
+			var result = [pr1.result];
+			for (var i = 0; i < pr2.result.length; i++) {
+				result.push(pr2.result[i][1]);
 			}
-			return [result, mx2[1]];
+			return new parser.Success(result, pr2.next);
 		};
 	},
 	and: function(rules) {
 		return function(text) {
-			var result = [];
-			var s = text;
+			var result = [], s = text, pr = null;
 			for (var i = 0; i < rules.length ; i++) {
-				var mx = rules[i].call(this, s);
-				result.push(mx[0]);
-				s = mx[1];
+				pr = rules[i].call(this, s);
+				if (!pr.successful) {
+					return pr;
+				}
+				result.push(pr.result);
+				s = pr.next;
 			}
-			return [result, s];
+			return new parser.Success(result, pr.next);
 		};
 	},	
 	or: function(rules) {
 		return function(text) {
 			for (var i = 0; i < rules.length ; i++) {
-				try {
-					return rules[i].call(this, text);
-				} catch (e) {
-					//ignore
-				}
+				var pr = rules[i].call(this, text);
+				if (pr.successful) {break;}
 			}
-			throw new Parser.parse_error(text, '');
+			return pr;
 		};
 	},
-	process: function(rule, fn) {
+	transform: function(rule, fn) {
 		return function(text) {
-			var mx = rule.call(this, text);
-			return [fn(mx[0]), mx[1]];
+			var pr = rule.call(this, text);
+			return pr.successful ? new parser.Success(fn(pr.result), pr.next) : pr;
 		};
 	}
 };
-function remove_ws() {
-	var code = document.getElementById('code').value;
-	var code2 = code.replace(/\s*/g, '');
-	alert(code2);
-}
 
-var P = Parser;
-var g = {
-	v_name: P.token(/^[a-z]\w*/),
-	c_name: P.token(/^[A-Z]\w*/),
-	g_name: P.token(/^g\w*/),
-	f_name: P.token(/^f\w*/),
-	lparen: P.token(/^\(/),
-	rparen: P.token(/^\)/),
-	comma:  P.token(/^,/),
-	empty:  P.token('')
+//////////////////////////
+//
+// SLL Abstract Syntax
+//
+//////////////////////////
+
+var sll_lang = {
+		exp: {
+			equals: function(that) {
+				var sh_eq =  (this.kind === that.kind) && (this.name === that.name); 
+				if (!sh_eq) { return false; }
+				if (this.args === undefined || that.args === undefined) { return this.args === that.args; }
+				if (this.args.length !== that.args.length) { return false;}
+				for (var i = 0; i < this.args.length; i++) {
+					if (!this.args[i].equals(that.args[i])) { return false; }
+				}
+				return true;
+			}
+		},
+		Pattern: function(name, args) {
+			this.kind = 'Pattern';
+			this.name = name;
+			this.args = args;
+		},
+		Variable: function (name) {
+			this.kind = 'Variable';
+			this.name = name;
+		},
+		Constructor: function (name, args) {
+			this.kind = 'Constructor';
+			this.name = name;
+			this.args = args;
+		},
+		FCall: function (name, args) {
+			this.kind = 'FCall';
+			this.name = name;
+			this.args = args;
+		},
+		GCall: function (name, args) {
+			this.kind = 'GCall';
+			this.name = name;
+			this.args = args;
+		},
+		FRule: function (name, args, exp) {
+			this.kind = 'FRule';
+			this.args = args;
+			this.exp = exp;
+		},
+		GRule: function (name, pattern, args, exp) {
+			this.kind = 'GRule';
+			this.pattern = pattern;
+			this.args = args;
+			this.exp = exp;
+		},
+		Program: function (rules) {
+			this.kind = 'Program';
+			this.rules = rules;
+		}
 };
 
-g.pattern = P.process(P.and([g.c_name, g.lparen, P.repeat0_del(g.v_name, g.comma), g.rparen]),
-				function(result) {return {'type': 'PAT', 'name': result[0],'args': result[2]};});
-g.f_lhs = P.process(P.and([g.f_name, g.lparen, P.repeat1_del(g.v_name, g.comma), g.rparen]),
-				function(result) {return {'type': 'FLHS', 'name': result[0], 'args': result[2]};});
-g.g_lhs = P.process(P.and([g.g_name, g.lparen, g.pattern, 
-                                     P.or([
-                                           	P.process(P.and([g.comma, P.repeat1_del(g.v_name, g.comma)]), function(r){return r[1];}), 
-                                           	P.process(g.empty, function(r){return[];})
-                                           ]), 
-                                     g.rparen]),
-				function(result) {return {'type': 'GLHS', 'name': result[0], 'pattern': result[2], 'args': result[3]};});
+sll_lang.Variable.prototype = 
+	sll_lang.Constructor.prototype = 
+	sll_lang.Variable.prototype = 
+	sll_lang.FCall.prototype = 
+	sll_lang.GCall.prototype = sll_lang.exp;
 
-var p = {};
+//////////////////////////
+//
+// SLL Parser
+//
+//////////////////////////
 
-(function() {
-var o = (p.rules = {
-	vrb: function(t) {
-		return P.process(g.v_name, function(v){return {'type': 'VRB', 'name': v};})(t);
-	},
-	ctr: function(t) {
-		return P.process(P.and([g.c_name, g.lparen, P.repeat0_del(o.term, g.comma), g.rparen]),
-					function(result) {return {'type': 'CTR', 'name': result[0], 'args': result[2]};})(t);
-	},
-	term: function(t) {
-		return P.or([o.ctr, o.vrb])(t);
-	}
-});
-})();
+var tokens = {
+	v_name: parser.token(/^[a-z]\w*/), c_name: parser.token(/^[A-Z]\w*/),
+	g_name: parser.token(/^g\w*/), f_name: parser.token(/^f\w*/),
+	lparen: parser.token(/^\(/), rparen: parser.token(/^\)/),
+	eq: parser.token(/^=/), comma: parser.token(/^,/),
+	semicolon: parser.token(/^;/), eof: parser.token(/$/)
+};
 
+var t = tokens, p = parser;
 
-var test1 = function () {
-	return p.rules.term('A(A())');
-}
-
-var test2 = function () {
-	return p.rules.term('a');
-}
+var sll_parser = {
+	ptr: 
+		function(s) { 
+			var p_par = 
+				p.transform(
+					p.and([t.c_name, t.lparen, p.repeat_sep(sll_parser.vrb, t.comma), t.rparen]),
+					function(r) {return new sll_lang.Pattern(r[0], r[2]);}
+				);
+			return p_par(s);
+		},
+	vrb: 
+		function(s) {
+			var v_par = 
+				p.transform(
+					t.v_name,
+					function(r) {return new sll_lang.Variable(r)}
+				);
+			return v_par(s);
+		},
+	ctr:
+		function(s) {
+			var c_par = 
+				p.transform(
+					p.and([t.c_name, t.lparen, p.repeat_sep(sll_parser.exp, t.comma), t.rparen]),
+					function(r) {return new sll_lang.Constructor(r[0], r[2]);}
+				);
+			return c_par(s);
+		},
+	fcall:
+		function(s) {
+			var f_par = 
+				p.transform(
+					p.and([t.f_name, t.lparen, p.repeat_sep(sll_parser.exp, t.comma), t.rparen]),
+					function(r) {return new sll_lang.FCall(r[0], r[2]);}						
+				);
+			return f_par(s);
+		},
+	gcall:
+		function(s) {
+			var g_par = 
+				p.transform(
+					p.and([t.g_name, t.lparen, p.repeat_sep(sll_parser.exp, t.comma), t.rparen]),
+					function(r) {return new sll_lang.GCall(r[0], r[2]);}						
+				);
+			return g_par(s);
+		},
+	exp: 
+		function(s) {
+			var t_par = p.or([sll_parser.ctr, sll_parser.fcall, sll_parser.gcall, sll_parser.vrb]);
+			return t_par(s);
+		},
+	frule:
+		function(s) {
+			var f_par = 
+				p.transform(
+					p.and([t.f_name, 
+							t.lparen, 
+							p.repeat_sep(sll_parser.vrb, t.comma), 
+							t.rparen, 
+							t.eq, 
+							sll_parser.exp, 
+							t.semicolon]),
+					function(r) {return new sll_lang.FRule(r[0], r[2], r[5]);}
+				);
+			return f_par(s);
+		},
+	grule:
+		function(s) {
+			var g_par = 
+				p.transform(
+					p.and([t.g_name, 
+							t.lparen, 
+							sll_parser.ptr, 
+							p.repeat(p.and([t.comma, sll_parser.vrb])), 
+							t.rparen, 
+							t.eq, 
+							sll_parser.exp, 
+							t.semicolon]),
+					function(r) {
+						var vars = [];
+						for (var i = 0; i < r[3].length; i++) {
+							vars.push(r[3][i][1]);
+						}
+						return new sll_lang.GRule(r[0], r[2], vars, r[6]);
+					}
+				);
+			return g_par(s);
+		},
+	program:
+		function(s) {
+			var p_par = 
+				p.transform(
+					p.and([p.repeat( p.or([sll_parser.frule, sll_parser.grule])), t.eof]),
+					function (r) {return new sll_lang.Program(r[0]);}
+				);
+			return p_par(s);
+		},
+	parse:
+		function(s) {
+			return sll_parser.program(s.replace(/\s*/g, ''));
+		}
+};
