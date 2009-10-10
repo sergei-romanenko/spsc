@@ -89,18 +89,6 @@ var parser = {
 //////////////////////////
 
 var sll_lang = {
-		exp: {
-			equals: function(that) {
-				var sh_eq =  (this.kind === that.kind) && (this.name === that.name); 
-				if (!sh_eq) { return false; }
-				if (this.args === undefined || that.args === undefined) { return this.args === that.args; }
-				if (this.args.length !== that.args.length) { return false;}
-				for (var i = 0; i < this.args.length; i++) {
-					if (!this.args[i].equals(that.args[i])) { return false; }
-				}
-				return true;
-			}
-		},
 		Pattern: function(name, args) {
 			this.kind = 'Pattern';
 			this.name = name;
@@ -109,6 +97,7 @@ var sll_lang = {
 		Variable: function (name) {
 			this.kind = 'Variable';
 			this.name = name;
+			this.args = [];
 		},
 		Constructor: function (name, args) {
 			this.kind = 'Constructor';
@@ -127,11 +116,13 @@ var sll_lang = {
 		},
 		FRule: function (name, args, exp) {
 			this.kind = 'FRule';
+			this.name = name;
 			this.args = args;
 			this.exp = exp;
 		},
 		GRule: function (name, pattern, args, exp) {
 			this.kind = 'GRule';
+			this.name = name;
 			this.pattern = pattern;
 			this.args = args;
 			this.exp = exp;
@@ -142,11 +133,31 @@ var sll_lang = {
 		}
 };
 
-sll_lang.Variable.prototype = 
-	sll_lang.Constructor.prototype = 
-	sll_lang.Variable.prototype = 
-	sll_lang.FCall.prototype = 
-	sll_lang.GCall.prototype = sll_lang.exp;
+var sll_algebra = {
+	// the generic method for testing equality
+	// of all sll syntax objects
+	equals:  function(e1, e2) {
+		var sh_eq = (e1.kind == e2.kind) && (e1.name == e2.name);
+		if (!sh_eq) {
+			return false;
+		}
+		if (e1.args.length != e2.args.length) {
+			return false;
+		}
+		for (var i = 0; i < e1.args.length; i++) {
+			if (!this.equals(e1.args[i], e2.args[i])) {
+				return false;
+			}
+		}
+		if (e1.pattern && !this.equals(e1.pattern, e2.pattern)) {
+			return false;
+		}
+		if (e1.exp && !this.equals(e1.exp, e2.exp)) {
+			return false;
+		}
+		return true;
+	}
+};
 
 //////////////////////////
 //
@@ -159,7 +170,7 @@ var tokens = {
 	g_name: parser.token(/^g\w*/), f_name: parser.token(/^f\w*/),
 	lparen: parser.token(/^\(/), rparen: parser.token(/^\)/),
 	eq: parser.token(/^=/), comma: parser.token(/^,/),
-	semicolon: parser.token(/^;/), eof: parser.token(/$/)
+	semicolon: parser.token(/^;/), eof: parser.token(/^$/)
 };
 
 var t = tokens, p = parser;
