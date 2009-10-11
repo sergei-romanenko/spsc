@@ -174,4 +174,5 @@ var test_all = function() {
 	test_algebra_match_against();
 	test_algebra_instance_of();
 	test_algebra_equiv();
+	test_tree();
 }

@@ -5,22 +5,20 @@
 //////////////////////////
 
 var parser = {
-	Success: function (result, next) {
-		this.result = result;
-		this.next = next;
-		this.successful = true;
+	success: function (result, next) {
+		return {result: result, next: next, successful: true};
 	},
-	Error: function (s, re) { 
-    	this.message = "cannot match '" + s.substring(0, 10) + " ...' against " + re ;
-    	this.successful = false;
+	error: function (s, re) { 
+		return {successful: false,
+				message: "cannot match '" + s.substring(0, 10) + " ...' against " + re};
 	},
 	token: function(re) {
 		return function(text) {
 			var mx = text.match(re);
 			if (mx) {
-				return new parser.Success(mx[0], text.substring(mx[0].length))
+				return parser.success(mx[0], text.substring(mx[0].length))
 			} else {
-				return new parser.Error(text, re);
+				return parser.error(text, re);
 			}
 		};
 	},
@@ -38,21 +36,21 @@ var parser = {
 					break;
 				}
 			}
-			return new parser.Success(final_result, s);
+			return parser.success(final_result, s);
 		};
 	},
 	repeat_sep: function(rule, del_rule) {
 		return function(text) {
 			var pr1 = rule.call(this, text);
 			if (!pr1.successful) {
-				return new parser.Success([], text);
+				return parser.success([], text);
 			}
 			var pr2 = parser.repeat(parser.and([del_rule, rule]))(pr1.next);
 			var result = [pr1.result];
 			for (var i = 0; i < pr2.result.length; i++) {
 				result.push(pr2.result[i][1]);
 			}
-			return new parser.Success(result, pr2.next);
+			return parser.success(result, pr2.next);
 		};
 	},
 	and: function(rules) {
@@ -66,7 +64,7 @@ var parser = {
 				result.push(pr.result);
 				s = pr.next;
 			}
-			return new parser.Success(result, pr.next);
+			return parser.success(result, pr.next);
 		};
 	},	
 	or: function(rules) {
@@ -81,7 +79,7 @@ var parser = {
 	transform: function(rule, fn) {
 		return function(text) {
 			var pr = rule.call(this, text);
-			return pr.successful ? new parser.Success(fn(pr.result), pr.next) : pr;
+			return pr.successful ? parser.success(fn(pr.result), pr.next) : pr;
 		};
 	}
 };
