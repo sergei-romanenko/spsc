@@ -17,7 +17,11 @@ var parser = {
 	token: function(re) {
 		return function(text) {
 			var mx = text.match(re);
-			return mx ? new parser.Success(mx[0], text.substring(mx[0].length)) : new parser.Error(text, re);
+			if (mx) {
+				return new parser.Success(mx[0], text.substring(mx[0].length))
+			} else {
+				return new parser.Error(text, re);
+			}
 		};
 	},
 	repeat: function(rule) {
@@ -272,7 +276,13 @@ var sll_parser = {
 		function(s) { 
 			var p_par = 
 				p.transform(
-					p.and([t.c_name, t.lparen, p.repeat_sep(sll_parser.vrb, t.comma), t.rparen]),
+					p.and([
+					       t.c_name, 
+					       t.lparen, 
+					       p.repeat_sep(sll_parser.vrb, t.comma),
+					       t.rparen
+					       ]
+					      ),
 					function(r) {return new sll_lang.Pattern(r[0], r[2]);}
 				);
 			return p_par(s);
@@ -290,7 +300,13 @@ var sll_parser = {
 		function(s) {
 			var c_par = 
 				p.transform(
-					p.and([t.c_name, t.lparen, p.repeat_sep(sll_parser.exp, t.comma), t.rparen]),
+					p.and([
+					       t.c_name,
+					       t.lparen,
+					       p.repeat_sep(sll_parser.exp, t.comma),
+					       t.rparen
+					       ]
+					      ),
 					function(r) {return new sll_lang.Constructor(r[0], r[2]);}
 				);
 			return c_par(s);
@@ -299,8 +315,14 @@ var sll_parser = {
 		function(s) {
 			var f_par = 
 				p.transform(
-					p.and([t.f_name, t.lparen, p.repeat_sep(sll_parser.exp, t.comma), t.rparen]),
-					function(r) {return new sll_lang.FCall(r[0], r[2]);}						
+					p.and([
+					       t.f_name,
+					       t.lparen,
+					       p.repeat_sep(sll_parser.exp, t.comma),
+					       t.rparen
+					       ]
+					      ),
+					function(r) {return new sll_lang.FCall(r[0], r[2]);}
 				);
 			return f_par(s);
 		},
@@ -308,14 +330,26 @@ var sll_parser = {
 		function(s) {
 			var g_par = 
 				p.transform(
-					p.and([t.g_name, t.lparen, p.repeat_sep(sll_parser.exp, t.comma), t.rparen]),
-					function(r) {return new sll_lang.GCall(r[0], r[2]);}						
+					p.and([
+					       t.g_name,
+					       t.lparen,
+					       p.repeat_sep(sll_parser.exp, t.comma),
+					       t.rparen
+					       ]
+					      ),
+					function(r) {return new sll_lang.GCall(r[0], r[2]);}
 				);
 			return g_par(s);
 		},
 	exp: 
 		function(s) {
-			var t_par = p.or([sll_parser.ctr, sll_parser.fcall, sll_parser.gcall, sll_parser.vrb]);
+			var t_par = p.or([
+			                  sll_parser.ctr,
+			                  sll_parser.fcall,
+			                  sll_parser.gcall,
+			                  sll_parser.vrb
+			                 ]
+			                );
 			return t_par(s);
 		},
 	frule:
@@ -359,7 +393,11 @@ var sll_parser = {
 		function(s) {
 			var p_par = 
 				p.transform(
-					p.and([p.repeat( p.or([sll_parser.frule, sll_parser.grule])), t.eof]),
+					p.and([
+					       p.repeat(p.or([sll_parser.frule, sll_parser.grule])),
+					       t.eof
+					       ]
+					      ),
 					function (r) {return new sll_lang.Program(r[0]);}
 				);
 			return p_par(s);
