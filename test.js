@@ -105,9 +105,32 @@ var test_algebra_apply_sub = function() {
 	assert(sll_algebra.equals(res2, test_terms.cons_a_nil), 'sub2');
 }
 
+var test_algebra_match_against = function() {
+	var actual1 = sll_algebra.match_against(test_terms.cons_a_nil, test_terms.cons_b_nil);
+	var expect1 = {a: test_terms.var_b};
+	assert(sll_algebra.subst_equals(expect1, actual1), 'match1');
+	
+	var actual2 = sll_algebra.match_against(test_terms.cons_a_b_nil, test_terms.cons_a_b_nil);
+	var expect2 = {a: test_terms.var_a, b: test_terms.var_b};
+	assert(sll_algebra.subst_equals(expect2, actual2), 'match2');
+	
+	var actual3 = sll_algebra.match_against(test_terms.cons_a_b_nil, test_terms.cons_b_a_nil);
+	var expect3 = {a: test_terms.var_b, b: test_terms.var_a};
+	assert(sll_algebra.subst_equals(expect3, actual3), 'match3');
+	
+	var actual4 = sll_algebra.match_against(test_terms.cons_a_nil, test_terms.nil);
+	var expect4 = null;
+	assert(sll_algebra.subst_equals(expect4, actual4), 'match4');
+	
+	var actual5 = sll_algebra.match_against(test_terms.nil, test_terms.cons_a_nil);
+	var expect5 = null;
+	assert(sll_algebra.subst_equals(expect5, actual5), 'match5');
+}
+
 var test_all = function() {
 	test_algebra_equals();
 	test_parser();
 	test_algebra_replace_args();
 	test_algebra_apply_sub();
+	test_algebra_match_against();
 }

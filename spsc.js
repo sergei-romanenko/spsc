@@ -152,10 +152,12 @@ var sll_lang = {
 };
 
 var sll_algebra = {
-	// the generic method for testing equality
-	// of all sll syntax objects
+	shell_equals: function(e1, e2) {
+		return (e1.kind == e2.kind) && (e1.name == e2.name);
+	},
+		
 	equals:  function(e1, e2) {
-		var sh_eq = (e1.kind == e2.kind) && (e1.name == e2.name);
+		var sh_eq = this.shell_equals(e1, e2);
 		if (!sh_eq) {
 			return false;
 		}
@@ -191,6 +193,61 @@ var sll_algebra = {
 			}
 			return this.replace_args(exp, args);
 		}
+	},
+	
+	match_against: function(exp1, exp2) {
+		var that = this;
+		var map = {};
+		var walk = function(e1, e2) {
+			if (e1.kind == 'Variable') {
+				if (map[e1.name]) {
+					return that.equals(map[e1.name], e2);
+				} else {
+					map[e1.name] = e2;
+					return true;
+				}
+			}
+			if (e2.kind == 'Variable') {
+				return false;
+			}
+			if (!that.shell_equals(e1, e2)) {
+				return false;
+			}
+			for (var i = 0; i < e1.args.length; i++) {
+				if ( !walk(e1.args[i], e2.args[i]) ) {
+					return false;
+				}
+			}
+			return true;
+		}
+		if (walk(exp1, exp2)) {
+			return map;
+		} else {
+			return null;
+		}
+	},
+	
+	subst_equals: function (sub1, sub2) {
+		if (sub1 == null || sub2 == null) {
+			return sub1 == sub2;
+		}
+		for (var n in sub1) {
+			if (!sub2[n]) {
+				return false;
+			}
+			if (!this.equals(sub1[n], sub2[n])) {
+				return false;
+			}
+		}
+		for (var n in sub2) {
+			if (!sub1[n]) {
+				return false;
+			}
+			if (!this.equals(sub2[n], sub1[n])) {
+				return false;
+			}
+		}
+		return true;
 	}
 };
 
