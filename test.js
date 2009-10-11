@@ -158,6 +158,14 @@ var test_algebra_equiv = function() {
 	assert(!sll_algebra.equiv(test_terms.cons_a_b_nil, test_terms.cons_a_a_nil), 'equiv_7');	
 }
 
+var test_tree = function() {
+	var t = tree(test_terms.cons_a_b_nil);
+	console.log(t.toString());
+	t.add_children(t.root, [[test_terms.var_a, null],[test_terms.cons_b_nil, null]]);
+	console.log(t.toString());
+	return t;
+}
+
 var test_all = function() {
 	test_algebra_equals();
 	test_parser();

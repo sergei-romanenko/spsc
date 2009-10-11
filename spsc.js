@@ -97,32 +97,50 @@ var sll_lang = {
 			this.kind = 'Pattern';
 			this.name = name;
 			this.args = args;
+			this.toString = function() {
+				return name + '(' + args.join(', ') + ')';
+			};
 		},
 		Variable: function (name) {
 			this.kind = 'Variable';
 			this.name = name;
 			this.args = [];
+			this.toString = function() {
+				return this.name;
+			};
 		},
 		Constructor: function (name, args) {
 			this.kind = 'Constructor';
 			this.name = name;
 			this.args = args;
+			this.toString = function() {
+				return name + '(' + args.join(', ') + ')';
+			};
 		},
 		FCall: function (name, args) {
 			this.kind = 'FCall';
 			this.name = name;
 			this.args = args;
+			this.toString = function() {
+				return name + '(' + args.join(', ') + ')';
+			};
 		},
 		GCall: function (name, args) {
 			this.kind = 'GCall';
 			this.name = name;
 			this.args = args;
+			this.toString = function() {
+				return name + '(' + args.join(', ') + ')';
+			};
 		},
 		FRule: function (name, args, exp) {
 			this.kind = 'FRule';
 			this.name = name;
 			this.args = args;
 			this.exp = exp;
+			this.toString = function() {
+				return name + '(' + args.join(', ') + ') = ' + exp.toString() + ';';
+			};
 		},
 		GRule: function (name, pattern, args, exp) {
 			this.kind = 'GRule';
@@ -130,6 +148,9 @@ var sll_lang = {
 			this.pattern = pattern;
 			this.args = args;
 			this.exp = exp;
+			this.toString = function() {
+				return name + '(' + [pattern].concat(args).join(', ') + ') = ' + exp.toString() + ';';
+			};
 		},
 		Program: function (rules) {
 			this.kind = 'Program';
@@ -152,6 +173,9 @@ var sll_lang = {
 					break;
 				}
 			}
+			this.toString = function() {
+				return rules.join('\n');
+			};
 		}
 };
 
@@ -424,3 +448,63 @@ var sll_parser = {
 			return sll_parser.program(s.replace(/\s*/g, ''));
 		}
 };
+
+var node = function(exp, contraction) {
+	var n = {exp: exp, contraction: contraction};
+	n.children = [];
+	
+	n.ancestors = function () {
+		if (this.parent) {
+			return [this.parent].concat(this.parent.ancestors());
+		} else {
+			return [];
+		}
+	};
+	
+	n.leaves = function () {
+		var ls = [];
+		if (this.children.length > 0) {
+			for (var i = 0; i< this.children.length; i++) {
+				ls.push(this.children[i].leaves());
+			}
+			return Array.prototype.concat.apply([], ls);
+		} else {
+			return [this];
+		}
+		
+	};
+	
+	n.toString = function(indent) {
+		var ind = indent || '';
+		var chs = [];
+		for (var i = 0; i < this.children.length; i++) {
+			chs.push(this.children[i].toString('    '));
+		}
+		return [ind + '|__' + exp.toString()].concat(chs).join('\n ');
+	};
+	return n;
+};
+
+var tree = function(exp) {
+	
+	var t  = {root: node(exp, null)};
+	t.toString = function() {
+		return this.root.toString();
+	}
+	
+	// tc = [exp, contraction]*
+	t.add_children = function(n, tc) {
+		for (var i = 0; i < tc.length; i++) {
+			var child_node = node(tc[i][0], tc[i][1]);
+			child_node.parent = n;
+			n.children.push(child_node);
+		}
+		return this;
+	};
+	
+	t.leaves = function() {
+		return this.root.leaves();
+	}
+	
+	return t;
+}
