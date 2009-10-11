@@ -89,7 +89,25 @@ var test_parser = function() {
 	assert(sll_algebra.equals(test_program.gApp2, program.rules[2]), 'Testing gApp2');
 }
 
+var test_algebra_replace_args = function() {
+	var args1 = [test_terms.var_b, test_terms.nil];
+	var res1 = sll_algebra.replace_args(test_terms.cons_a_nil, args1);
+	assert(sll_algebra.equals(res1, test_terms.cons_b_nil), 'replace1');
+}
+
+var test_algebra_apply_sub = function() {
+	var sub1 = {'a': test_terms.var_b};
+	var res1 = sll_algebra.apply_subst(test_terms.cons_a_nil, sub1);
+	assert(sll_algebra.equals(res1, test_terms.cons_b_nil), 'sub1');
+	
+	var sub2 = {};
+	var res2 = sll_algebra.apply_subst(test_terms.cons_a_nil, sub2);
+	assert(sll_algebra.equals(res2, test_terms.cons_a_nil), 'sub2');
+}
+
 var test_all = function() {
 	test_algebra_equals();
 	test_parser();
+	test_algebra_replace_args();
+	test_algebra_apply_sub();
 }

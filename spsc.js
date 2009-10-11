@@ -174,6 +174,23 @@ var sll_algebra = {
 			return false;
 		}
 		return true;
+	},
+
+	replace_args: function(exp, args) {
+		return {kind: exp.kind, name: exp.name, args: args};
+	},
+	
+	apply_subst: function(exp, map) {
+		switch (exp.kind) {
+		case 'Variable':
+			return map[exp.name] || exp;
+		default:
+			var args = [];
+			for (var i = 0; i < exp.args.length; i++) {
+				args.push(this.apply_subst(exp.args[i], map));
+			}
+			return this.replace_args(exp, args);
+		}
 	}
 };
 
