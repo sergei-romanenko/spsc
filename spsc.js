@@ -260,7 +260,16 @@ var sll_algebra = {
 			i++;
 			return new sll_lang.Variable('v_' + i);
 		};
-	}()
+	}(),
+	
+	// test whether e2 is an instance of e1
+	instance_of: function(e1, e2) {
+		return this.match_against(e1, e2) != null;
+	},
+	
+	equiv: function(e1, e2) {
+		return this.instance_of(e1, e2) && this.instance_of(e2, e1);
+	}
 };
 
 //////////////////////////

@@ -50,15 +50,23 @@ var test_terms = function() {
 	var var_a = new sll_lang.Variable('a');
 	var var_b = new sll_lang.Variable('b');
 	var nil = new sll_lang.Constructor('Nil', []);
+	var cons_a_b = new sll_lang.Constructor('Cons', [var_a, var_b]);
+	var cons_b_a = new sll_lang.Constructor('Cons', [var_b, var_a]);
 	var cons_a_nil = new sll_lang.Constructor('Cons', [var_a, nil]);
 	var cons_b_nil = new sll_lang.Constructor('Cons', [var_b, nil]);
+	var cons_a_a_nil = new sll_lang.Constructor('Cons', [var_a, cons_a_nil]);
 	var cons_a_b_nil = new sll_lang.Constructor('Cons', [var_a, cons_b_nil]);
 	var cons_b_a_nil = new sll_lang.Constructor('Cons', [var_b, cons_a_nil]);
+	var cons_b_b_nil = new sll_lang.Constructor('Cons', [var_b, cons_b_nil]);
 	return {
 				var_a: var_a, var_b: var_b, 
 				nil: nil, 
+				cons_a_b: cons_a_b, cons_b_a: cons_b_a,
 				cons_a_nil: cons_a_nil, cons_b_nil: cons_b_nil,
-				cons_a_b_nil: cons_a_b_nil, cons_b_a_nil: cons_b_a_nil,
+				cons_a_a_nil: cons_a_a_nil,
+				cons_a_b_nil: cons_a_b_nil, 
+				cons_b_a_nil: cons_b_a_nil,
+				cons_b_b_nil: cons_b_b_nil
 			};
 }();
 
@@ -127,10 +135,35 @@ var test_algebra_match_against = function() {
 	assert(sll_algebra.subst_equals(expect5, actual5), 'match5');
 }
 
+var test_algebra_instance_of = function() {
+	assert(sll_algebra.instance_of(test_terms.nil, test_terms.nil), 'instance_of_1');
+	assert(sll_algebra.instance_of(test_terms.var_a, test_terms.nil), 'instance_of_2');
+	assert(!sll_algebra.instance_of(test_terms.nil, test_terms.var_a), 'instance_of_3');
+	assert(sll_algebra.instance_of(test_terms.cons_a_b_nil, test_terms.cons_a_b_nil), 'instance_of_4');
+	assert(!sll_algebra.instance_of(test_terms.cons_a_a_nil, test_terms.cons_a_b_nil), 'instance_of_5');
+	assert(sll_algebra.instance_of(test_terms.cons_a_a_nil, test_terms.cons_b_b_nil), 'instance_of_6');
+	assert(sll_algebra.instance_of(test_terms.cons_a_b_nil, test_terms.cons_b_b_nil), 'instance_of_7');
+	assert(sll_algebra.instance_of(test_terms.cons_a_b, test_terms.cons_b_b_nil), 'instance_of_8');
+	assert(sll_algebra.instance_of(test_terms.cons_a_b, test_terms.cons_a_b_nil), 'instance_of_9');
+	assert(!sll_algebra.instance_of(test_terms.cons_a_b_nil, test_terms.cons_a_b), 'instance_of_10');
+};
+
+var test_algebra_equiv = function() {
+	assert(sll_algebra.equiv(test_terms.nil, test_terms.nil), 'equiv_1');
+	assert(!sll_algebra.equiv(test_terms.var_a, test_terms.nil), 'equiv_2');
+	assert(!sll_algebra.equiv(test_terms.nil, test_terms.var_a), 'equiv_3');
+	assert(sll_algebra.equiv(test_terms.cons_a_b_nil, test_terms.cons_a_b_nil), 'equiv_4');
+	assert(!sll_algebra.equiv(test_terms.cons_a_a_nil, test_terms.cons_a_b_nil), 'equiv_5');
+	assert(sll_algebra.equiv(test_terms.cons_a_a_nil, test_terms.cons_b_b_nil), 'equiv_6');
+	assert(!sll_algebra.equiv(test_terms.cons_a_b_nil, test_terms.cons_a_a_nil), 'equiv_7');	
+}
+
 var test_all = function() {
 	test_algebra_equals();
 	test_parser();
 	test_algebra_replace_args();
 	test_algebra_apply_sub();
 	test_algebra_match_against();
+	test_algebra_instance_of();
+	test_algebra_equiv();
 }
