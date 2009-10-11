@@ -130,6 +130,24 @@ var sll_lang = {
 		Program: function (rules) {
 			this.kind = 'Program';
 			this.rules = rules;
+			this.f = {};
+			this.g = {};
+			this.gs = {};
+			for (var i = 0; i < rules.length; i++) {
+				var rule = rules[i];
+				switch (rule.kind) {
+				case 'FRule': 
+					this.f[rule.name] = rule;
+					break;
+				case 'GRule':
+					this.g[rule.name + '_' + rule.pattern.name] = rule;
+					if (!this.gs[rule.name]) {
+						this.gs[rule.name] = [];
+					}
+					this.gs[rule.name].push(rule);
+					break;
+				}
+			}
 		}
 };
 
