@@ -252,7 +252,15 @@ var sll_algebra = {
 			}
 		}
 		return true;
-	}
+	},
+	
+	fresh_var: function () {
+		var i = 0;
+		return function () {
+			i++;
+			return new sll_lang.Variable('v_' + i);
+		};
+	}()
 };
 
 //////////////////////////
