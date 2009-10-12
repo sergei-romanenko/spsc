@@ -24,9 +24,7 @@ var parser = {
 	},
 	repeat: function(rule) {
 		return function(text) {
-			var final_result = [];
-			var s = text;
-			var pr;
+			var final_result = [], s = text, pr;
 			while (s.length > 0) {
 				pr = rule.call(this, s);
 				if (pr.successful) {
@@ -138,6 +136,20 @@ var sll_lang = {
 				args: args,
 				toString: function() {
 					return this.name + '(' + this.args.join(', ') + ')';
+				}
+			};
+		},
+		let: function (exp, bindings) {
+			return {
+				kind: 'Let',
+				exp: exp,
+				bindings: bindings,
+				toString: function() {
+					var s0 = [];
+					for (var i = 0; i < this.bindings.length; i++) {
+						s0.push(this.bindings[i].join('='));
+					}
+					return 'let ' + s0.join(', ') + ' in ' + this.exp; 
 				}
 			};
 		},
@@ -464,61 +476,56 @@ var sll_parser = {
 };
 
 var node = function(exp, contraction) {
-	var n = {exp: exp, contraction: contraction};
-	n.children = [];
-	
-	n.ancestors = function () {
-		if (this.parent) {
-			return [this.parent].concat(this.parent.ancestors());
-		} else {
-			return [];
-		}
-	};
-	
-	n.leaves = function () {
-		var ls = [];
-		if (this.children.length > 0) {
-			for (var i = 0; i< this.children.length; i++) {
-				ls.push(this.children[i].leaves());
+	return {
+		exp: exp, 
+		contraction: contraction,
+		children: [],
+		ancestors: function () {
+			if (this.parent) {
+				return [this.parent].concat(this.parent.ancestors());
+			} else {
+				return [];
 			}
-			return Array.prototype.concat.apply([], ls);
-		} else {
-			return [this];
+		},
+		leaves: function () {
+			var ls = [];
+			if (this.children.length > 0) {
+				for (var i = 0; i< this.children.length; i++) {
+					ls.push(this.children[i].leaves());
+				}
+				return Array.prototype.concat.apply([], ls);
+			} else {
+				return [this];
+			}
+		},
+		toString: function(indent) {
+			var ind = indent || '';
+			var chs = [];
+			for (var i = 0; i < this.children.length; i++) {
+				chs.push(this.children[i].toString('    '));
+			}
+			return [ind + '|__' + exp.toString()].concat(chs).join('\n ');
 		}
-		
 	};
-	
-	n.toString = function(indent) {
-		var ind = indent || '';
-		var chs = [];
-		for (var i = 0; i < this.children.length; i++) {
-			chs.push(this.children[i].toString('    '));
-		}
-		return [ind + '|__' + exp.toString()].concat(chs).join('\n ');
-	};
-	return n;
 };
 
 var tree = function(exp) {
-	
-	var t  = {root: node(exp, null)};
-	t.toString = function() {
-		return this.root.toString();
-	}
-	
-	// tc = [exp, contraction]*
-	t.add_children = function(n, tc) {
-		for (var i = 0; i < tc.length; i++) {
-			var child_node = node(tc[i][0], tc[i][1]);
-			child_node.parent = n;
-			n.children.push(child_node);
+	return {
+		root: node(exp, null),
+		// tc = [exp, contraction]*
+		add_children: function(n, tc) {
+			for (var i = 0; i < tc.length; i++) {
+				var child_node = node(tc[i][0], tc[i][1]);
+				child_node.parent = n;
+				n.children.push(child_node);
+			}
+			return this;
+		},
+		leaves: function() {
+			return this.root.leaves();
+		},
+		toString: function() {
+			return this.root.toString();
 		}
-		return this;
 	};
-	
-	t.leaves = function() {
-		return this.root.leaves();
-	}
-	
-	return t;
 }
