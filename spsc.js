@@ -498,6 +498,24 @@ var node = function(exp, contraction) {
 				return [this];
 			}
 		},
+		is_processed: function () {
+			switch (this.exp.kind) {
+			case 'Variable':
+				return true;
+			case 'Constructor':
+				return this.exp.args.length == 0;
+			case 'FCall':
+				var ancs = this.ancestors();
+				for (var i = 0; i < ancs.length; i ++) {
+					if (ancs[i].exp.kind == 'FCall' && sll_algebra.equiv(this.exp, ancs[i].exp)) {
+						return true;
+					}
+				}
+				return false;
+			default:
+				return false;
+			}
+		},
 		toString: function(indent) {
 			var ind = indent || '';
 			var chs = [];
@@ -523,6 +541,15 @@ var tree = function(exp) {
 		},
 		leaves: function() {
 			return this.root.leaves();
+		},
+		get_unprocessed_leaf: function() {
+			var all_leaves = this.leaves();
+			for (var i = 0; i < all_leaves.length; i++) {
+				if (!all_leaves[i].is_processed()) {
+					return all_leaves[i];
+				}
+			}
+			return null;
 		},
 		toString: function() {
 			return this.root.toString();
