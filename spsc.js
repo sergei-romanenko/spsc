@@ -91,89 +91,105 @@ var parser = {
 //////////////////////////
 
 var sll_lang = {
-		Pattern: function(name, args) {
-			this.kind = 'Pattern';
-			this.name = name;
-			this.args = args;
-			this.toString = function() {
-				return name + '(' + args.join(', ') + ')';
+		pattern: function(name, args) {
+			return {
+				kind: 'Pattern', 
+				name: name, 
+				args: args,
+				toString: function() {
+					return this.name + '(' + this.args.join(', ') + ')';
+				} 
 			};
 		},
-		Variable: function (name) {
-			this.kind = 'Variable';
-			this.name = name;
-			this.args = [];
-			this.toString = function() {
-				return this.name;
+		variable: function (name) {
+			return {
+				kind: 'Variable',
+				name: name,
+				args: [],
+				toString: function() {
+					return this.name;
+				} 
 			};
 		},
-		Constructor: function (name, args) {
-			this.kind = 'Constructor';
-			this.name = name;
-			this.args = args;
-			this.toString = function() {
-				return name + '(' + args.join(', ') + ')';
+		constructor: function (name, args) {
+			return {
+				kind: 'Constructor',
+				name: name,
+				args: args,
+				toString: function() {
+					return this.name + '(' + this.args.join(', ') + ')';
+				}
 			};
 		},
-		FCall: function (name, args) {
-			this.kind = 'FCall';
-			this.name = name;
-			this.args = args;
-			this.toString = function() {
-				return name + '(' + args.join(', ') + ')';
+		fcall: function (name, args) {
+			return {
+				kind: 'FCall',
+				name: name,
+				args: args,
+				toString: function() {
+					return this.name + '(' + this.args.join(', ') + ')';
+				}
 			};
 		},
-		GCall: function (name, args) {
-			this.kind = 'GCall';
-			this.name = name;
-			this.args = args;
-			this.toString = function() {
-				return name + '(' + args.join(', ') + ')';
+		gcall: function (name, args) {
+			return {
+				kind: 'GCall',
+				name: name,
+				args: args,
+				toString: function() {
+					return this.name + '(' + this.args.join(', ') + ')';
+				}
 			};
 		},
-		FRule: function (name, args, exp) {
-			this.kind = 'FRule';
-			this.name = name;
-			this.args = args;
-			this.exp = exp;
-			this.toString = function() {
-				return name + '(' + args.join(', ') + ') = ' + exp.toString() + ';';
+		frule: function (name, args, exp) {
+			return {
+				kind: 'FRule',
+				name: name,
+				args: args,
+				exp: exp,
+				toString: function() {
+					return this.name + '(' + this.args.join(', ') + ') = ' + this.exp.toString() + ';';
+				}
 			};
 		},
-		GRule: function (name, pattern, args, exp) {
-			this.kind = 'GRule';
-			this.name = name;
-			this.pattern = pattern;
-			this.args = args;
-			this.exp = exp;
-			this.toString = function() {
-				return name + '(' + [pattern].concat(args).join(', ') + ') = ' + exp.toString() + ';';
+		grule: function (name, pattern, args, exp) {
+			return {
+				kind: 'GRule',
+				name: name,
+				pattern: pattern,
+				args: args,
+				exp: exp,
+				toString: function() {
+					return this.name + '(' + [this.pattern].concat(this.args).join(', ') + 
+								') = ' + this.exp.toString() + ';';
+				}
 			};
 		},
-		Program: function (rules) {
-			this.kind = 'Program';
-			this.rules = rules;
-			this.f = {};
-			this.g = {};
-			this.gs = {};
+		program: function (rules) {
+			var p = {
+				kind: 'Program',
+				rules: rules,
+				f: {}, g: {}, gs: {},
+				toString: function() {
+					return this.rules.join('\n');
+				}
+			};
 			for (var i = 0; i < rules.length; i++) {
 				var rule = rules[i];
 				switch (rule.kind) {
 				case 'FRule': 
-					this.f[rule.name] = rule;
+					p.f[rule.name] = rule;
 					break;
 				case 'GRule':
-					this.g[rule.name + '_' + rule.pattern.name] = rule;
-					if (!this.gs[rule.name]) {
-						this.gs[rule.name] = [];
+					p.g[rule.name + '_' + rule.pattern.name] = rule;
+					if (!p.gs[rule.name]) {
+						p.gs[rule.name] = [];
 					}
-					this.gs[rule.name].push(rule);
+					p.gs[rule.name].push(rule);
 					break;
 				}
 			}
-			this.toString = function() {
-				return rules.join('\n');
-			};
+			return p;
 		}
 };
 
@@ -322,7 +338,7 @@ var sll_parser = {
 					       t.rparen
 					       ]
 					      ),
-					function(r) {return new sll_lang.Pattern(r[0], r[2]);}
+					function(r) {return sll_lang.pattern(r[0], r[2]);}
 				);
 			return p_par(s);
 		},
@@ -331,7 +347,7 @@ var sll_parser = {
 			var v_par = 
 				p.transform(
 					t.v_name,
-					function(r) {return new sll_lang.Variable(r)}
+					function(r) {return sll_lang.variable(r)}
 				);
 			return v_par(s);
 		},
@@ -346,7 +362,7 @@ var sll_parser = {
 					       t.rparen
 					       ]
 					      ),
-					function(r) {return new sll_lang.Constructor(r[0], r[2]);}
+					function(r) {return sll_lang.constructor(r[0], r[2]);}
 				);
 			return c_par(s);
 		},
@@ -361,7 +377,7 @@ var sll_parser = {
 					       t.rparen
 					       ]
 					      ),
-					function(r) {return new sll_lang.FCall(r[0], r[2]);}
+					function(r) {return sll_lang.fcall(r[0], r[2]);}
 				);
 			return f_par(s);
 		},
@@ -376,7 +392,7 @@ var sll_parser = {
 					       t.rparen
 					       ]
 					      ),
-					function(r) {return new sll_lang.GCall(r[0], r[2]);}
+					function(r) {return sll_lang.gcall(r[0], r[2]);}
 				);
 			return g_par(s);
 		},
@@ -402,7 +418,7 @@ var sll_parser = {
 							t.eq, 
 							sll_parser.exp, 
 							t.semicolon]),
-					function(r) {return new sll_lang.FRule(r[0], r[2], r[5]);}
+					function(r) {return sll_lang.frule(r[0], r[2], r[5]);}
 				);
 			return f_par(s);
 		},
@@ -423,7 +439,7 @@ var sll_parser = {
 						for (var i = 0; i < r[3].length; i++) {
 							vars.push(r[3][i][1]);
 						}
-						return new sll_lang.GRule(r[0], r[2], vars, r[6]);
+						return sll_lang.grule(r[0], r[2], vars, r[6]);
 					}
 				);
 			return g_par(s);
@@ -437,7 +453,7 @@ var sll_parser = {
 					       t.eof
 					       ]
 					      ),
-					function (r) {return new sll_lang.Program(r[0]);}
+					function (r) {return sll_lang.program(r[0]);}
 				);
 			return p_par(s);
 		},

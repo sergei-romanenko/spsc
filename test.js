@@ -12,52 +12,49 @@ var test_program = {
 		'gApp(Nil(), vs1) = vs1;',
 		'gApp(Cons(u, us), vs) = Cons(u, gApp(us, vs));'
 		].join('\n'),
-	fMain: new sll_lang.FRule(
+	fMain: sll_lang.frule(
 			'fMain',
 			[
-			 	new sll_lang.Variable('x'), 
-			 	new sll_lang.Variable('y'), 
-			 	new sll_lang.Variable('z')
+			 	sll_lang.variable('x'), 
+			 	sll_lang.variable('y'), 
+			 	sll_lang.variable('z')
 			 ],
-			 new sll_lang.GCall(
+			 sll_lang.gcall(
 					 'gApp',
 					 [
-					  	new sll_lang.GCall('gApp', [new sll_lang.Variable('x'), new sll_lang.Variable('y')]),
-					  	new sll_lang.Variable('z')
+					  	sll_lang.gcall('gApp', [sll_lang.variable('x'), sll_lang.variable('y')]),
+					  	sll_lang.variable('z')
 					  ]
 			 )
 			),
-	gApp1: new sll_lang.GRule(
+	gApp1: sll_lang.grule(
 			'gApp',
-			new sll_lang.Pattern('Nil', []),
-			[
-			 	new sll_lang.Variable('vs1')
-			 ],
-			new sll_lang.Variable('vs1')
+			sll_lang.pattern('Nil', []),
+			[sll_lang.variable('vs1')],
+			sll_lang.variable('vs1')
 			),
-	gApp2: new sll_lang.GRule(
+	gApp2: sll_lang.grule(
 			'gApp',
-			new sll_lang.Pattern('Cons', [new sll_lang.Variable('u'), new sll_lang.Variable('us')]),
-			[new sll_lang.Variable('vs')],
-			new sll_lang.Constructor('Cons', [
-			                                  new sll_lang.Variable('u'),
-			                                  new sll_lang.GCall('gApp', [new sll_lang.Variable('us'), new sll_lang.Variable('vs')])
-			                                  ])
+			sll_lang.pattern('Cons', [sll_lang.variable('u'), sll_lang.variable('us')]),
+			[sll_lang.variable('vs')],
+			sll_lang.constructor('Cons', [sll_lang.variable('u'),
+			                              sll_lang.gcall('gApp', [sll_lang.variable('us'), sll_lang.variable('vs')])
+			                              ])
 			)
 };
 
 var test_terms = function() {
-	var var_a = new sll_lang.Variable('a');
-	var var_b = new sll_lang.Variable('b');
-	var nil = new sll_lang.Constructor('Nil', []);
-	var cons_a_b = new sll_lang.Constructor('Cons', [var_a, var_b]);
-	var cons_b_a = new sll_lang.Constructor('Cons', [var_b, var_a]);
-	var cons_a_nil = new sll_lang.Constructor('Cons', [var_a, nil]);
-	var cons_b_nil = new sll_lang.Constructor('Cons', [var_b, nil]);
-	var cons_a_a_nil = new sll_lang.Constructor('Cons', [var_a, cons_a_nil]);
-	var cons_a_b_nil = new sll_lang.Constructor('Cons', [var_a, cons_b_nil]);
-	var cons_b_a_nil = new sll_lang.Constructor('Cons', [var_b, cons_a_nil]);
-	var cons_b_b_nil = new sll_lang.Constructor('Cons', [var_b, cons_b_nil]);
+	var var_a = sll_lang.variable('a');
+	var var_b = sll_lang.variable('b');
+	var nil = sll_lang.constructor('Nil', []);
+	var cons_a_b = sll_lang.constructor('Cons', [var_a, var_b]);
+	var cons_b_a = sll_lang.constructor('Cons', [var_b, var_a]);
+	var cons_a_nil = sll_lang.constructor('Cons', [var_a, nil]);
+	var cons_b_nil = sll_lang.constructor('Cons', [var_b, nil]);
+	var cons_a_a_nil = sll_lang.constructor('Cons', [var_a, cons_a_nil]);
+	var cons_a_b_nil = sll_lang.constructor('Cons', [var_a, cons_b_nil]);
+	var cons_b_a_nil = sll_lang.constructor('Cons', [var_b, cons_a_nil]);
+	var cons_b_b_nil = sll_lang.constructor('Cons', [var_b, cons_b_nil]);
 	return {
 				var_a: var_a, var_b: var_b, 
 				nil: nil, 
