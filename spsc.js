@@ -528,7 +528,7 @@ var node = function(exp, contraction) {
 			for (var i = 0; i < this.children.length; i++) {
 				chs.push(this.children[i].toString(ind + '    '));
 			}
-			return [ind + '|__' + exp.toString()].concat(chs).join('\n ');
+			return [ind + '|__' + this.exp.toString()].concat(chs).join('\n ');
 		}
 	};
 };
@@ -594,7 +594,7 @@ var base_supercompiler = function(program) {
 				for (var i = 0; i < e.args.length; i++) {
 					map[f_rule.args[i].name] = e.args[i];
 				}
-				return [sll_algebra.apply_subst(f_rule.exp, map), null];
+				return [[sll_algebra.apply_subst(f_rule.exp, map), null]];
 			case 'GCall':
 				var arg1 = e.args[0];
 				switch (arg1.kind) {
@@ -607,7 +607,7 @@ var base_supercompiler = function(program) {
 					for (var i = 0; i < g_rule.args.length; i++) {
 						map[g_rule.args[i].name] = e.args[i + 1];
 					}
-					return [sll_algebra.apply_subst(g_rule.exp, map), null];
+					return [[sll_algebra.apply_subst(g_rule.exp, map), null]];
 				case 'Variable':
 					var res = [];
 					var g_rules = this.program.gs[e.name];
@@ -616,7 +616,8 @@ var base_supercompiler = function(program) {
 						var fc = sll_lang.constructor(fp.name, fp.args);
 						var map = {};
 						map[arg1.name] = fc;
-						res.push([sll_algebra.apply_subst(e, map), [arg1, fp]]);
+						var x = this.drive(sll_algebra.apply_subst(e, map));
+						res.push([x[0][0], [arg1, fp]]);
 					}
 					return res;
 				default:
@@ -648,8 +649,8 @@ var base_supercompiler = function(program) {
 		
 		build_tree: function(exp) {
 			var t = tree(exp);
+			console.log(t.toString());
 			while (t.get_unprocessed_leaf()) {
-				console.log(t.toString());
 				//console.log(t);
 				var b = t.get_unprocessed_leaf();
 				switch (b.exp.kind) {
@@ -679,6 +680,7 @@ var base_supercompiler = function(program) {
 				default:
 					t.add_children(b, this.drive(b.exp));
 				}
+				console.log(t.toString());
 			}
 		}
 	};
