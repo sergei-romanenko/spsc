@@ -308,7 +308,7 @@ var sll_algebra = {
 		var i = 0;
 		return function () {
 			i++;
-			return new sll_lang.Variable('v_' + i);
+			return sll_lang.variable('v_' + i);
 		};
 	}(),
 	
@@ -472,6 +472,11 @@ var sll_parser = {
 	parse:
 		function(s) {
 			return sll_parser.program(s.replace(/\s*/g, ''));
+		},
+	parse_exp:
+		function(s) {
+			var pr = p.and([this.exp, t.eof])(s.replace(/\s*/g, ''));
+			return pr.result[0];
 		}
 };
 
@@ -553,6 +558,78 @@ var tree = function(exp) {
 		},
 		toString: function() {
 			return this.root.toString();
+		}
+	};
+};
+
+var base_supercompiler = function(exp, program) {
+	return {
+		exp: exp, program: program,
+		
+		drive: function(e) {
+			switch (e.kind) {
+			case 'Constructor':
+				var res = [];
+				for (var i = 0; i < e.args.length; i++) {
+					res.push([e.args[i], null]);
+				}
+				return res;
+			case 'FCall':
+				var f_rule = program.f[e.name];
+				var map = {};
+				for (var i = 0; i < e.args.length; i++) {
+					map[f_rule.args[i].name] = e.args[i];
+				}
+				return [sll_algebra.apply_subst(f_rule.exp, map), null];
+			case 'GCall':
+				var arg1 = e.args[0];
+				switch (arg1.kind) {
+				case 'Constructor':
+					var g_rule = program.g[e.name + '_' + arg1.name];
+					var map = {};
+					for (var i = 0; i < arg1.args.length; i++) {
+						map[g_rule.pattern.args[i].name] = arg1.args[i];
+					}
+					for (var i = 0; i < g_rule.args.length; i++) {
+						map[g_rule.args[i].name] = e.args[i + 1];
+					}
+					return [sll_algebra.apply_subst(g_rule.exp, map), null];
+				case 'Variable':
+					var res = [];
+					var g_rules = this.program.gs[e.name];
+					for (var i = 0; i < g_rules.length; i ++) {
+						var fp = this.fresh_pattern(g_rules[i].pattern);
+						var fc = sll_lang.constructor(fp.name, fp.args);
+						var map = {};
+						map[arg1.name] = fc;
+						res.push([sll_algebra.apply_subst(e, map), [arg1, fp]]);
+					}
+					return res;
+				default:
+					var inner_drs = this.drive(arg1);
+					var res = [];
+					for (var i = 0; i < inner_drs.length; i++) {
+						var inner_dr = inner_drs[i];
+						var gc = sll_lang.gcall(e.name, inner_dr[0].concat(e.args.slice(1)));
+						res.push([gc, inner_dr[1]]);
+					}
+					return res;
+				}
+			case 'Let':
+				var res = [[e.exp, null]];
+				for (var i = 0; i < e.bindings.length; i++) {
+					res.push([e.bindings[i][1], null]);
+				}
+				return res;
+			}
+		},
+		
+		fresh_pattern: function(p) {
+			var new_args = [];
+			for (var i = 0; i < p.args.length; i ++) {
+				new_args.push(sll_algebra.fresh_var());
+			}
+			return sll_lang.pattern(p.name, new_args);
 		}
 	};
 }

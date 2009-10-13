@@ -163,6 +163,18 @@ var test_tree = function() {
 	return t;
 }
 
+var test_drive = function() {
+	var exp1 = sll_parser.parse_exp('Cons(a, b)');
+	var exp2 = sll_parser.parse_exp('gApp(xs, ys)')
+	
+	var pr = sll_parser.parse(test_program.code).result;
+	var bsc = base_supercompiler(null, pr);
+	
+	console.log(bsc.drive(exp1));
+	console.log(bsc.drive(exp2));
+	
+}
+
 var test_all = function() {
 	test_algebra_equals();
 	test_parser();
