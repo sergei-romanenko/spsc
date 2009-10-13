@@ -233,7 +233,7 @@ var sll_algebra = {
 	},
 
 	replace_args: function(exp, args) {
-		return {kind: exp.kind, name: exp.name, args: args};
+		return {kind: exp.kind, name: exp.name, args: args, toString: exp.toString};
 	},
 	
 	apply_subst: function(exp, map) {
@@ -510,9 +510,10 @@ var node = function(exp, contraction) {
 			case 'Constructor':
 				return this.exp.args.length == 0;
 			case 'FCall':
+			case 'GCall':
 				var ancs = this.ancestors();
 				for (var i = 0; i < ancs.length; i ++) {
-					if (ancs[i].exp.kind == 'FCall' && sll_algebra.equiv(this.exp, ancs[i].exp)) {
+					if (ancs[i].exp.kind == this.exp.kind && sll_algebra.equiv(this.exp, ancs[i].exp)) {
 						return true;
 					}
 				}
@@ -525,7 +526,7 @@ var node = function(exp, contraction) {
 			var ind = indent || '';
 			var chs = [];
 			for (var i = 0; i < this.children.length; i++) {
-				chs.push(this.children[i].toString('    '));
+				chs.push(this.children[i].toString(ind + '    '));
 			}
 			return [ind + '|__' + exp.toString()].concat(chs).join('\n ');
 		}
@@ -556,15 +557,28 @@ var tree = function(exp) {
 			}
 			return null;
 		},
+		replace: function(n, exp) {
+			if (n == this.root) {
+				this.root = node(exp, null);
+			} else {
+				var new_node = node(exp, node.contraction);
+				new_node.parent = n.parent;
+				for (var i = 0; i < n.parent.children.length; i++) {
+					if (n.parent.children[i] == n) {
+						n.parent.children[i] = new_node;
+					}
+				}
+			}
+		},
 		toString: function() {
 			return this.root.toString();
 		}
 	};
 };
 
-var base_supercompiler = function(exp, program) {
+var base_supercompiler = function(program) {
 	return {
-		exp: exp, program: program,
+		program: program,
 		
 		drive: function(e) {
 			switch (e.kind) {
@@ -630,6 +644,42 @@ var base_supercompiler = function(exp, program) {
 				new_args.push(sll_algebra.fresh_var());
 			}
 			return sll_lang.pattern(p.name, new_args);
+		},
+		
+		build_tree: function(exp) {
+			var t = tree(exp);
+			while (t.get_unprocessed_leaf()) {
+				console.log(t.toString());
+				//console.log(t);
+				var b = t.get_unprocessed_leaf();
+				switch (b.exp.kind) {
+				case 'FCall':
+				case 'GCall':
+					var ancs = b.ancestors();
+					var a = null;
+					for (var i = 0; i < ancs.length; i++) {
+						var _a = ancs[i];
+						if (_a.exp.kind == b.exp.kind && sll_algebra.instance_of(_a.exp, b.exp)) {
+							a = _a;
+							break;
+						}
+					}
+					if (a) {
+						var map = sll_algebra.match_against(a.exp, b.exp);
+						var bindings = [];
+						for (var n in map) {
+							bindings.push([n, map[n]]);
+						}
+						var l = sll_lang.let(a.exp, bindings);
+						t.replace(b, l);
+					} else {
+						t.add_children(b, this.drive(b.exp));
+					}
+					break;
+				default:
+					t.add_children(b, this.drive(b.exp));
+				}
+			}
 		}
 	};
 }

@@ -160,6 +160,9 @@ var test_tree = function() {
 	console.log(t.toString());
 	t.add_children(t.root, [[test_terms.var_a, null],[test_terms.cons_b_nil, null]]);
 	console.log(t.toString());
+	
+	t.add_children(t.root.children[0], [[test_terms.var_a, null],[test_terms.cons_b_nil, null]]);
+	console.log(t.toString());
 	return t;
 }
 
@@ -168,11 +171,18 @@ var test_drive = function() {
 	var exp2 = sll_parser.parse_exp('gApp(xs, ys)')
 	
 	var pr = sll_parser.parse(test_program.code).result;
-	var bsc = base_supercompiler(null, pr);
+	var bsc = base_supercompiler(pr);
 	
 	console.log(bsc.drive(exp1));
-	console.log(bsc.drive(exp2));
+	console.log(bsc.drive(exp2));	
+}
+
+var test_bsc = function() {
+	var pr = sll_parser.parse(test_program.code).result;
+	var bsc = base_supercompiler(pr);
 	
+	var exp1 = sll_parser.parse_exp('gApp(xs, ys)')
+	var t1 = bsc.build_tree(exp1);
 }
 
 var test_all = function() {
@@ -184,4 +194,5 @@ var test_all = function() {
 	test_algebra_instance_of();
 	test_algebra_equiv();
 	test_tree();
+	test_bsc();
 }
