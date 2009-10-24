@@ -1,87 +1,3 @@
-//////////////////////////
-//
-// Basic Parser Combinator
-//
-//////////////////////////
-
-var parser = {
-	success: function (result, next) {
-		return {result: result, next: next, successful: true};
-	},
-	error: function (s, re) { 
-		return {successful: false,
-				message: "cannot match '" + s.substring(0, 10) + " ...' against " + re};
-	},
-	token: function(re) {
-		return function(text) {
-			var mx = text.match(re);
-			if (mx) {
-				return parser.success(mx[0], text.substring(mx[0].length))
-			} else {
-				return parser.error(text, re);
-			}
-		};
-	},
-	repeat: function(rule) {
-		return function(text) {
-			var final_result = [], s = text, pr;
-			while (s.length > 0) {
-				pr = rule.call(this, s);
-				if (pr.successful) {
-					final_result.push(pr.result);
-					s = pr.next;
-				} else {
-					break;
-				}
-			}
-			return parser.success(final_result, s);
-		};
-	},
-	repeat_sep: function(rule, del_rule) {
-		return function(text) {
-			var pr1 = rule.call(this, text);
-			if (!pr1.successful) {
-				return parser.success([], text);
-			}
-			var pr2 = parser.repeat(parser.and([del_rule, rule]))(pr1.next);
-			var result = [pr1.result];
-			for (var i = 0; i < pr2.result.length; i++) {
-				result.push(pr2.result[i][1]);
-			}
-			return parser.success(result, pr2.next);
-		};
-	},
-	and: function(rules) {
-		return function(text) {
-			var result = [], s = text, pr = null;
-			for (var i = 0; i < rules.length ; i++) {
-				pr = rules[i].call(this, s);
-				if (!pr.successful) {
-					return pr;
-				}
-				result.push(pr.result);
-				s = pr.next;
-			}
-			return parser.success(result, pr.next);
-		};
-	},	
-	or: function(rules) {
-		return function(text) {
-			for (var i = 0; i < rules.length ; i++) {
-				var pr = rules[i].call(this, text);
-				if (pr.successful) {break;}
-			}
-			return pr;
-		};
-	},
-	transform: function(rule, fn) {
-		return function(text) {
-			var pr = rule.call(this, text);
-			return pr.successful ? parser.success(fn(pr.result), pr.next) : pr;
-		};
-	}
-};
-
 var sll_algebra = {
 	shell_equals: function(e1, e2) {
 		return (e1.kind == e2.kind) && (e1.name == e2.name);
@@ -205,15 +121,15 @@ var sll_algebra = {
 //
 //////////////////////////
 
-var p = parser;
+var p = parsers;
 
 var sll_parser = {
 	// tokens
-	v_name: parser.token(/^[a-z]\w*/), c_name: parser.token(/^[A-Z]\w*/),
-	g_name: parser.token(/^g\w*/), f_name: parser.token(/^f\w*/),
-	lparen: parser.token(/^\(/), rparen: parser.token(/^\)/),
-	eq: parser.token(/^=/), comma: parser.token(/^,/),
-	semicolon: parser.token(/^;/), eof: parser.token(/^$/),
+	v_name: parsers.token(/^[a-z]\w*/), c_name: parsers.token(/^[A-Z]\w*/),
+	g_name: parsers.token(/^g\w*/), f_name: parsers.token(/^f\w*/),
+	lparen: parsers.token(/^\(/), rparen: parsers.token(/^\)/),
+	eq: parsers.token(/^=/), comma: parsers.token(/^,/),
+	semicolon: parsers.token(/^;/), eof: parsers.token(/^$/),
 	// parsers
 	ptr: 
 		function(s) { 
