@@ -107,9 +107,3 @@ var base_supercompiler = function(program) {
 		}
 	};
 };
-
-var generator = function(tree) {
-	return {
-		
-	};
-};
