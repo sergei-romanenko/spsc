@@ -625,7 +625,7 @@ var base_supercompiler = function(program) {
 					var res = [];
 					for (var i = 0; i < inner_drs.length; i++) {
 						var inner_dr = inner_drs[i];
-						var gc = sll_lang.gcall(e.name, inner_dr[0].concat(e.args.slice(1)));
+						var gc = sll_lang.gcall(e.name, [inner_dr[0]].concat(e.args.slice(1)));
 						res.push([gc, inner_dr[1]]);
 					}
 					return res;
@@ -684,4 +684,10 @@ var base_supercompiler = function(program) {
 			}
 		}
 	};
-}
+};
+
+var generator = function(tree) {
+	return {
+		
+	};
+};
