@@ -12,6 +12,10 @@ var test_program = {
 		'gApp(Nil(), vs1) = vs1;',
 		'gApp(Cons(u, us), vs) = Cons(u, gApp(us, vs));'
 		].join('\n'),
+	code1: [
+	        'gD(Z()) = Z();',
+	        'gD(S(x)) = gD(S(S(x)));'
+	        ].join('\n'),
 	fMain: sll_lang.frule(
 			'fMain',
 			[
@@ -183,6 +187,19 @@ var test_bsc = function() {
 	
 	var exp1 = sll_parser.parse_exp('gApp(xs, ys)')
 	var t1 = bsc.build_tree(exp1);
+	
+	var exp2 = sll_parser.parse_exp('gApp(gApp(xs, ys), zs)')
+	var t2 = bsc.build_tree(exp2);
+	
+	var exp3 = sll_parser.parse_exp('gApp(gApp(xs, ys), Cons(a, b))')
+	var t3 = bsc.build_tree(exp3);
+	
+	
+	var pr1 = sll_parser.parse(test_program.code1).result;
+	var bsc1 = base_supercompiler(pr1);
+	
+	var exp4 = sll_parser.parse_exp('gD(S(x))')
+	var t4 = bsc1.build_tree(exp4);
 }
 
 var test_all = function() {
