@@ -339,6 +339,7 @@ var tokens = {
 var t = tokens, p = parser;
 
 var sll_parser = {
+	v_name: parser.token(/^[a-z]\w*/),
 	ptr: 
 		function(s) { 
 			var p_par = 
@@ -358,7 +359,7 @@ var sll_parser = {
 		function(s) {
 			var v_par = 
 				p.transform(
-					t.v_name,
+					sll_parser.v_name,
 					function(r) {return sll_lang.variable(r)}
 				);
 			return v_par(s);
