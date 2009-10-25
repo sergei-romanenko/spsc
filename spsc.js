@@ -104,6 +104,7 @@ var base_supercompiler = function(program) {
 				}
 				console.log(t.toString());
 			}
+			return t;
 		}
 	};
 };

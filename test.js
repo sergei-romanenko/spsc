@@ -217,6 +217,83 @@ var test_bsc = function() {
 	var t4 = bsc1.build_tree(exp4);
 };
 
+var test_bsc1 = function() {
+	var pr = sll_parser.parse(test_program.code).result;
+	var bsc = base_supercompiler(pr);
+	var exp = sll_parser.parse_exp('gApp(xs, ys)')
+	
+	console.log('bsc:');
+	console.log(exp.toString());
+	console.log(pr.toString());
+	
+	var t = bsc.build_tree(exp);
+	var result = residuator(t).residuate();
+	
+	console.log('bsc result:');
+	console.log(result[0].toString());
+	console.log(result[1].toString());
+	
+	console.log('---');
+};
+
+
+var test_bsc2 = function() {
+	var pr = sll_parser.parse(test_program.code).result;
+	var bsc = base_supercompiler(pr);
+	var exp = sll_parser.parse_exp('gApp(gApp(xs, ys), zs)')
+	
+	console.log('bsc:');
+	console.log(exp.toString());
+	console.log(pr.toString());
+	
+	var t = bsc.build_tree(exp);
+	var result = residuator(t).residuate();
+	
+	console.log('bsc result:');
+	console.log(result[0].toString());
+	console.log(result[1].toString());
+	
+	console.log('---');
+};
+
+var test_bsc3 = function() {
+	var pr = sll_parser.parse(test_program.code).result;
+	var bsc = base_supercompiler(pr);
+	var exp = sll_parser.parse_exp('gApp(gApp(xs, ys), Cons(a, b))')
+	
+	console.log('bsc:');
+	console.log(exp.toString());
+	console.log(pr.toString());
+	
+	var t = bsc.build_tree(exp);
+	var result = residuator(t).residuate();
+	
+	console.log('bsc result:');
+	console.log(result[0].toString());
+	console.log(result[1].toString());
+	
+	console.log('---');
+};
+
+var test_bsc4 = function() {
+	var pr = sll_parser.parse(test_program.code1).result;
+	var bsc = base_supercompiler(pr);
+	var exp = sll_parser.parse_exp('gD(S(x))')
+	
+	console.log('bsc:');
+	console.log(exp.toString());
+	console.log(pr.toString());
+	
+	var t = bsc.build_tree(exp);
+	var result = residuator(t).residuate();
+	
+	console.log('bsc result:');
+	console.log(result[0].toString());
+	console.log(result[1].toString());
+	
+	console.log('---');
+};
+
 var test_all = function() {
 	test_algebra_equals();
 	test_parser();
@@ -227,4 +304,8 @@ var test_all = function() {
 	test_algebra_equiv();
 	test_tree();
 	test_bsc();
+	test_bsc1();
+	test_bsc2();
+	test_bsc3();
+	test_bsc4();
 };
