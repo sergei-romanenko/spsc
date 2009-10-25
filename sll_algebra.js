@@ -112,5 +112,27 @@ var sll_algebra = {
 	
 	equiv: function(e1, e2) {
 		return this.instance_of(e1, e2) && this.instance_of(e2, e1);
+	},
+	
+	vars: function(exp) {
+		switch (exp.kind) {
+		case 'Variable':
+			return [exp];
+		default:
+			var names = {}, all_vars = [];
+			for (var i = 0; i < exp.args.length; i++) {
+				all_vars = all_vars.concat(this.vars(exp.args[i]));
+			}
+			// now we need to remove duplicates
+			var unique_vars = [], gathered_names = {};
+			for (var i = 0; i < all_vars.length; i++) {
+				var v = all_vars[i];
+				if (!gathered_names[v.name]) {
+					gathered_names[v.name] = true;
+					unique_vars.push(v);
+				}
+			}
+			return unique_vars;
+		}
 	}
 };

@@ -157,7 +157,22 @@ var test_algebra_equiv = function() {
 	assert(!sll_algebra.equiv(test_terms.cons_a_a_nil, test_terms.cons_a_b_nil), 'equiv_5');
 	assert(sll_algebra.equiv(test_terms.cons_a_a_nil, test_terms.cons_b_b_nil), 'equiv_6');
 	assert(!sll_algebra.equiv(test_terms.cons_a_b_nil, test_terms.cons_a_a_nil), 'equiv_7');	
-}
+};
+
+// TODO: make it via asserts
+var test_algebra_vars = function() {
+	var exp1 = sll_parser.parse_exp('Cons(a, b)');
+	var vars1 = sll_algebra.vars(exp1);
+	console.log(vars1);
+	
+	var exp2 = sll_parser.parse_exp('A(x,B(y,z),a)');
+	var vars2 = sll_algebra.vars(exp2);
+	console.log(vars2);
+	
+	var exp3 = sll_parser.parse_exp('A(x,B(y,x),a)');
+	var vars3 = sll_algebra.vars(exp3);
+	console.log(vars3);
+};
 
 var test_tree = function() {
 	var t = tree(test_terms.cons_a_b_nil);
@@ -168,7 +183,7 @@ var test_tree = function() {
 	t.add_children(t.root.children[0], [[test_terms.var_a, null],[test_terms.cons_b_nil, null]]);
 	console.log(t.toString());
 	return t;
-}
+};
 
 var test_drive = function() {
 	var exp1 = sll_parser.parse_exp('Cons(a, b)');
@@ -179,7 +194,7 @@ var test_drive = function() {
 	
 	console.log(bsc.drive(exp1));
 	console.log(bsc.drive(exp2));	
-}
+};
 
 var test_bsc = function() {
 	var pr = sll_parser.parse(test_program.code).result;
@@ -200,7 +215,7 @@ var test_bsc = function() {
 	
 	var exp4 = sll_parser.parse_exp('gD(S(x))')
 	var t4 = bsc1.build_tree(exp4);
-}
+};
 
 var test_all = function() {
 	test_algebra_equals();
@@ -212,4 +227,4 @@ var test_all = function() {
 	test_algebra_equiv();
 	test_tree();
 	test_bsc();
-}
+};

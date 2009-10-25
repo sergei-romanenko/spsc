@@ -29,15 +29,22 @@ var node = function(exp, contraction) {
 				return this.exp.args.length == 0;
 			case 'FCall':
 			case 'GCall':
+				return this.get_functional_node() != null;
+			default:
+				return false;
+			}
+		},
+		get_functional_node: function(){
+			switch (this.exp.kind) {
+			case 'FCall':
+			case 'GCall':
 				var ancs = this.ancestors();
 				for (var i = 0; i < ancs.length; i ++) {
 					if (ancs[i].exp.kind == this.exp.kind && sll_algebra.equiv(this.exp, ancs[i].exp)) {
-						return true;
+						return ancs[i];
 					}
 				}
-				return false;
-			default:
-				return false;
+			default: return null;
 			}
 		},
 		toString: function(indent) {
