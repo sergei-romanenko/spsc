@@ -278,7 +278,7 @@ var test_bsc3 = function() {
 var test_bsc4 = function() {
 	var pr = sll_parser.parse(test_program.code1).result;
 	var bsc = base_supercompiler(pr);
-	var exp = sll_parser.parse_exp('gD(S(x))')
+	var exp = sll_parser.parse_exp('gD(S(x))');
 	
 	console.log('bsc:');
 	console.log(exp.toString());
@@ -293,6 +293,30 @@ var test_bsc4 = function() {
 	
 	console.log('---');
 };
+
+var test_he_var_attacked = function() {
+	var exp;
+	exp = sll_parser.parse_exp('a');
+	assert(he.var_attacked(exp), 'a');
+	
+	exp = sll_parser.parse_exp('A()');
+	assert(!he.var_attacked(exp), 'A()');
+	
+	exp = sll_parser.parse_exp('f(x)');
+	assert(!he.var_attacked(exp), 'f(x)');
+	
+	exp = sll_parser.parse_exp('g(x, y)');
+	assert(he.var_attacked(exp), 'g(x, y)');
+	
+	exp = sll_parser.parse_exp('g1(g2(x))');
+	assert(he.var_attacked(exp), 'g1(g2(x))');
+	
+	exp = sll_parser.parse_exp('g1(A())');
+	assert(!he.var_attacked(exp), 'g1(A())');
+	
+	exp = sll_parser.parse_exp('g1(f(x))');
+	assert(!he.var_attacked(exp), 'g1(f(x))');
+}
 
 var test_all = function() {
 	test_algebra_equals();
