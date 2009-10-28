@@ -2,7 +2,7 @@ var sll_algebra = {
 	shell_equals: function(e1, e2) {
 		return (e1.kind == e2.kind) && (e1.name == e2.name);
 	},
-		
+	
 	equals:  function(e1, e2) {
 		var sh_eq = this.shell_equals(e1, e2);
 		if (!sh_eq) {

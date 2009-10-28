@@ -352,6 +352,41 @@ var test_he = function() {
 			'f(v1) ? g(w1)');
 };
 
+var test_msg_1 = function() {
+	var exp1 = sll_parser.parse_exp('F(v1)');
+	var exp2 = sll_parser.parse_exp('F(v2)');
+	var gen = msg.msg(exp1, exp2);
+	console.log(gen);
+};
+
+var test_msg_2 = function() {
+	var exp1 = sll_parser.parse_exp('F(v1)');
+	var exp2 = sll_parser.parse_exp('G(v2)');
+	var gen = msg.msg(exp1, exp2);
+	console.log(gen);	
+};
+
+var test_msg_3 = function() {
+	var exp1 = sll_parser.parse_exp('A(a1,C(a2,a3))');
+	var exp2 = sll_parser.parse_exp('A(b1,C(b2,b3))');
+	var gen = msg.msg(exp1, exp2);
+	console.log(gen);	
+};
+
+var test_msg_4 = function() {
+	var exp1 = sll_parser.parse_exp('f(a1,a2,a1)');
+	var exp2 = sll_parser.parse_exp('f(b1,b2,b1)');
+	var gen = msg.msg(exp1, exp2);
+	console.log(gen);
+};
+
+var test_msg_5 = function() {
+	var exp1 = sll_parser.parse_exp('f(a,a)');
+	var exp2 = sll_parser.parse_exp('f(b,S(b))');
+	var gen = msg.msg(exp1, exp2);
+	console.log(gen);	
+};
+
 var test_all = function() {
 	test_algebra_equals();
 	test_parser();
@@ -366,4 +401,11 @@ var test_all = function() {
 	test_bsc2();
 	test_bsc3();
 	test_bsc4();
+	test_he();
+	
+	test_msg_1();
+	test_msg_2();
+	test_msg_3();
+	test_msg_4();
+	test_msg_5();
 };
