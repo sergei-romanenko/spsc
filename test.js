@@ -316,7 +316,41 @@ var test_he_var_attacked = function() {
 	
 	exp = sll_parser.parse_exp('g1(f(x))');
 	assert(!he.var_attacked(exp), 'g1(f(x))');
-}
+};
+
+var test_he = function() {
+	assert(he.he(sll_parser.parse_exp('v1'), 
+			sll_parser.parse_exp('v1')), 
+			'v1 ? v2');
+	
+	assert(he.he(sll_parser.parse_exp('v1'), 
+			sll_parser.parse_exp('F(v2)')), 
+			'v1 ? F(v2)');
+	
+	assert(!he.he(sll_parser.parse_exp('F(v2)'), 
+			sll_parser.parse_exp('v1')), 
+			'F(v2) ? v1');
+	
+	assert(he.he(sll_parser.parse_exp('F(v1)'), 
+			sll_parser.parse_exp('F(v1)')), 
+			'F(v1) ? F(v1)');
+	
+	assert(he.he(sll_parser.parse_exp('F(v1)'), 
+			sll_parser.parse_exp('F(H(v2))')), 
+			'F(v1) ? F(H(v2))');
+	
+	assert(he.he(sll_parser.parse_exp('F(v1)'), 
+			sll_parser.parse_exp('G(v0,F(H(v2)))')), 
+			'F(v1) ? G(v0,F(H(v2)))');
+	
+	assert(he.he(sll_parser.parse_exp('F(v1,G(v2))'), 
+			sll_parser.parse_exp('F(H(w1),G(w2))')), 
+			'F(v1,G(v2)) ? F(H(w1),G(w2))');
+	
+	assert(!he.he(sll_parser.parse_exp('f(v1)'), 
+			sll_parser.parse_exp('g(w1)')), 
+			'f(v1) ? g(w1)');
+};
 
 var test_all = function() {
 	test_algebra_equals();
