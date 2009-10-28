@@ -108,3 +108,71 @@ var base_supercompiler = function(program) {
 		}
 	};
 };
+
+var supercompiler = function(program) {
+	
+	var s = base_supercompiler(program);
+	
+	s.build_tree = function(exp) {
+		var t = tree(exp);
+		console.log(t.toString());
+		while (t.get_unprocessed_leaf()) {
+			//console.log(t);
+			var b = t.get_unprocessed_leaf();
+			switch (b.exp.kind) {
+			case 'FCall':
+			case 'GCall':
+				var ancs = b.ancestors();
+				var a = null;
+				for (var i = 0; i < ancs.length; i++) {
+					var _a = ancs[i];
+					if (he.smart_he(_a.exp, b.exp)) {
+						a = _a;
+						break;
+					}
+				}
+				if (a) {
+					if (sll_algebra.instance_of(a.exp, b.exp)) {
+						this.abs(t, b, a);
+					} else if (msg.msg(a.exp,b.exp).kind == 'Variable') {
+						this.split(t, b);
+					} else {
+						this.abs(t, a, b);
+					}
+				} else {
+					t.add_children(b, this.drive(b.exp));
+				}
+				break;
+			default:
+				t.add_children(b, this.drive(b.exp));
+			}
+			console.log(t.toString());
+		}
+		return t;
+	};
+	
+	s.abs = function(t, a, b) {
+		var g = msg.msg(a.exp, b.exp);
+		var map = g.m1;
+		var bindings = [];
+		for (var n in map) {
+			bindings.push([n, map[n]]);
+		}
+		var l = sll_lang.let(g.exp, bindings);
+		t.replace(a, l);
+	};
+	
+	s.split = function(t, n) {
+		var fresh_vars = [];
+		var bindings = [];
+		for (var i = 0; i < n.exp.args.length; i++) {
+			var fresh_var = sll_algebra.fresh_var();
+			fresh_vars.push(fresh_var);
+			bindings.push([fresh_var.name, n.exp.args[i]]);
+		}
+		var l = sll_lang.let(sll_algebra.replace_args(n.exp, fresh_vars), bindings);
+		t.replace(n, l);
+	};
+	
+	return s;
+};

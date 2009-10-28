@@ -387,6 +387,91 @@ var test_msg_5 = function() {
 	console.log(gen);	
 };
 
+var test_msg_6 = function() {
+	var exp1 = sll_parser.parse_exp('gD(S(x))');
+	var exp2 = sll_parser.parse_exp('gD(S(S(x)))');
+	var gen = msg.msg(exp1, exp2);
+	console.log(gen);	
+};
+
+var test_sc_1 = function() {
+	var pr = sll_parser.parse(test_program.code).result;
+	var s = supercompiler(pr);
+	var bsc = supercompiler(pr);
+	var exp = sll_parser.parse_exp('gApp(xs, ys)')
+	
+	console.log('sc:');
+	console.log(exp.toString());
+	console.log(pr.toString());
+	
+	var t = bsc.build_tree(exp);
+	var result = residuator(t).residuate();
+	
+	console.log('sc result:');
+	console.log(result[0].toString());
+	console.log(result[1].toString());
+	
+	console.log('---');
+};
+
+
+var test_sc_2 = function() {
+	var pr = sll_parser.parse(test_program.code).result;
+	var bsc = supercompiler(pr);
+	var exp = sll_parser.parse_exp('gApp(gApp(xs, ys), zs)')
+	
+	console.log('sc:');
+	console.log(exp.toString());
+	console.log(pr.toString());
+	
+	var t = bsc.build_tree(exp);
+	var result = residuator(t).residuate();
+	
+	console.log('sc result:');
+	console.log(result[0].toString());
+	console.log(result[1].toString());
+	
+	console.log('---');
+};
+
+var test_sc_3 = function() {
+	var pr = sll_parser.parse(test_program.code).result;
+	var bsc = supercompiler(pr);
+	var exp = sll_parser.parse_exp('gApp(gApp(xs, ys), Cons(a, b))')
+	
+	console.log('sc:');
+	console.log(exp.toString());
+	console.log(pr.toString());
+	
+	var t = bsc.build_tree(exp);
+	var result = residuator(t).residuate();
+	
+	console.log('sc result:');
+	console.log(result[0].toString());
+	console.log(result[1].toString());
+	
+	console.log('---');
+};
+
+var test_sc_4 = function() {
+	var pr = sll_parser.parse(test_program.code1).result;
+	var bsc = supercompiler(pr);
+	var exp = sll_parser.parse_exp('gD(S(x))');
+	
+	console.log('sc:');
+	console.log(exp.toString());
+	console.log(pr.toString());
+	
+	var t = bsc.build_tree(exp);
+	var result = residuator(t).residuate();
+	
+	console.log('sc result:');
+	console.log(result[0].toString());
+	console.log(result[1].toString());
+	
+	console.log('---');
+};
+
 var test_all = function() {
 	test_algebra_equals();
 	test_parser();
@@ -408,4 +493,10 @@ var test_all = function() {
 	test_msg_3();
 	test_msg_4();
 	test_msg_5();
+	test_msg_6();
+	
+	test_sc_1();
+	test_sc_2();
+	test_sc_3();
+	test_sc_4();
 };
