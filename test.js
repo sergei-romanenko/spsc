@@ -200,7 +200,7 @@ var test_bsc = function() {
 	var pr = sll_parser.parse(test_program.code).result;
 	var bsc = base_supercompiler(pr);
 	
-	var exp1 = sll_parser.parse_exp('gApp(xs, ys)')
+	var exp1 = sll_parser.parse_exp('gApp(xs, ys)');
 	var t1 = bsc.build_tree(exp1);
 	
 	var exp2 = sll_parser.parse_exp('gApp(gApp(xs, ys), zs)')

@@ -13,9 +13,38 @@
 <script src='he.js' />
 <script src='msg.js' />
 <script src='spsc.js' /> 
-<script src='test.js' />
 </head>
 <body>
-<div></div>
+<script type="text/javascript">
+function supercompile() {
+	var src_code = document.getElementById('code').value;
+	var src_goal = document.getElementById('goal').value;
+
+	//console.log(src_code);
+	
+	var program = sll_parser.parse(src_code).result;
+	var goal = sll_parser.parse_exp(src_goal);
+	var sc = supercompiler(program);
+	var tree = sc.build_tree(goal);
+
+	var result = residuator(tree).residuate();
+	
+	//console.log('sc result:');
+	document.getElementById('residual_goal').value = result[0].toString();
+	document.getElementById('residual_code').value = result[1].toString();
+}
+</script>
+<div>
+<textarea rows="10" cols="80" id='code'></textarea>
+<br />
+<input type="text" id='goal' />
+<br />
+<button onclick="supercompile();">Supercompile</button>
+<br />
+<textarea rows="10" cols="80" id='residual_code'>
+</textarea>
+<br />
+<input type="text" id='residual_goal' />
+</div>
 </body>
 </html>
