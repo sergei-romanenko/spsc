@@ -71,7 +71,7 @@ var base_supercompiler = function(program) {
 		
 		build_tree: function(exp) {
 			var t = tree(exp);
-			console.log(t.toString());
+			//console.log(t.toString());
 			while (t.get_unprocessed_leaf()) {
 				//console.log(t);
 				var b = t.get_unprocessed_leaf();
@@ -102,7 +102,7 @@ var base_supercompiler = function(program) {
 				default:
 					t.add_children(b, this.drive(b.exp));
 				}
-				console.log(t.toString());
+				//console.log(t.toString());
 			}
 			return t;
 		}
@@ -115,7 +115,7 @@ var supercompiler = function(program) {
 	
 	s.build_tree = function(exp) {
 		var t = tree(exp);
-		console.log(t.toString());
+		//console.log(t.toString());
 		while (t.get_unprocessed_leaf()) {
 			//console.log(t);
 			var b = t.get_unprocessed_leaf();
@@ -146,7 +146,7 @@ var supercompiler = function(program) {
 			default:
 				t.add_children(b, this.drive(b.exp));
 			}
-			console.log(t.toString());
+			//console.log(t.toString());
 		}
 		return t;
 	};
