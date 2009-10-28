@@ -63,7 +63,16 @@ object Sample {
     fEqxx(x) = gEq(x, x);
     """
   
+  val target7 =
+    "gD(S(x))"
+  val program7 = 
+    """
+    gD(Z()) = Z();
+    gD(S(x)) = gD(S(S(x)));
+    """
+  
   def main(args : Array[String]) : Unit = {
+    runBaseSuperCompiler(target7, program7)
     runBaseSuperCompiler(target1, program1)
     runSuperCompiler(target1, program1)
     

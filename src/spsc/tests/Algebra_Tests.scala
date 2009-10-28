@@ -27,6 +27,9 @@ class Algebra_Tests {
   @Test def test302Vars() : Unit = {
     val e = SParsers.parseTerm("A(x,B(y,z),a)")
     assertEquals(List(Var("x"), Var("y"), Var("z"), Var("a")), vars(e))
+    
+    val e1 = SParsers.parseTerm("A(x,B(y,x),a)")
+    assertEquals(List(Var("x"), Var("y"), Var("a")), vars(e1))
   }
 
   def substToString(subst : Map[Var, Term]) : String = {
