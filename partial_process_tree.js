@@ -53,7 +53,11 @@ var node = function(exp, contraction) {
 			for (var i = 0; i < this.children.length; i++) {
 				chs.push(this.children[i].toString(ind + '    '));
 			}
-			return [ind + '|__' + this.exp.toString()].concat(chs).join('\n ');
+			var con = ind + '|';
+			if (this.contraction) {
+				con = con + this.contraction.join('='); 
+			}
+			return [con, ind + '|__' + this.exp.toString()].concat(chs).join('\n ');
 		}
 	};
 };
@@ -86,7 +90,7 @@ var tree = function(exp) {
 			if (n == this.root) {
 				this.root = node(exp, null);
 			} else {
-				var new_node = node(exp, node.contraction);
+				var new_node = node(exp, n.contraction);
 				new_node.parent = n.parent;
 				for (var i = 0; i < n.parent.children.length; i++) {
 					if (n.parent.children[i] == n) {
