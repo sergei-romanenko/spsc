@@ -16,7 +16,7 @@ var parsers = {
 		return function(text) {
 			var mx = text.match(re);
 			if (mx) {
-				return parsers.success(mx[0], text.substring(mx[0].length))
+				return parsers.success(mx[0], text.substring(mx[0].length));
 			} else {
 				return parsers.error(text, re);
 			}
@@ -67,8 +67,9 @@ var parsers = {
 	},	
 	or: function(rules) {
 		return function(text) {
+			var pr; // last parse result
 			for (var i = 0; i < rules.length ; i++) {
-				var pr = rules[i].call(this, text);
+				pr = rules[i].call(this, text);
 				if (pr.successful) {break;}
 			}
 			return pr;
