@@ -134,7 +134,7 @@ var supercompiler = function(program) {
 				if (a) {
 					if (sll_algebra.instance_of(a.exp, b.exp)) {
 						this.abs(t, b, a);
-					} else if (msg.msg(a.exp,b.exp).kind == 'Variable') {
+					} else if (msg.msg(a.exp,b.exp).exp.kind == 'Variable') {
 						this.split(t, b);
 					} else {
 						this.abs(t, a, b);
