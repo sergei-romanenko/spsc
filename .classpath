@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/Users/ilya/Documents/ws_3.5.1/spsc_lite_clojure/clojure.jar" sourcepath="/Users/ilya/Documents/ws_3.5.1/spsc_lite_clojure/clojure-src.jar"/>
+	<classpathentry kind="lib" path="/Users/ilya/Documents/ws_3.5.1/spsc_lite_clojure/clojure-contrib.jar" sourcepath="/Users/ilya/Documents/ws_3.5.1/spsc_lite_clojure/clojure-contrib-src.jar"/>
+	<classpathentry kind="lib" path="/Users/ilya/Documents/ws_3.5.1/spsc_lite_clojure/classes"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
