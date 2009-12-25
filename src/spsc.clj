@@ -71,4 +71,10 @@
 		(empty? es1) sub
 		:else (find-sub-acc-seq (rest es1) (rest es2) (find-sub (first es1) (first es2) sub))
 		))
+		
+(defn vars
+	[expr]
+	(if (= 'variable (kind expr)) 
+		(list expr)
+		(reduce #(concat %1 (remove (set %1) %2)) () (map vars (rest expr)))))
 			
