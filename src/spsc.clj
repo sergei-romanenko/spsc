@@ -1,22 +1,20 @@
 (ns spsc)
 
-(defn err
-	[msg]
-	(throw (new Exception (str msg))))
+(defn err [msg] (throw (new Exception (str msg))))
 
 (defn kind
+	"kind of expression - one of the following: variable / f-call / g-call / constructor"
 	[expr]
 	(if (symbol? expr)
-		(if (Character/isLowerCase (first (str expr)))
+		(if (Character/isLowerCase (first (name expr)))
 			'variable
 			(err (str "Unexpected expression: " expr)))
-		(let [[h] expr]
+		(let [fun (name (first expr))]
 			(cond
-				(.startsWith (name h) "f-") 'f-call
-				(.startsWith (name h) "g-") 'g-call
-				(Character/isUpperCase (first (name h))) 'constructor
-				:else (err (str "Unexpected expression:" expr))
-				))))
+				(.startsWith fun "f-") 'f-call
+				(.startsWith fun "g-") 'g-call
+				(Character/isUpperCase (first fun)) 'constructor
+				:else (err (str "Unexpected expression:" expr))))))
 		
 (defn get-f-fun 
 	[defs f-name]
@@ -42,29 +40,35 @@
 	(let [ [g-name [c-name & cas] & args] g-call, [[_ [_ & c-args] & g-args ] g-body] (get-g-fun defs g-name c-name)]
 		(apply-sub (zipmap (concat c-args g-args) (concat cas args)) g-body)))
 		
-(defn inter 
+(defn inter
+	"interpret expr in the context of defs"
 	[expr defs]
-	(let [k (kind expr)]
-		(cond
-			(= 'variable k) expr
-			(= 'f-call k) (inter (unfold-f-call expr defs) defs)
-			(= 'g-call k) (inter (unfold-g-call expr defs) defs)
-			(= 'constructor k) (let [[c-name & c-args] expr] (cons c-name (map #(inter % defs) c-args))) 
-			)))
+	(cond
+		(= 'variable (kind expr)) expr
+		(= 'f-call (kind expr)) (inter (unfold-f-call expr defs) defs)
+		(= 'g-call (kind expr)) (inter (unfold-g-call expr defs) defs)
+		(= 'constructor (kind expr)) (let [[c-name & c-args] expr] (cons c-name (map #(inter % defs) c-args)))))
 
-(def prog1
-	'(((f-f x) 
-		x)
-	((g-app (Cons x xs) ys)
-		(Cons x (g-app xs ys)))
-	((g-app (Nil) ys) 
-		ys)))
-		
-(defn test-me []
-	(println (get-g-fun prog1 'g-app 'Cons))
-	(println (get-f-fun prog1 'f-f))
-	(println (unfold-g-call '(g-app (Cons x (Nil)) (Cons y (Nil))) prog1))
-	(println (unfold-g-call '(g-app (Nil) (Cons y (Nil))) prog1))
-	(println (unfold-f-call '(f-f z) prog1))
-	(println (inter '(g-app (Cons x (Nil)) (Cons y (Nil))) prog1))
-	)
+(defn find-sub-acc-seq)	
+
+(defn find-sub
+	([e1 e2] (find-sub e1 e2 {}))
+	([e1 e2 sub]
+	(let [kind1 (kind e1), kind2 (kind e2)]
+		(if (= 'variable kind1)
+			(cond
+				(not (contains? sub e1)) (merge sub {e1 e2})
+				(= (sub e1) e2) sub 
+				:else nil)
+			(let [ [f1 & args1] e1, [f2 & args2] e2] 
+				(if (= f1 f2) (find-sub-acc-seq args1 args2 sub) nil))))))
+			
+(defn find-sub-acc-seq
+	[es1 es2 sub]
+	(cond
+		(nil? sub) nil 
+		(not (= (count es1) (count es2))) nil
+		(empty? es1) sub
+		:else (find-sub-acc-seq (rest es1) (rest es2) (find-sub (first es1) (first es2) sub))
+		))
+			
