@@ -24,11 +24,11 @@ class Tree(val root: Node, val children: Map[Node, List[Node]]) {
     new Tree(root, children + (n -> (cs map {case (t, b) => new Node(t, n, b)})))
 
   def replace(n: Node, exp: Term) = 
-    if (n == root) new Tree(n, Map().withDefaultValue(Nil))
+    if (n == root) new Tree(new Node(exp, null, null), Map().withDefaultValue(Nil))
     else {
       val p = n.parent
       val cs = children(p) map {m => if (m == n) new Node(exp, p, n.contr) else m}
-      new Tree(root, children + (n -> cs))
+      new Tree(root, children + (p -> cs))
     }
   
   def leaves_(node: Node): List[Node] = 
