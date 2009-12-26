@@ -1,5 +1,5 @@
 (ns spsc-test
-	(:use [spsc]))
+	(:use [spsc] [process-tree]))
 	
 (def prog1
 	'(((f-f x) 
