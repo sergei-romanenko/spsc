@@ -29,7 +29,8 @@
 	(if (= 'variable (kind expr))
 		(sub expr expr)
 		(cons (first expr) (map #(apply-sub sub %) (rest expr)))))
-			
+
+;; interpreter stuff			
 (defn unfold-f-call
 	[f-call defs]
 	(let [ [f-name & args] f-call, [[_ & f-args] f-body] (get-f-fun defs f-name)] 
@@ -49,7 +50,8 @@
 		(= 'g-call (kind expr)) (inter (unfold-g-call expr defs) defs)
 		(= 'constructor (kind expr)) (let [[c-name & c-args] expr] (cons c-name (map #(inter % defs) c-args)))))
 
-(defn find-sub-acc-seq)	
+;; finding substitution
+(defn find-sub-seq)	
 
 (defn find-sub
 	([e1 e2] (find-sub e1 e2 {}))
@@ -61,15 +63,15 @@
 				(= (sub e1) e2) sub 
 				:else nil)
 			(let [ [f1 & args1] e1, [f2 & args2] e2] 
-				(if (= f1 f2) (find-sub-acc-seq args1 args2 sub) nil))))))
+				(if (= f1 f2) (find-sub-seq args1 args2 sub) nil))))))
 			
-(defn find-sub-acc-seq
+(defn find-sub-seq
 	[es1 es2 sub]
 	(cond
 		(nil? sub) nil 
 		(not (= (count es1) (count es2))) nil
 		(empty? es1) sub
-		:else (find-sub-acc-seq (rest es1) (rest es2) (find-sub (first es1) (first es2) sub))
+		:else (find-sub-seq (rest es1) (rest es2) (find-sub (first es1) (first es2) sub))
 		))
 		
 (defn vars
@@ -77,4 +79,3 @@
 	(if (= 'variable (kind expr)) 
 		(list expr)
 		(reduce #(concat %1 (remove (set %1) %2)) () (map vars (rest expr)))))
-			
