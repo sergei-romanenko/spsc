@@ -11,6 +11,7 @@
 			(err (str "Unexpected expression: " expr)))
 		(let [fun (name (first expr))]
 			(cond
+				(= "let" fun) 'let-expr
 				(.startsWith fun "f-") 'f-call
 				(.startsWith fun "g-") 'g-call
 				(Character/isUpperCase (first fun)) 'constructor
@@ -79,3 +80,16 @@
 	(if (= 'variable (kind expr)) 
 		(list expr)
 		(reduce #(concat %1 (remove (set %1) %2)) () (map vars (rest expr)))))
+		
+(defn trivial?
+	[expr]
+	(let [k (kind expr)]
+		(not (or (= 'f-call k) (= 'g-call k)))))
+		
+(defn inst?
+	[e1 e2]
+	(not (nil? (find-sub e1 e2))))
+	
+(defn equiv?
+	[e1 e2]
+	(and (inst? e1 e2) (inst? e2 e1)))

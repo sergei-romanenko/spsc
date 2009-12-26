@@ -21,6 +21,7 @@
 	(println (find-sub '(f-f x y) '(f-f x x)))
 	(println (find-sub '(f-f x x) '(f-f y x)))
 	(println (vars '(f-f (C x y x) x y z)))
+	
 	(println "-------------------")
 	)
 
