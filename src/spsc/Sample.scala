@@ -71,6 +71,14 @@ object Sample {
     gApp(Cons(u, us), vs) = Cons(u, gApp(us, vs));
     """
   
+  val target8 =
+    "gD(S(x))"
+  val program8 =
+	"""
+	gD(Z()) = Z();
+	gD(S(x)) = gD(S(S(x)));
+	"""
+  
   def main(args : Array[String]) : Unit = {
     runBaseSuperCompiler(target1, program1)
     runSuperCompiler(target1, program1)
@@ -91,6 +99,8 @@ object Sample {
     runSuperCompiler(target6, program6)
     
     runSuperCompiler(target7, program7)
+    
+    runSuperCompiler(target8, program8)
   }
   
   def runSuperCompiler(targetText: String, programText: String) = {

@@ -26,6 +26,7 @@ object Algebra {
   
   def vars(t: Term): List[Var] = t match {
     case v: Var   => (List(v))
+    //case e: CFG => (List[Var]() /: e.args) {(vs, exp) =>  vs ++ (vars(exp) -- vs)}
     case e: CFG => (List[Var]() /: e.args) {_ union vars(_)}
   }
   
