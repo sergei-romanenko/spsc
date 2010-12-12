@@ -39,7 +39,7 @@ object Algebra {
 
   def resetVarGen() { i = 0; }
   
-  def freshVar(x: AnyRef) = {i += 1; Var("v" + i)};
+  def freshVar(x: AnyRef = null) = {i += 1; Var("v" + i)};
   
   def isFGCall(expr: Term): Boolean = expr match {
     case FCall(_, _) => true

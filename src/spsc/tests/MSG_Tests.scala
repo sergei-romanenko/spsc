@@ -2,8 +2,9 @@ package spsc.tests
 
 import org.junit.Test
 import org.junit.Assert._
-import Algebra._
-import MSG._
+import spsc.Algebra._
+import spsc.MSG._
+import spsc._
 
 class MSG_Tests {
 

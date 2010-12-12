@@ -3,6 +3,7 @@ package spsc.tests
 import org.junit.Test
 import org.junit.Before
 import org.junit.Assert._
+import spsc._
 
 class ProcessTree_Tests {
 

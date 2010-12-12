@@ -2,8 +2,9 @@ package spsc.tests
 
 import org.junit.Test
 import org.junit.Assert._
-import Algebra._
-import HE._
+import spsc.Algebra._
+import spsc.HE._
+import spsc._
 
 class HE_Tests {
 

@@ -50,5 +50,5 @@ case class Program(rules: List[Rule]){
     {case (d: GRule, m) => m + ((d.name, d.p.name) -> d); case (_, m) => m}
   val gs = (g :\ Map[String, List[GRule]]())
     {case (((n, _), d), m) => m + (n -> (d :: m.getOrElse(n, Nil)))}
-  override def toString = rules.mkString("")
+  override def toString = rules.mkString("\n")
 }

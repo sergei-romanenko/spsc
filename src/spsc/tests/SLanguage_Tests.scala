@@ -2,6 +2,7 @@ package spsc.tests
 
 import org.junit.Test
 import org.junit.Assert._
+import spsc._
 
 class SLanguage_Tests {
 
@@ -36,10 +37,15 @@ class SLanguage_Tests {
   }
 
   @Test def test104StrProgram() : Unit = {
-    assertEquals("f()=A();f1()=A1();",
+    assertEquals(
+"""f()=A();
+f1()=A1();""",
     Program(List(FRule("f", List(), Ctr("A",List())),
       FRule("f1", List(), Ctr("A1", List())))).toString)
-    assertEquals("g(C())=A();g1(C(),x)=A();g2(C(x))=A();",
+    assertEquals(
+"""g(C())=A();
+g1(C(),x)=A();
+g2(C(x))=A();""",
     Program(List(GRule("g", Pat("C", List()), List(), Ctr("A",List())),
       GRule("g1", Pat("C", List()), List(Var("x")), Ctr("A",List())),
       GRule("g2", Pat("C", List(Var("x"))), List(), Ctr("A",List())))).toString)
