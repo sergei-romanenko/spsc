@@ -29,7 +29,7 @@ object Algebra {
     case e: CFG => (List[Var]() /: e.args) {(vs, exp) =>  vs ++ (vars(exp) -- vs)}
   }
   
-  def freshVar(x: AnyRef) = {i += 1; Var("v" + i)}; private var i = 0;
+  def freshVar(x: AnyRef = null) = {i += 1; Var("v" + i)}; private var i = 0;
   
   def trivial(expr: Term): Boolean = expr match {
     case FCall(_, _) => false
