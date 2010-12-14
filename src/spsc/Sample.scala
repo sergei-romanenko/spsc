@@ -70,6 +70,52 @@ object Sample {
     gD(Z()) = Z();
     gD(S(x)) = gD(S(S(x)));
     """
+	  
+  val target8 =  
+	  "fRun(Fun(Fap(S(Z()), En()), Fn(), Un()))"
+  val program8 = 
+    """
+	  fRun(prog,args)=gApply(Z(),prog,args,prog);
+
+	  gApply(Z(),funs,env,prog)=gEval(gFunHead(funs),env,prog);
+	  gApply(S(x),funs,env,prog)=gApply(x,gFunTail(funs),env,prog);
+	  
+	  gFunHead(Fn())=Cap(Z(),En());
+	  gFunHead(Fun(exp,funs))=exp;
+
+	  gFunTail(Fn())=Fn();
+	  gFunTail(Fun(exp,funs))=funs;
+
+	  gEval(Var(n),env,prog)=gLookup(n,env);
+	  gEval(Fap(n,elist),env,prog)=gApply(n,prog,gEvalList(elist,env,prog),prog);
+	  gEval(Cap(n,elist),env,prog)=Con(n,gEvalList(elist,env,prog));
+	  gEval(Case(exp,elist),env,prog)=gEvalHelper(gEval(exp,env,prog),elist,env,prog);
+
+	  gEvalHelper(Con(n,ulist),elist,env,prog)=gEval(gSelect(n,elist),gAppend(ulist,env),prog);
+
+	  gLookup(Z(),env)=gEnvHead(env);
+	  gLookup(S(n),env)=gLookup(n,gEnvTail(env));
+
+	  gEnvHead(Un())=Con(Z(),Un());
+	  gEnvHead(Uc(univ,ulist))=univ;
+
+	  gEnvTail(Un()) =Un();
+	  gEnvTail(Uc(univ,ulist))= ulist;
+
+	  gAppend(Un(),y)=y;
+	  gAppend(Uc(univ,ulist),y)=Uc(univ,gAppend(ulist,y));
+
+	  gEvalList(En(),env,prog)=Un();
+	  gEvalList(Ec(exp,elist),env,prog)=Uc(gEval(exp,env,prog),gEvalList(elist,env,prog));
+
+	  gSelect(Z(),elist) = gElistHead(elist);
+	  gSelect(S(n),elist) = gSelect(n,gElistTail(elist));
+	  gElistHead(En()) = Cap(Z(), En());
+	  gElistHead(Ec(exp,elist)) = exp;
+
+	  gElistTail(En())=En();
+	  gElistTail(Ec(exp,elist))=elist;
+    """  
   
   def main(args : Array[String]) : Unit = {
     runBaseSuperCompiler(target7, program7)
@@ -91,6 +137,9 @@ object Sample {
     
     runBaseSuperCompiler(target6, program6)
     runSuperCompiler(target6, program6)
+    
+    runSuperCompiler(target7, program7)
+    runSuperCompiler(target8, program8)
   }
   
   def runSuperCompiler(targetText: String, programText: String) = {
