@@ -71,7 +71,7 @@ class Algebra_Tests {
   }
 
   @Test def test405MatchC_F() : Unit = {
-    matchNo("C(x,y)", "f(A,B)")
+    matchNo("C(x,y)", "f(A(),B())")
   }
 
   @Test def test406MatchX_X_Eq() : Unit = {
@@ -91,7 +91,7 @@ class Algebra_Tests {
   }
 
   @Test def test501EquivYes() : Unit = {
-    equivYes("gA(fB(x,y),C)", "gA(fB(a,b),C)")
+    equivYes("gA(fB(x,y),C())", "gA(fB(a,b),C())")
   }
 
   def equivNo(e1 : String, e2 : String) : Unit = {
