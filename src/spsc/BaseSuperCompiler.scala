@@ -1,21 +1,33 @@
 package spsc
 
 import Algebra._
+import Decomposition._
+
 class BaseSuperCompiler(p: Program) {
-  def driveExp(expr: Term): List[(Term, Contraction)] = expr match {
-    case Ctr(name, args) => args.map((_, null))
-    case FCall(name, args) =>
-      List((subst(p.f(name).term, Map(p.f(name).args.zip(args): _*)), null))
-    case GCall(name, Ctr(cname, cargs) :: args) =>
-      val g = p.g(name, cname)
-      List((subst(g.term, Map((g.p.args ::: g.args) zip (cargs ::: args): _*)), null))
-    case gCall@GCall(name, (v: Var) :: args) =>
-      for (g <- p.gs(name); fp = freshPat(g.p); cons = Ctr(fp.name, fp.args))
-        yield driveExp(subst(gCall, Map(v -> cons))) match
-        { case (k, _) :: _ => (k, Contraction(v, fp)) }
-    case GCall(name, args) =>
-      driveExp(args(0)) map { case (k, v) => (GCall(name, k :: args.tail), v) }
-    case Let(term, bs) => (term, null) :: bs.map { case (_, v) => (v, null) }
+
+  def driveExp(expr: Term): List[(Term, Contraction)] = decompose(expr) match {
+    case DecLet(Let(term, bs)) => (term, null) :: bs.map { case (_, v) => (v, null) }
+    case ObservableVar(v) => Nil
+    case ObservableCtr(Ctr(_, args)) => args.map { (_, null) }
+    case context@Context(red) =>
+      red match {
+        case RedexFCall(FCall(name, args)) => {
+          val fReduced = subst(p.f(name).term, Map(p.f(name).args.zip(args): _*))
+          List((context.replaceRedex(fReduced), null))
+        }
+        case RedexGCallCtr(GCall(name, args), Ctr(cname, cargs)) => {
+          val g = p.g(name, cname)
+          val gReduced = subst(g.term, Map((g.p.args ::: g.args) zip (cargs ::: args.tail): _*))
+          List((context.replaceRedex(gReduced), null))
+        }
+        case RedexGCallVar(GCall(name, args), v) => {
+          p.gs(name) map { g =>
+            val fp = freshPat(g.p)
+            val gReduced = subst(g.term, Map((g.p.args ::: g.args) zip (fp.args ::: args.tail): _*))
+            (context.replaceRedex(gReduced), Contraction(v, fp))
+          }
+        }
+      }
   }
 
   def buildProcessTree(e: Term): Tree = {

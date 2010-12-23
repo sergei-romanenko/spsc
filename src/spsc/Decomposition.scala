@@ -2,6 +2,7 @@ package spsc
 
 object Decomposition {
   abstract sealed class Dec
+  case class DecLet(let: Let) extends Dec
   abstract sealed class Observable extends Dec
   case class ObservableCtr(c: Ctr) extends Observable
   case class ObservableVar(v: Var) extends Observable
@@ -22,6 +23,7 @@ object Decomposition {
   case class RedexGCallVar(gcall: GCall, vrb: Var) extends Redex(gcall)
 
   def decompose(t: Term): Dec = t match {
+    case l: Let => DecLet(l)
     case v: Var => ObservableVar(v)
     case c: Ctr => ObservableCtr(c)
     case f: FCall => new ContextHole(RedexFCall(f))
