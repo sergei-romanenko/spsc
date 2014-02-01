@@ -1,0 +1,3 @@
+# Simple Positive SuperCompiler in Scala
+
+In progress...

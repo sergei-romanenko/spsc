@@ -1,9 +1,0 @@
-This project is developed using Scala plug-in for eclipse:
-http://www.scala-lang.org/node/94
-
-The simplest way to build and run this project is also using this plug-in. 
-Install Eclipse and mentioned plug-in (plug-in comes with Scala SDK) - nothing else is needed.
-
-To taste SPSC light in eclipse select Sample.scala -> Run as -> Scala Application.
-
-Enjoy!

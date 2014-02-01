@@ -9,8 +9,8 @@ object SParsers extends StandardTokenParsers with ImplicitConversions {
   def prog = definition*
   def definition: Parser[Rule] = gRule | fRule
   def term: Parser[Term] = fcall | gcall | ctr | vrb
-  def uid = ident ^? {case id if id.charAt(0).isUpperCase => id}
-  def lid = ident ^? {case id if id.charAt(0).isLowerCase => id}
+  def uid = ident ^? {case id if id.charAt(0).isUpper => id}
+  def lid = ident ^? {case id if id.charAt(0).isLower => id}
   def fid = ident ^? {case id if id.charAt(0) == 'f' => id}
   def gid = ident ^? {case id if id.charAt(0) == 'g' => id}
   def vrb = lid ^^ Var

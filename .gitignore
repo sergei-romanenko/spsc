@@ -1,4 +1,5 @@
 .manager/*
 .scala_dependencies
-bin/*
-spsc/*
+target/
+.idea/
+.idea_modules/
