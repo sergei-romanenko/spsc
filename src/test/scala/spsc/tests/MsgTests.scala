@@ -6,7 +6,7 @@ import spsc.Algebra._
 import spsc.MSG._
 import spsc._
 
-class MSG_Tests {
+class MsgTests {
 
   def msgOK(e1 : String, e2 : String, expected : String) : Unit = {
       resetVarGen()

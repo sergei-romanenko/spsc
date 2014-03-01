@@ -6,7 +6,7 @@ import org.junit.Assert._
 import spsc.Algebra._
 import spsc._
 
-class BasicSupercompiler_Tests {
+class BasicSupercompilerTests {
 
   val pAdd = "gAdd(S(x),y)=S(gAdd(x,y));gAdd(Z(),y)=y;"
   val pAddAcc = "gAddAcc(S(x),y)=gAddAcc(x,S(y));gAddAcc(Z(),y)=y;"

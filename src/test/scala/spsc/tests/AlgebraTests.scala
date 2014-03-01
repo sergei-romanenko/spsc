@@ -5,7 +5,7 @@ import org.junit.Assert._
 import spsc.Algebra._
 import spsc._
 
-class Algebra_Tests {
+class AlgebraTests {
 
   @Test def test101TheSameFunctor() : Unit = {
     assertTrue(shellEq(Ctr("A", List()), Ctr("A", List())))

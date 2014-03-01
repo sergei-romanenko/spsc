@@ -5,7 +5,7 @@ import org.junit.Before
 import org.junit.Assert._
 import spsc._
 
-class ProcessTree_Tests {
+class ProcessTreeTests {
 
   var tree : Tree = null
   

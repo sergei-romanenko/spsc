@@ -4,7 +4,7 @@ import org.junit.Test
 import org.junit.Assert._
 import spsc._
 
-class SLanguage_Tests {
+class SLanguageTests {
 
   def toStringTest(expected : String, e : Term) : Unit = {
     assertEquals(expected, e.toString())

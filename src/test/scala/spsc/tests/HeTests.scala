@@ -6,7 +6,7 @@ import spsc.Algebra._
 import spsc.HE._
 import spsc._
 
-class HE_Tests {
+class HeTests {
 
   def heTrue(input1 : String, input2 : String) : Unit = {
     val e1 = SParsers.parseTerm(input1)
