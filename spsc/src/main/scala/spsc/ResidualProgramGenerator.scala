@@ -1,14 +1,13 @@
-package spsc;
+package spsc
 
 import ProcessTree._
 import SmallLanguageTermAlgebra._
 import Util.applySubstitution
-import scala.collection.jcl.LinkedHashSet
 
 class ResidualProgramGenerator(val tree: ProcessTree) {
   import ResidualProgramGenerator._
-  
-  private var signatures = scala.collection.mutable.Map[Node, Signature]()
+
+  private val signatures = scala.collection.mutable.Map[Node, Signature]()
   private val defs = new scala.collection.mutable.ListBuffer[Definition]
   private val fnames = scala.collection.mutable.Set[String]()
   
@@ -25,7 +24,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
     for (d <- defs) {
       newDefs += renameVarsInDefinition(d)
     }
-    Program(newDefs.toList.sort((e1, e2) => (e1.name compareTo e2.name) < 0))
+    Program(newDefs.toList.sortWith((e1, e2) => (e1.name compareTo e2.name) < 0))
   }
   
   private def unfold(node: Node): Term = node.expr match {
@@ -51,14 +50,13 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
         tree.leafs.find(n => n.ancestors.contains(node) && 
         (n.expr match {case fc_ : FCall => equivalent(fc, fc_); case _=>false})) match {
           case None => unfold(node.outs.head.child)
-          case Some(fc1) => {
+          case Some(fc1) =>
             val newName = if (node == tree.rootNode) fc.name else rename(fc.name, node == tree.rootNode)
             val signature = Signature(newName, getVars(fc).toList)
             signatures(node) = signature
             val result = unfold(node.outs.head.child)
             defs += FFunction(signature.name, signature.args, result)
             FCall(signature.name, signature.args)
-          }
         }
       }
       
@@ -82,7 +80,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
         (n.expr match {case gc_ : GCall => equivalent(gc, gc_); case _=>false})) match {
           case None => unfold(node.outs.head.child)
           case Some(fc1) => {
-            val signature = Signature(rename(gc.name, false), getVars(gc).toList)
+            val signature = Signature(rename(gc.name, false), getVars(gc).distinct)
             signatures(node) = signature
             val result = unfold(node.outs.head.child)
             defs += FFunction(signature.name, signature.args, result)
@@ -91,7 +89,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
         }
       } else {
         val patternVar = node.outs.head.substitution.toList.head._1
-        val vars = (getVars(gc) - patternVar).toList
+        val vars = getVars(gc).distinct.filterNot(_ == patternVar)
         val signature = Signature(rename(gc.name, false), patternVar :: vars)
         signatures(node) = signature
         for (edge <- node.outs){
@@ -104,16 +102,13 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
       }
   }
   
-  private def getVars(t: Term): LinkedHashSet[Variable] = {
-    val vars = new LinkedHashSet[Variable]()
+  private def getVars(t: Term): List[Variable] =
     t match {
-      case v: Variable => vars + v
-      case c: Constructor => c.args.map(arg => {vars ++ getVars(arg)})
-      case f: FCall => f.args.map(arg => {vars ++ getVars(arg)})
-      case g: GCall => (g.arg0 :: g.args).map(arg => {vars ++ getVars(arg)})
+      case v: Variable => List(v)
+      case c: Constructor => c.args.flatMap(getVars)
+      case f: FCall => f.args.flatMap(getVars)
+      case g: GCall => (g.arg0 :: g.args).flatMap(getVars)
     }
-    vars
-  }
   
   private def rename(name: String, isOriginalNameAllowed: Boolean) = {
     if (isOriginalNameAllowed && !fnames.contains(name)){
@@ -132,7 +127,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
   }
 }
 
-object ResidualProgramGenerator{
+object ResidualProgramGenerator {
   case class Signature(name: String, args: List[Variable])
   def generateResidualProgram(tree: ProcessTree) = new ResidualProgramGenerator(tree).generateProgram()
   val letters = "abcdefghijklmnopqrstuvwxyz".toArray
@@ -142,17 +137,17 @@ object ResidualProgramGenerator{
     for (s <- Integer.toString(n, 26)) {
       sb.append(letters(Integer.parseInt("" + s, 26)))
     } 
-    Variable(sb.toString)
+    Variable(sb.toString())
   }
   
   def renameVarsInDefinition(d: Definition) = d match {
     case f: FFunction =>
       val args = f.args
-      val renaming = Map() ++ ((args) zip (args.indices.map(getVar(_)))) 
+      val renaming = Map() ++ (args zip args.indices.map(getVar))
       FFunction(f.name, f.args.map(renaming(_)), applySubstitution(f.term, renaming))
     case g: GFunction =>
       val args = g.arg0.args ::: g.args
-      val renaming = Map() ++ ((args) zip (args.indices.map(getVar(_))))
+      val renaming = Map() ++ (args zip args.indices.map(getVar))
       GFunction(g.name, Pattern(g.arg0.name, g.arg0.args.map(renaming(_))), g.args.map(renaming(_)), applySubstitution(g.term, renaming))    
   }
 

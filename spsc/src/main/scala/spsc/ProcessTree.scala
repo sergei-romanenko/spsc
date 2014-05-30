@@ -15,16 +15,16 @@ object ProcessTree {
         sb.append("\n  " + indent + "|" + edge.substitution.toList.map(kv => kv._1 + "=" + kv._2).mkString("", ", ", ""))
         sb.append("\n" + edge.child.toString(indent + "  "))
       }
-      sb.toString
+      sb.toString()
     }    
 
-    def ancestors(): List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
+    def ancestors: List[Node] = if (in == null) Nil else in.parent :: in.parent.ancestors
 
     def isProcessed: Boolean = expr match {
       case Constructor(_, Nil) => true
       case v : Variable => true
       case l: LetExpression => false
-      case _ => {
+      case _ =>
         var edge = in
         while (edge != null) {
           val node1 = edge.parent
@@ -32,14 +32,13 @@ object ProcessTree {
           edge = node1.in
         }
         false
-      }
     }
     
-    def getRepParent(): Node = expr match {
+    def getRepParent: Node = expr match {
       case Constructor(_, _) => null
       case v : Variable => null
       case l: LetExpression => null
-      case _ => {
+      case _ =>
         var edge = in
         while (edge != null) {
           val node1 = edge.parent
@@ -47,7 +46,6 @@ object ProcessTree {
           edge = node1.in
         }
         null
-      }
     }
   }
   
@@ -71,7 +69,7 @@ class ProcessTree {
   
   def addChildren(node: Node, children: List[Pair[Term, Map[Variable, Term]]]) = {
     assume(leafs_.contains(node))
-    leafs_ = leafs_.remove(_ == node)
+    leafs_ = leafs_.filterNot(_ == node)
     val edges = new scala.collection.mutable.ListBuffer[Edge]
     for (pair <- children){
       val edge = new Edge(node, null, pair._2)
@@ -85,8 +83,8 @@ class ProcessTree {
   
   def replace(node: Node, exp: Expression) = {
     // the node can be not leaf - but from any part of tree
-    leafs_ = leafs_.remove(_ == node)
-    leafs_ = leafs_.remove(_.ancestors.contains(node))
+    leafs_ = leafs_.filterNot(_ == node)
+    leafs_ = leafs_.filterNot(_.ancestors.contains(node))
     val childNode = new Node(exp, node.in, Nil)
     // the node can be root node:
     if (node == rootNode){

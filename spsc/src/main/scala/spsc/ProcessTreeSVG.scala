@@ -1,4 +1,4 @@
-package spsc;
+package spsc
 
 class ProcessTreeSVG(tree: ProcessTree) {
   var map = Map[ProcessTree.Node, Tuple4[Int, Int, Int, Int]]()
@@ -34,14 +34,13 @@ class ProcessTreeSVG(tree: ProcessTree) {
       }
     { 
       val tw = width(node)
-      val w = rectWidth(node);
-      val x = (trX + (tw - w)/2) + w/2;
+      val w = rectWidth(node)
+      val x = (trX + (tw - w)/2) + w/2
       val y = trY + 15      
       map = map + (node -> (x, y, w, tw))
     }
     <svg:rect x={"" + (trX + (width(node) - rectWidth(node))/2)} y={"" + trY} width={"" + rectWidth(node)} height="30" />
-    <svg:text x={"" + (trX + width(node)/2)} y ={"" + (trY + 15)}>{node.expr.toString}</svg:text> 
-    &+ childrenToSVG
+    <svg:text x={"" + (trX + width(node)/2)} y ={"" + (trY + 15)}>{node.expr.toString}</svg:text> &+ childrenToSVG
     }
     
     def repeatEdges() : scala.xml.NodeBuffer = {
@@ -55,7 +54,7 @@ class ProcessTreeSVG(tree: ProcessTree) {
           val d = "M " + (cx + s*cw/2) + ", " + cy + 
                   " C " + (px + s*ptw/2) + ", " + cy + " " + 
                   (px + s*ptw/2) + ", " + py + " " +
-                  (px + s*pw/2) + ", " + py;
+                  (px + s*pw/2) + ", " + py
           edges += <svg:path d={d}/>        
         }
       }

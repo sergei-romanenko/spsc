@@ -11,49 +11,46 @@ class SuperCompiler(program: Program){
     
     // C(...)
     case Constructor(name, args) => 
-      args.map((_, Map()))
+      args.map((_, Map[Variable, Term]()))
     
     // f(...)
-    case FCall(name, args)  => {
+    case FCall(name, args)  =>
       if (!program.isDefinedF(name)){
         return Nil
       }
       val originalDefinition = program.getFFunction(name)
       val renamedDefinition = renameVarsInFFunction(originalDefinition)
-      val substitution: Map[Variable, Term] = 
+      val substitution: Map[Variable, Term] =
         Map() ++  (renamedDefinition.args zip args)
       val result = applySubstitution(renamedDefinition.term, substitution)
       List((result, Map[Variable, Term]()))
-    }
-    
+
     // g(C(...), ...)
-    case GCall(name, Constructor(cname, cargs), args) => {
+    case GCall(name, Constructor(cname, cargs), args) =>
       if (!program.isDefinedG(name, cname)){
         return Nil
       }
       val originalDefinition = program.getGFunction(name, cname)
-      val renamedDefinition = renameVarsInGFunction(originalDefinition)     
-      val substitution: Map[Variable, Term] = 
+      val renamedDefinition = renameVarsInGFunction(originalDefinition)
+      val substitution: Map[Variable, Term] =
         Map() ++  ((renamedDefinition.arg0.args zip cargs) ::: (renamedDefinition.args zip args))
       val result = applySubstitution(renamedDefinition.term, substitution)
       List((result, Map[Variable, Term]()))
-    }
-    
+
     // g(x, ...)
     case gCall @ GCall(name, v : Variable, args) => 
       for (g <- program.getGFunctions(name);
         val c = Constructor(g.arg0.name, g.arg0.args.map(v => nextVar));
-        val sub = Map((v -> c)))
+        val sub = Map(v -> c))
         yield (driveExp(applySubstitution(gCall, sub)).head._1, sub)
     
     // g(f(...), ...) or g(g(...), ...)
-    case GCall(name, call : Call, args) => {
+    case GCall(name, call : Call, args) =>
       val subDrive = driveExp(call)
       subDrive.map(pair => (GCall(name, pair._1, args.map(applySubstitution(_, pair._2))), pair._2))
-    }
-    
+
     case LetExpression(term, bindings) => 
-      (term, Map[Variable, Term]()) :: (for (pair <- bindings) yield Pair(pair._2, Map[Variable, Term]())).toList
+      (term, Map[Variable, Term]()) :: (for (pair <- bindings) yield pair._2 -> Map[Variable, Term]()).toList
   }
   
   def renameVarsInFFunction(f: FFunction): FFunction = {

@@ -1,16 +1,7 @@
-package spsc;
+package spsc
 
-import scala.util.parsing.input.StreamReader
 import scala.util.parsing.input.CharArrayReader
-
-import java.io.File
-import java.io.FileInputStream
-import java.io.InputStreamReader
-import java.io.FileReader
-import java.io.FileWriter
-import java.io.BufferedReader
-
-import SmallLanguageParsers._
+import java.io.{FileReader, FileWriter, BufferedReader}
 import ResidualProgramGenerator._
 
 object SuperCompilerApp {
@@ -41,9 +32,8 @@ object SuperCompilerApp {
       case _ => 
         throw new IllegalArgumentException("run spcs.SuperCompilerApp -help for help")       
     }
-    val file = new File(fileName)
     val sb = new StringBuilder
-    val in = new BufferedReader(new FileReader(fileName));
+    val in = new BufferedReader(new FileReader(fileName))
     var str: String = null
     do {
       str = in.readLine
@@ -52,8 +42,8 @@ object SuperCompilerApp {
         sb.append("\n")
       }
     } while (str != null)
-    in.close();
-    val result = SmallLanguageParsers.parseProgram(new CharArrayReader(sb.toString.toCharArray))
+    in.close()
+    val result = SmallLanguageParsers.parseProgram(new CharArrayReader(sb.toString().toCharArray))
     if (!result.successful){
       throw new IllegalArgumentException(result.toString)
     }
@@ -65,17 +55,25 @@ object SuperCompilerApp {
     
     val svgFile = new java.io.File(outFileName)
     if (!svgFile.exists){
+      val parentDir = svgFile.getParentFile
+      if (parentDir != null) {
+        parentDir.mkdirs()
+      }
       svgFile.createNewFile()
     } 
     scala.xml.XML.save(outFileName, svg)
     val text = generateResidualProgram(pt).toString
     val slFile = new java.io.File(outProgramFileName)
     if (!slFile.exists){
+      val parentDir = slFile.getParentFile
+      if (parentDir != null) {
+        parentDir.mkdirs()
+      }
       slFile.createNewFile()
     }
-    val fw = new FileWriter(slFile);
-    fw.write(text);
-    fw.flush();
-    fw.close();
+    val fw = new FileWriter(slFile)
+    fw.write(text)
+    fw.flush()
+    fw.close()
   }
 }

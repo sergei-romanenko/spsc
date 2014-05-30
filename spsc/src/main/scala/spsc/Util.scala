@@ -1,4 +1,4 @@
-package spsc;
+package spsc
 
 import scala.util.parsing.input.CharArrayReader
 
@@ -23,14 +23,12 @@ object Util {
       case v: Variable => v
       case Constructor(name, args) => Constructor(name, args.map(cc))
       case FCall(name, args) => funType(name, program) match {
-        case F => {
-          assume(program.getFFunction(name).args.size == args.size, "bad call: " + t);
+        case F =>
+          assume(program.getFFunction(name).args.size == args.size, "bad call: " + t)
           FCall(name, args.map(cc))
-        }
-        case G => {
-          assume(program.getGFunctions(name).head.args.size == args.size - 1, "bad call: " + t);
+        case G =>
+          assume(program.getGFunctions(name).head.args.size == args.size - 1, "bad call: " + t)
           GCall(name, cc(args.head), args.tail.map(cc))
-        }
       }
       case g: GCall => throw new IllegalArgumentException("Internal error: raw term contains g-call")
     }

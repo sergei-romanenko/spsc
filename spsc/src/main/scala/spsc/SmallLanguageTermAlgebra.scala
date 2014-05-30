@@ -25,11 +25,11 @@ object SmallLanguageTermAlgebra {
   
   private def heByCoupling(term1: Term, term2: Term): Boolean = (term1, term2) match {
     case (Constructor(name1, args1), Constructor(name2, args2)) if name1 == name2 => 
-      List.forall2(args1, args2)(he)    
+      (args1, args2).zipped.forall(he)
     case (FCall(name1, args1), FCall(name2, args2)) if name1 == name2 => 
-      List.forall2(args1, args2)(he)
+      (args1, args2).zipped.forall(he)
     case (GCall(name1, arg01, args1), GCall(name2, arg02, args2)) if name1 == name2 => 
-      List.forall2(args1, args2)(he)
+      (args1, args2).zipped.forall(he)
     case _ => false
   }
   

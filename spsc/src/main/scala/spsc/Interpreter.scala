@@ -37,12 +37,11 @@ class Interpreter (program: Program) {
 
   def lazyEvalGCall(name: String, t: Term, args: List[Term]) : Constructor = t match {
 
-    case Constructor(cname, cargs) => {
+    case Constructor(cname, cargs) =>
       val gFunction = program.getGFunction(name, cname)
       val substitution: Map[Variable, Term] =
         Map() ++  ((gFunction.arg0.args zip cargs) ::: (gFunction.args zip args))      
       lazyEval(applySubstitution(gFunction.term, substitution))
-    }
     
     case FCall(name1, args1) => 
       lazyEvalGCall(name, unfoldFCall(name1, args1), args)
@@ -61,6 +60,6 @@ class Interpreter (program: Program) {
   }
   
   def illegalTerm(t: Term): Constructor = {
-    throw new IllegalArgumentException(t + " is encoutered in passed expression. This term contains vars.")
+    throw new IllegalArgumentException(t + " is encountered in passed expression. This term contains vars.")
   }
 }

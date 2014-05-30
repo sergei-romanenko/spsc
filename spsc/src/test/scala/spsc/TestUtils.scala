@@ -1,8 +1,7 @@
-package spsc;
+package spsc
 
 import scala.util.parsing.input.CharArrayReader
 
-import org.junit.Test
 import org.junit.Assert._
 
 object TestUtils {

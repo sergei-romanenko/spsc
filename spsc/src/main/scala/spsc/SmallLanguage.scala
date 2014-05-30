@@ -7,7 +7,7 @@ import scala.util.parsing.input.Positional
   sealed abstract class Term extends Expression with Positional
   // Variables start with a lower case letter and have no args.
   case class Variable(name: String) extends Term {
-    override def toString() = name
+    override def toString = name
   }
   // Constructors start with an upper case letter and have optional args.
   case class Constructor(name: String, args: List[Term]) extends Term {
@@ -40,20 +40,19 @@ import scala.util.parsing.input.Positional
   
   case class Program(definitions : List[Definition]) {
     
-    private var fMap = scala.collection.mutable.Map[String, FFunction]()        
-    private var gpMap = scala.collection.mutable.Map[(String, String), GFunction]()
-    private var gMap = scala.collection.mutable.Map[String, List[GFunction]]()
+    private val fMap = scala.collection.mutable.Map[String, FFunction]()
+    private val gpMap = scala.collection.mutable.Map[(String, String), GFunction]()
+    private val gMap = scala.collection.mutable.Map[String, List[GFunction]]()
     
     for (d <- definitions) d match {
       case f @ FFunction(name, _, _) => 
         fMap += (name -> f)
-      case g @ GFunction(name, arg0, _, _) => {
+      case g @ GFunction(name, arg0, _, _) =>
         gpMap += ((name, arg0.name) -> g)
         gMap.get(name) match {
           case None => gMap(name) = List(g)
           case Some(l) => gMap(name) = g :: l
         }
-      }
     }
     
     def getFFunction(name: String) = fMap.get(name) match {
@@ -84,7 +83,7 @@ import scala.util.parsing.input.Positional
     override def toString = definitions.mkString("\n")
   }
   
-  // An auxilary entity used for supercompilation.
+  // An auxiliary entity used for supercompilation.
   case class LetExpression(term: Term, bindings: List[Pair[Variable, Term]]) extends Expression {
     override def toString = "let " + bindings.toList.map(kv => kv._1 + "=" + kv._2).mkString("", ", ", "") + " in " + term
   }

@@ -1,4 +1,4 @@
-package spsc;
+package spsc
 
 import scala.util.parsing.combinator.Parsers
 
