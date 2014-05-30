@@ -14,7 +14,7 @@ object HE {
   }
   
   private def heByCoupling(t1: Term, t2: Term): Boolean = (t1, t2) match {
-    case (e1:CFG, e2:CFG) if shellEq(e1, e2) => List.forall2(e1.args, e2.args)(he)
+    case (e1:CFG, e2:CFG) if shellEq(e1, e2) => (e1.args, e2.args).zipped.forall(he)
     case (Var(_), Var(_)) => true
     case _ => false
   }

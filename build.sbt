@@ -1,6 +1,8 @@
-scalaVersion := "2.10.3"
+scalaVersion := "2.11.1"
 
 name := "spsc-lite"
+
+libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.1"
 
 libraryDependencies += "com.novocode" % "junit-interface" % "0.10" % "test"
 

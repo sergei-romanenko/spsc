@@ -38,11 +38,11 @@ class Tree(val freeId : Int, val root: Node, val children: Map[Node, List[Node]]
   
   def leaves_(node: Node): List[Node] = 
     if (children(node).isEmpty) List(node) 
-    else List.flatten(children(node) map leaves_)
+    else children(node).flatMap(leaves_)
   
-  def leaves() = leaves_(root)
+  def leaves = leaves_(root)
 
-  override def toString() : String = {
+  override def toString : String = {
     val acc = new StringBuilder()
     def walk(n : Node) : Unit = {
       val parentId_s = if( n.parent == null ) "" else n.parent.nodeId.toString

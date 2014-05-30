@@ -24,22 +24,25 @@ object Algebra {
         case Some(t3) => t2 == t3
       }
       case (e1: CFG, e2:CFG) if shellEq(e1, e2) => 
-        List.forall2(e1.args, e2.args)(walk)
+        (e1.args, e2.args).zipped.forall(walk)
       case _ => false
     }
     if (walk(t1, t2)) map else null
   }
   
   def vars(t: Term): List[Var] = t match {
-    case v: Var => (List(v))
+    case v: Var => List(v)
     case e: CFG => (List[Var]() /: e.args) {(vs, exp) =>  (vs ++ vars(exp)).distinct}
   }
   
-  private var i = 0;
+  private var i = 0
 
-  def resetVarGen() { i = 0; }
+  def resetVarGen() { i = 0 }
   
-  def freshVar(x: AnyRef = null) = {i += 1; Var("v" + i)};
+  def freshVar(x: AnyRef = null) = {
+    i += 1
+    Var("v" + i)
+  }
   
   def isFGCall(expr: Term): Boolean = expr match {
     case FCall(_, _) => true

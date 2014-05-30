@@ -70,51 +70,51 @@ object Sample {
     gD(Z()) = Z();
     gD(S(x)) = gD(S(S(x)));
     """
-	  
+
   val target8 =  
-	  "fRun(Fun(Fap(S(Z()), En()), Fn(), Un()))"
+  "fRun(Fun(Fap(S(Z()), En()), Fn(), Un()))"
   val program8 = 
     """
-	  fRun(prog,args)=gApply(Z(),prog,args,prog);
+    fRun(prog,args)=gApply(Z(),prog,args,prog);
 
-	  gApply(Z(),funs,env,prog)=gEval(gFunHead(funs),env,prog);
-	  gApply(S(x),funs,env,prog)=gApply(x,gFunTail(funs),env,prog);
-	  
-	  gFunHead(Fn())=Cap(Z(),En());
-	  gFunHead(Fun(exp,funs))=exp;
+    gApply(Z(),funs,env,prog)=gEval(gFunHead(funs),env,prog);
+    gApply(S(x),funs,env,prog)=gApply(x,gFunTail(funs),env,prog);
 
-	  gFunTail(Fn())=Fn();
-	  gFunTail(Fun(exp,funs))=funs;
+    gFunHead(Fn())=Cap(Z(),En());
+    gFunHead(Fun(exp,funs))=exp;
 
-	  gEval(Var(n),env,prog)=gLookup(n,env);
-	  gEval(Fap(n,elist),env,prog)=gApply(n,prog,gEvalList(elist,env,prog),prog);
-	  gEval(Cap(n,elist),env,prog)=Con(n,gEvalList(elist,env,prog));
-	  gEval(Case(exp,elist),env,prog)=gEvalHelper(gEval(exp,env,prog),elist,env,prog);
+    gFunTail(Fn())=Fn();
+    gFunTail(Fun(exp,funs))=funs;
 
-	  gEvalHelper(Con(n,ulist),elist,env,prog)=gEval(gSelect(n,elist),gAppend(ulist,env),prog);
+    gEval(Var(n),env,prog)=gLookup(n,env);
+    gEval(Fap(n,elist),env,prog)=gApply(n,prog,gEvalList(elist,env,prog),prog);
+    gEval(Cap(n,elist),env,prog)=Con(n,gEvalList(elist,env,prog));
+    gEval(Case(exp,elist),env,prog)=gEvalHelper(gEval(exp,env,prog),elist,env,prog);
 
-	  gLookup(Z(),env)=gEnvHead(env);
-	  gLookup(S(n),env)=gLookup(n,gEnvTail(env));
+    gEvalHelper(Con(n,ulist),elist,env,prog)=gEval(gSelect(n,elist),gAppend(ulist,env),prog);
 
-	  gEnvHead(Un())=Con(Z(),Un());
-	  gEnvHead(Uc(univ,ulist))=univ;
+    gLookup(Z(),env)=gEnvHead(env);
+    gLookup(S(n),env)=gLookup(n,gEnvTail(env));
 
-	  gEnvTail(Un()) =Un();
-	  gEnvTail(Uc(univ,ulist))= ulist;
+    gEnvHead(Un())=Con(Z(),Un());
+    gEnvHead(Uc(univ,ulist))=univ;
 
-	  gAppend(Un(),y)=y;
-	  gAppend(Uc(univ,ulist),y)=Uc(univ,gAppend(ulist,y));
+    gEnvTail(Un()) =Un();
+    gEnvTail(Uc(univ,ulist))= ulist;
 
-	  gEvalList(En(),env,prog)=Un();
-	  gEvalList(Ec(exp,elist),env,prog)=Uc(gEval(exp,env,prog),gEvalList(elist,env,prog));
+    gAppend(Un(),y)=y;
+    gAppend(Uc(univ,ulist),y)=Uc(univ,gAppend(ulist,y));
 
-	  gSelect(Z(),elist) = gElistHead(elist);
-	  gSelect(S(n),elist) = gSelect(n,gElistTail(elist));
-	  gElistHead(En()) = Cap(Z(), En());
-	  gElistHead(Ec(exp,elist)) = exp;
+    gEvalList(En(),env,prog)=Un();
+    gEvalList(Ec(exp,elist),env,prog)=Uc(gEval(exp,env,prog),gEvalList(elist,env,prog));
 
-	  gElistTail(En())=En();
-	  gElistTail(Ec(exp,elist))=elist;
+    gSelect(Z(),elist) = gElistHead(elist);
+    gSelect(S(n),elist) = gSelect(n,gElistTail(elist));
+    gElistHead(En()) = Cap(Z(), En());
+    gElistHead(Ec(exp,elist)) = exp;
+
+    gElistTail(En())=En();
+    gElistTail(Ec(exp,elist))=elist;
     """  
   
   def main(args : Array[String]) : Unit = {
@@ -148,10 +148,10 @@ object Sample {
     val sc = new AdvancedSupercompiler(program)
     val pt = sc.buildProcessTree(target)
     val (resTerm, resProgram) = new ResidualProgramGenerator(pt).result
-    println("** runSuperCompiler **"); println();
-    println(target); println(); println(program);
-    println(); println();
-    println(resTerm); println(); println(resProgram);
+    println("** runSuperCompiler **"); println()
+    println(target); println(); println(program)
+    println(); println()
+    println(resTerm); println(); println(resProgram)
     println("-------")
   }
   
@@ -161,10 +161,10 @@ object Sample {
     val sc = new BasicSupercompiler(program)
     val pt = sc.buildProcessTree(target)
     val (resTerm, resProgram) = new ResidualProgramGenerator(pt).result
-    println("** runBaseSuperCompiler **"); println();
-    println(target); println(); println(program);
-    println(); println();
-    println(resTerm); println(); println(resProgram);
+    println("** runBaseSuperCompiler **"); println()
+    println(target); println(); println(program)
+    println(); println()
+    println(resTerm); println(); println(resProgram)
     println("-------")
   }
 }
