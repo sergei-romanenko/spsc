@@ -39,7 +39,8 @@ def supercompileProgram(code, goal):
     result = urlfetch.fetch(url=RUN_URL,
                             payload=form_data,
                             method=urlfetch.POST,
-                            headers={'Content-Type': 'application/x-www-form-urlencoded'})   
+                            headers={'Content-Type': 'application/x-www-form-urlencoded'},
+                            deadline=30)
     if result.status_code == 200:
         xmlresponse = result.content
         doc = minidom.parseString(xmlresponse)
