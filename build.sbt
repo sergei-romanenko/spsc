@@ -15,12 +15,10 @@ lazy val spsc =
 
 lazy val spsc_web =
   project.
-    in(file("spsc_web2")).
+    in(file("spsc_web")).
     settings(standardSettings:_*)
     .settings(
-      //"net.databinder" %% "unfiltered-directives" % "0.8.0",
       libraryDependencies += "net.databinder" %% "unfiltered-filter" % "0.8.0",
-      //"net.databinder" %% "unfiltered-jetty" % "0.8.0",
       libraryDependencies += "javax.servlet" % "servlet-api" % "2.5" % "provided",
       libraryDependencies += "org.mortbay.jetty" % "jetty" % "6.1.22" % "container"
     ).settings(appengineSettings:_*)
