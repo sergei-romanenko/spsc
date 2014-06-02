@@ -16,13 +16,14 @@ Projects:
 
 * `spcs` (Scala) - the main (core) project
 * `spcs_back` (Scala) - simple SPSC backend (targeted for Google app engine)
-* `spcs_front` (Python) - simple SPSC frontend deployed at Google app engine 
-(it uses `spcs_back` for supercompilation)
+* `spcs_front` (Python) - simple SPSC frontend deployed at Google app engine (it uses `spcs_back` for supercompilation)
 
 
-        $ export APPENGINE_SDK_HOME=/Users/lambdamix/apps/appengine-java-sdk-1.9.5;
-        $ sbt
-        > test
-        > project spsc
-        > runMain spsc.Samples
+Running:
+
+    $ export APPENGINE_SDK_HOME=/Users/lambdamix/apps/appengine-java-sdk-1.9.5;
+    $ sbt
+    > test
+    > project spsc
+    > runMain spsc.Samples
 
