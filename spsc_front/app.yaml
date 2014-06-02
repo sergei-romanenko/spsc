@@ -1,7 +1,8 @@
 application: spsc-hrd
-version: 2-1
-runtime: python
+version: 2-2
+runtime: python27
 api_version: 1
+threadsafe: true
 
 handlers:
 - url: /static
@@ -12,7 +13,4 @@ handlers:
   upload: static/favicon.ico
 
 - url: (/|/all|/view|/edit|/delete|/mine|/authors|/author|/svg|/supercompiler|/svgpreview)
-  script: main.py
-  
-- url: /wakeup
-  script: wakeup.py
+  script: main.app

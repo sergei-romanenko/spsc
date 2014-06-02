@@ -7,9 +7,8 @@ from google.appengine.api import users
 from google.appengine.api import urlfetch
 from google.appengine.api import memcache
 from google.appengine.ext import db
-from google.appengine.ext import webapp
+import webapp2 as webapp
 from google.appengine.ext.webapp import template
-from google.appengine.ext.webapp import util
 
 import models
 

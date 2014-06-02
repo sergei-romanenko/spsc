@@ -1,5 +1,0 @@
-cron:
-- description: wake up backend
-  url: /wakeup
-  schedule: every 10 minutes
-
