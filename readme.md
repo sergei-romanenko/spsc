@@ -19,9 +19,10 @@ Projects:
 * `spcs_front` (Python) - simple SPSC frontend deployed at Google app engine 
 (it uses `spcs_back` for supercompilation)
 
-    $ export APPENGINE_SDK_HOME=/Users/lambdamix/apps/appengine-java-sdk-1.9.5;
-    $ sbt
-    > test
-    > project spsc
-    > runMain spsc.Samples
+
+        $ export APPENGINE_SDK_HOME=/Users/lambdamix/apps/appengine-java-sdk-1.9.5;
+        $ sbt
+        > test
+        > project spsc
+        > runMain spsc.Samples
 
