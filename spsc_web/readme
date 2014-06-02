@@ -1,4 +1,0 @@
-This project is developed under Eclipse using Web Tools Platform (http://www.eclipse.org/webtools/) 
-and Eclipse Scala Plugin v2.7.3 (http://www.scala-lang.org/node/94)
-
-You need to register Apache Tomcat 5.5 Server under name "tomcat5.5"

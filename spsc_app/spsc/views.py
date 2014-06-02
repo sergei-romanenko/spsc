@@ -18,7 +18,7 @@ UNKNOWN_FUNCTION = 'unknownFunction'
 PARSE_ERROR = 'parseError'
 NETWORK_ERROR = 'networkError'
 
-RUN_URL = 'http://spsc.ilyushkin.staxapps.net/run'
+RUN_URL = 'http://java.spsc.appspot.com/run'
 SVG_INTRO = """<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/SVG/DTD/svg10.dtd">
 """
@@ -39,7 +39,9 @@ def supercompileProgram(code, goal):
     result = urlfetch.fetch(url=RUN_URL,
                             payload=form_data,
                             method=urlfetch.POST,
-                            headers={'Content-Type': 'application/x-www-form-urlencoded'})   
+                            headers={'Content-Type': 'application/x-www-form-urlencoded'},
+                            deadline=30,
+                            follow_redirects=False)
     if result.status_code == 200:
         xmlresponse = result.content
         doc = minidom.parseString(xmlresponse)
