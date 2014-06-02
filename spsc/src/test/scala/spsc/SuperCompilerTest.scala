@@ -7,20 +7,20 @@ class SuperCompilerTest {
   @Test def processSamples(): Unit =
   {
     
-    SuperCompilerApp.main(Array("-i", "input/append.sl",
+    SuperCompilerApp.main(Array("-i", "samples/test/append.sl",
                                 "-f", "append2", 
-                                "-t", "output/append2.svg",
-                                "-p", "output/append2.sl"))
-    SuperCompilerApp.main(Array("-i", "input/append.sl",
+                                "-t", "samples/test/append2.out.svg",
+                                "-p", "samples/test/append2.out.sl"))
+    SuperCompilerApp.main(Array("-i", "samples/test/append.sl",
                                 "-f", "append3",
-                                "-t", "output/append3.svg",
-                                "-p", "output/append3.sl"))
+                                "-t", "samples/test/append3.out.svg",
+                                "-p", "samples/test/append3.out.sl"))
 
     for (i <- 1 to 21) {
-      SuperCompilerApp.main(Array("-i", "input/test.sl",
+      SuperCompilerApp.main(Array("-i", "samples/test/test.sl",
           "-f", "test" + i,
-          "-t", "output/test" + i + ".svg",
-          "-p", "output/test" + i + ".sl"))
+          "-t", "samples/test/test" + i + ".out.svg",
+          "-p", "samples/test/test" + i + ".out.sl"))
     }
   }
 }
