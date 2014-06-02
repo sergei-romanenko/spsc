@@ -12,3 +12,19 @@ lazy val spsc =
       libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.0.1",
       libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.1"
     )
+
+lazy val spsc_web =
+  project.
+    in(file("spsc_web2")).
+    settings(standardSettings:_*)
+    .settings(
+      //"net.databinder" %% "unfiltered-directives" % "0.8.0",
+      libraryDependencies += "net.databinder" %% "unfiltered-filter" % "0.8.0",
+      //"net.databinder" %% "unfiltered-jetty" % "0.8.0",
+      libraryDependencies += "javax.servlet" % "servlet-api" % "2.5" % "provided",
+      libraryDependencies += "org.mortbay.jetty" % "jetty" % "6.1.22" % "container"
+    ).settings(appengineSettings:_*)
+    .dependsOn(spsc)
+
+lazy val root =
+  Project(id = "parent", base = file(".")) aggregate(spsc, spsc_web)

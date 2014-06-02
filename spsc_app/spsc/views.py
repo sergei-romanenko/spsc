@@ -18,7 +18,7 @@ UNKNOWN_FUNCTION = 'unknownFunction'
 PARSE_ERROR = 'parseError'
 NETWORK_ERROR = 'networkError'
 
-RUN_URL = 'http://spsc.ilyushkin.staxapps.net/run'
+RUN_URL = 'http://java.spsc.appspot.com/run'
 SVG_INTRO = """<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/SVG/DTD/svg10.dtd">
 """
