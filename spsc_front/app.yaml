@@ -1,4 +1,4 @@
-application: spsc
+application: spsc-hrd
 version: 2-1
 runtime: python
 api_version: 1
