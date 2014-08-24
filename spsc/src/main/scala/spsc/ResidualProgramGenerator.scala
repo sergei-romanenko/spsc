@@ -52,7 +52,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
           case None => unfold(node.outs.head.child)
           case Some(fc1) =>
             val newName = if (node == tree.rootNode) fc.name else rename(fc.name, node == tree.rootNode)
-            val signature = Signature(newName, getVars(fc).toList)
+            val signature = Signature(newName, getVars(fc))
             signatures(node) = signature
             val result = unfold(node.outs.head.child)
             defs += FFunction(signature.name, signature.args, result)
@@ -80,7 +80,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
         (n.expr match {case gc_ : GCall => equivalent(gc, gc_); case _=>false})) match {
           case None => unfold(node.outs.head.child)
           case Some(fc1) => {
-            val signature = Signature(rename(gc.name, false), getVars(gc).distinct)
+            val signature = Signature(rename(gc.name, false), getVars(gc))
             signatures(node) = signature
             val result = unfold(node.outs.head.child)
             defs += FFunction(signature.name, signature.args, result)
@@ -89,7 +89,7 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
         }
       } else {
         val patternVar = node.outs.head.substitution.toList.head._1
-        val vars = getVars(gc).distinct.filterNot(_ == patternVar)
+        val vars = getVars(gc).filterNot(_ == patternVar)
         val signature = Signature(rename(gc.name, false), patternVar :: vars)
         signatures(node) = signature
         for (edge <- node.outs){
@@ -101,14 +101,18 @@ class ResidualProgramGenerator(val tree: ProcessTree) {
         GCall(signature.name, patternVar, vars)
       }
   }
-  
-  private def getVars(t: Term): List[Variable] =
-    t match {
-      case v: Variable => List(v)
-      case c: Constructor => c.args.flatMap(getVars)
-      case f: FCall => f.args.flatMap(getVars)
-      case g: GCall => (g.arg0 :: g.args).flatMap(getVars)
+
+  private def getVars(t: Term): List[Variable] = {
+    def getVars_(t: Term): List[Variable] = {
+      t match {
+        case v: Variable => List(v)
+        case c: Constructor => c.args.flatMap(getVars_)
+        case f: FCall => f.args.flatMap(getVars_)
+        case g: GCall => (g.arg0 :: g.args).flatMap(getVars_)
+      }
     }
+    getVars_(t).distinct
+  }
   
   private def rename(name: String, isOriginalNameAllowed: Boolean) = {
     if (isOriginalNameAllowed && !fnames.contains(name)){
