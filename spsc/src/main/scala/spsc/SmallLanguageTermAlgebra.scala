@@ -29,7 +29,7 @@ object SmallLanguageTermAlgebra {
     case (FCall(name1, args1), FCall(name2, args2)) if name1 == name2 => 
       (args1, args2).zipped.forall(he)
     case (GCall(name1, arg01, args1), GCall(name2, arg02, args2)) if name1 == name2 => 
-      (args1, args2).zipped.forall(he)
+      (arg01 :: args1, arg02 :: args2).zipped.forall(he)
     case _ => false
   }
   
