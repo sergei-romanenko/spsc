@@ -1,6 +1,6 @@
 module SParsers where
 
-import Char
+import Data.Char
 
 import Text.ParserCombinators.Parsec
 import qualified Text.ParserCombinators.Parsec.Token as P
@@ -22,20 +22,20 @@ tokenDefs = emptyDef
 
 lexer = P.makeTokenParser tokenDefs
 
-parens          = P.parens lexer    
-braces          = P.braces lexer    
-semiSep         = P.semiSep lexer  
-semiSep1        = P.semiSep1 lexer    
+parens          = P.parens lexer
+braces          = P.braces lexer
+semiSep         = P.semiSep lexer
+semiSep1        = P.semiSep1 lexer
 commaSep        = P.commaSep lexer
 commaSep1       = P.commaSep1 lexer
 brackets        = P.brackets lexer
-whiteSpace      = P.whiteSpace lexer    
-symbol          = P.symbol lexer    
-identifier      = P.identifier lexer    
-reserved        = P.reserved lexer    
+whiteSpace      = P.whiteSpace lexer
+symbol          = P.symbol lexer
+identifier      = P.identifier lexer
+reserved        = P.reserved lexer
 reservedOp      = P.reservedOp lexer
-integer         = P.integer lexer    
-charLiteral     = P.charLiteral lexer    
+integer         = P.integer lexer
+charLiteral     = P.charLiteral lexer
 stringLiteral   = P.stringLiteral lexer
 
 uIdent =
@@ -100,7 +100,7 @@ pattern =
 expression =   constructor <|> variableOrFunctionCall
 
 constructor =
-  do ctrName <- uIdent 
+  do ctrName <- uIdent
      argList <- option [] (parens (commaSep expression))
      return (Call Ctr ctrName argList)
 
@@ -119,7 +119,7 @@ run p input =
       do putStr "parse error at "
          print err
     Right x  -> print x
-    
+
 parseSLL :: String -> IO ()
 parseSLL = run program
 

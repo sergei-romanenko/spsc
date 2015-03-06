@@ -78,7 +78,7 @@ freshName =
      put $ t+1
      return $ mkName t
 
-freshNameList :: (MonadState a m, Num a, Enum a) => a -> m [String]
+freshNameList :: (Show a, MonadState a m, Num a, Enum a) => a -> m [String]
 
 freshNameList n =
   do t <- get
