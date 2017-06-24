@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>SPSC</title>
+  <link rel="icon" href="/favicon.ico" />
+  <link type="text/css" rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  	<div class="menu">
+  	<table width="100%">
+  	<tbody>
+  	<tr>
+  	<td>
+  		<div class="navbar">
+        <a class="b1" href="/all">All Tasks</a>
+        <a class="b1" href="/mine">My Tasks</a>
+        <a class="b1" href="/supercompiler">Supercompiler</a>
+        <a class="b1" href="/authors">Authors</a>
+  		</div>
+  		</td>
+  		<td align="right">
+  		<div class="user" >
+  			{%if user%}
+  				<b>{{user.email}}</b> |
+  			{%endif%}
+  			<a class="b1" href="http://code.google.com/p/spsc/" target="_blank">Help and source code</a> |
+  			{%if user%}
+				<a class="b1" href="{{sign_out|escape}}">Sign out</a>
+			{% else %}
+				<a class="b1" href="{{sign_in|escape}}">Sign in</a>
+			{%endif%}
+      	</div>
+  		</td>
+  		</tr>
+  	</tbody>
+  	</table>
+  	</div>
+  	<div class="mbh" ></div>
+  	<h2>{%block title%}{%endblock%}</h2>
+  	{%block content%}
+    {%endblock%}
+</body>

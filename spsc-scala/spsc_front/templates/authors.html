@@ -1,0 +1,9 @@
+{%extends "base.html"%}
+{%block title%}Authors{%endblock%}
+{%block content%}
+    {% for author in authors %}
+    <div class="author">
+		<a href="/author?key={{author.key}}">{{author.user.nickname}}</a>({{author.n_programs}})
+	</div>
+    {% endfor %}
+{%endblock%}

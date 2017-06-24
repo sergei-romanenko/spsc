@@ -1,0 +1,10 @@
+eq(Z, y) = eqZ(y);
+eq(S(x), y) = eqS(y, x);
+eqZ(Z) = True;
+eqZ(S(x)) = False;
+eqS(Z, x) = False;
+eqS(S(y), x) = eq(x, y);
+eqxx(x) = eq(x, x);
+eqxSx(x) = eq(x, S(x));
+eqSxx(x) = eq(S(x), x);
+eqSZx(x) = eq(S(Z), x);

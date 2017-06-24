@@ -1,0 +1,7 @@
+target/
+.idea/
+.idea_modules/
+output/
+*.pyc
+*.out.sl
+*.out.svg
