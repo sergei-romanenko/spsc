@@ -27,10 +27,10 @@ educational purposes and as a starting point for experimenting with
 supercompilation.
 
 Currently, there are 4 versions of SPSC Lite written in:
-[Scala](spsc_lite_scala/readme),
-[Haskell](spsc_lite_haskell/README.md),
-[Python 2.6](spsc_lite_python/README.md) and
-[Ruby 1.8](spsc_lite_ruby/README.md).
+[Scala](spsc-lite-scala/README.md),
+[Haskell](spsc-lite-haskell/README.md),
+[Python 2.6](spsc-lite-python/README.md) and
+[Ruby 1.8](spsc-lite-ruby/README.md).
 
 ## Documentation
 
@@ -39,13 +39,13 @@ See [The Table of Contents](docs/README.md).
 ## News
 
 **2009, September** A version of SPSC Lite
-[written in Ruby 1.8](spsc_lite_ruby/README.md).
+[written in Ruby 1.8](spsc-lite-ruby/README.md).
 
 **2009, August** A version of SPSC Lite
-[written in Python 2.6](spsc_lite_python/README.md).
+[written in Python 2.6](spsc-lite-python/README.md).
 
 **2009, August** A version of SPSC Lite
-[written in Haskell](spsc_lite_haskell/README.md).
+[written in Haskell](spsc-lite-haskell/README.md).
 
 **2009, June** The paper
 [SPSC: Суперкомпилятор на языке Scala](https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/spsc/Klyuchnikov,Romanenko-2009--SPSC-.Superkompilyator.na.yazyke.Scala.pdf).
