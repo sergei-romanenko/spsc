@@ -1,0 +1,78 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>SPSC Lite in JavaScript</title>
+	<script src='sll_lang.js' />
+	<script src='parsers.js' />
+	<script src='sll_parser.js' />
+	<script src='sll_algebra.js' />
+	<script src='partial_process_tree.js' />
+	<script src='residuator.js' />
+	<script src='he.js' />
+	<script src='msg.js' />
+	<script src='spsc.js' />
+	<script src='samples.js' />
+</head>
+<body>
+
+<script type="text/javascript">
+function supercompile() {
+	var src_code = document.getElementById('code').value;
+	var src_goal = document.getElementById('goal').value;
+
+	//console.log(src_code);
+	
+	var program = sll_parser.parse(src_code).result;
+	var goal = sll_parser.parse_exp(src_goal);
+	var sc = supercompiler(program);
+	var tree = sc.build_tree(goal);
+
+	var result = residuator(tree).residuate();
+	
+	//console.log('sc result:');
+	document.getElementById('residual_goal').value = result[0].toString();
+	document.getElementById('residual_code').value = result[1].toString();
+}
+</script>
+
+<div id='sample_list' style='float: left;'>
+<ul id = 'samples' />
+</div>
+<div style='float: left;'>
+<textarea rows="10" cols="80" id='code'></textarea> <br />
+<input type="text" id='goal' /> <br />
+<button onclick="supercompile();">Supercompile</button>
+<br />
+<textarea rows="10" cols="80" id='residual_code'>
+</textarea> <br />
+<input type="text" id='residual_goal' /></div>
+
+<script type="text/javascript">
+function create_links() {
+	var sample_links = document.getElementById('samples');
+	var link, li;
+	for (var name in samples) {
+		li = document.createElement('li');
+		link = document.createElement('a');
+		link.appendChild(document.createTextNode(name));
+		link.setAttribute('href', '#');
+		link.addEventListener('click', create_show_sample_handler(name), false);
+		li.appendChild(link);
+		sample_links.appendChild(li);
+	}
+}
+
+function create_show_sample_handler(name) {
+	return function(){
+		var code = samples[name].rules.join('\n');
+		var goal = samples[name].goal;
+		document.getElementById('code').value = code;
+		document.getElementById('goal').value = goal;
+	};
+}
+
+create_links();
+</script>
+
+</body>
+</html>
