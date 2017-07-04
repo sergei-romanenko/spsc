@@ -1,0 +1,9 @@
+.manager/*
+.scala_dependencies
+target/
+.idea/
+.idea_modules/
+bin/
+.cache
+.classpath
+.project
