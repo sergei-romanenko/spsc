@@ -10,7 +10,7 @@ Downloads section.
 You can play with Small Language interpreter in Scala shell:
 
 ```
-$scala -cp spsc_alpha.jar 
+$scala -cp spsc_alpha.jar
 Welcome to Scala version 2.7.0-final (Java HotSpot(TM) Client VM, Java 1.5.0_13).
 Type in expressions to have them evaluated.
 Type :help for more information.
@@ -23,7 +23,7 @@ scala> val program = """
      | append(Cons(u, us), vs) = Cons(u, append(us, vs));
      | append2(xs, ys, zs) = append(append(xs, ys), zs);
      | append3(xs, ys) = append(append(xs, ys), xs);"""
-program: java.lang.String = 
+program: java.lang.String =
 
        append(Nil, vs) = vs;
        append(Cons(u, us), vs) = Cons(u, append(us, vs));
