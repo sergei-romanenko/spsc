@@ -29,7 +29,7 @@ and [**A**] means the construct **A** is optional.
 
 _program_ ::= {_functionDefinition_}
 
-_functionDefinition_ ::= _fFunctionDefinition_ | _gFunctionDefinition_
+_functionDefinition_ ::= _fFunctionDefinition_ \| _gFunctionDefinition_
 
 _fFunctionDefinition_ ::= _fRule_`;`
 
@@ -45,7 +45,7 @@ _gParameters_ ::= _pattern_ {`,` _variable_}
 
 _pattern_ ::= _constructorName_`(`[_variable_ {`,` _variable_}]`)`
 
-_expression_ ::= _variable_ | _constructor_ | _fFunctionCall_ | _gFunctionCall_
+_expression_ ::= _variable_ \| _constructor_ \| _fFunctionCall_ \| _gFunctionCall_
 
 _constructor_ ::= _constructorName_[`(`[_expression_ {`,` _expression_}]`)`]
 

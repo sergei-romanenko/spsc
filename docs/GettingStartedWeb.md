@@ -14,7 +14,7 @@ need to install
 
 ## Usage
 
-SPSC web application is hosted at <http://pat.keldysh.ru:8180/spsc_web/spsc>
+SPSC web application is hosted at `http://pat.keldysh.ru:8180/spsc_web/spsc`
 and already has some predefined samples:
 
 ![webinput](images/webinput.png)
