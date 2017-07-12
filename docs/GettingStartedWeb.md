@@ -1,4 +1,9 @@
-# Prerequisites
+# Getting started with SPSC web application (obsolete)
+
+> Note that the current URL of the SPSC web application is  
+> <http://spsc.appspot.com/>
+
+## Prerequisites
 
 SPSC web application generates partial process trees in [SVG 
 format](http://www.w3.org/Graphics/SVG/). You need to have SVG-compatible 
@@ -7,23 +12,23 @@ doesn't provide support for SVG. In order to view SVG images with IE you
 need to install
 [Adobe SVG Viewer plug in](http://www.adobe.com/svg/viewer/install/main.html).
 
-# Usage
+## Usage
 
 SPSC web application is hosted at <http://pat.keldysh.ru:8180/spsc_web/spsc>
 and already has some predefined samples:
 
-![http://wiki.spsc.googlecode.com/hg/images/webinput.png](http://wiki.spsc.googlecode.com/hg/images/webinput.png)
+![webinput](images/webinput.png)
 
-Start playing with samples. SPSC produces residual program and partial process 
+Start playing with samples. SPSC produces residual program and partial process
 tree:
 
-![http://wiki.spsc.googlecode.com/hg/images/weboutput.png](http://wiki.spsc.googlecode.com/hg/images/weboutput.png)
+![weboutput.png](images/weboutput.png)
 
 Also SPSC takes care about input correctness:
 
-![http://wiki.spsc.googlecode.com/hg/images/websyntax.png](http://wiki.spsc.googlecode.com/hg/images/websyntax.png)
+![websyntax.png](images/websyntax.png)
 
-# Advanced: Hosting SPSC web demonstration
+## Advanced: Hosting SPSC web demonstration
 
 SPSC web demonstration is powered by
 [Scala Lift Web Framework](http://liftweb.net) and is distributed as Java

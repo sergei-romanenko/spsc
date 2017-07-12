@@ -1,4 +1,4 @@
-# Getting Started with SPSC
+# Getting started with SPSC command line application
 
 **SPSC** stands for _A Small Positive Supercompiler in Scala_. In order to use 
 SPSC you need to have Scala installed. Download and install Scala from the 

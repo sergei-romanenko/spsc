@@ -35,7 +35,7 @@ Currently, there are 4 versions of SPSC Lite written in: Scala, Haskell, Python
 
 **2009, September** A version of SPSC Lite written in Ruby 1.8.
 
-**2009, August** A version of SPSC Lite written in Python 2.6].
+**2009, August** A version of SPSC Lite written in Python 2.6.
 
 **2009, August** A version of SPSC Lite written in Haskell.
 
@@ -50,11 +50,11 @@ is accepted for
 ## Documentation
 
 * Concepts
-  - The concept of a supercompiler
-    <http://sites.google.com/site/keldyshscp/Home/supercompilerconcept>
-  - Positive supercompilers
-    <http://sites.google.com/site/keldyshscp/Home/positive-supercompilers>
-  - [Input language](SimpleLazyFirstOrderLanguage.md)
+    - The concept of a supercompiler
+      <http://sites.google.com/site/keldyshscp/Home/supercompilerconcept>
+    - Positive supercompilers
+      <http://sites.google.com/site/keldyshscp/Home/positive-supercompilers>
+    - [Input language](SimpleLazyFirstOrderLanguage.md) (SLL)
 * Getting started with SPSC [command line application](GettingStarted.md)
 * Getting started with SPSC [web application (obsolete)](GettingStartedWeb.md)
 * SPSC web interface (new) <http://spsc.appspot.com/>
