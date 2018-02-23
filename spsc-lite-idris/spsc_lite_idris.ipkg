@@ -1,0 +1,26 @@
+package mataprog
+
+opts = "-p contrib"
+
+modules =
+    SLanguage,
+    SParsers,
+    SLanguageTests,
+    Algebra,
+    AlgebraTests,
+    HE,
+    HETests,
+    MSGTests,
+    ProcessTree,
+    Supercompiler,
+    SupercompilerTests,
+    ResidualProgramGenerator,
+    ResidualProgramGeneratorTests
+
+tests =
+    SLanguageTests.allTests,
+    AlgebraTests.allTests,
+    HETests.allTests,
+    MSGTests.allTests,
+    SupercompilerTests.allTests,
+    ResidualProgramGeneratorTests.allTests

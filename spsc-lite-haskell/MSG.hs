@@ -42,9 +42,14 @@ commonFunctor u @ (Gen e m1 m2) =
            return $ Gen e' m1' m2'
 
 
+mergeableKeyPairs
+  :: (Eq a1, Eq a, Ord t) => Map.Map t a1 -> Map.Map t a -> [(t, t)]
+
 mergeableKeyPairs m1 m2 =
   [ (k1,k2) | (k1,e1) <- Map.assocs m1, (k2,e2) <- Map.assocs m1, k1 < k2,
                e1 == e2, m2 Map.! k1 == m2 Map.! k2]
+
+mergeSubexp :: Gen -> Gen
 
 mergeSubexp u @ (Gen e m1 m2) =
   case mergeableKeyPairs m1 m2 of

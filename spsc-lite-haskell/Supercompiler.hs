@@ -62,7 +62,7 @@ drivingStep prog e =
         (body, Nothing) : [(e', Nothing) | (_, e') <- bindings]
 
 driveBranch :: Program -> Exp -> Name -> Name -> Params -> Params ->
-               State Int (Exp, Maybe Contraction)
+               State Int Branch
 
 driveBranch prog e vname cname cparams params =
   do cparams' <- freshNameList (length cparams)
@@ -163,6 +163,8 @@ split tree b@(Node nId e@(Call kind name args) c p chIds) =
      let letExp = Let (Call kind name (map Var names')) (names' `zip` args)
          tree' = replaceSubtree tree nId letExp
      return $ tree'
+
+generalizeAlphaOrSplit :: Tree -> Node -> Node -> State Int Tree
 
 generalizeAlphaOrSplit tree
       beta@(Node _ eB _ _ _) alpha@(Node _ eA _ _ _) =

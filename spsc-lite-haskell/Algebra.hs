@@ -34,11 +34,11 @@ instOf e' e =
     Nothing -> False
     Just _ -> True
 
-matchAgainst :: Exp -> Exp -> Maybe (Subst)
+matchAgainst :: Exp -> Exp -> Maybe Subst
 
 matchAgainst e e' = matchAgainstAcc (Just Map.empty) e e'
 
-matchAgainstAcc :: Maybe (Subst) -> Exp -> Exp -> Maybe (Subst)
+matchAgainstAcc :: Maybe Subst -> Exp -> Exp -> Maybe Subst
 
 matchAgainstAcc (Just m) (Var vname) e' =
   case Map.lookup vname m of
@@ -50,9 +50,9 @@ matchAgainstAcc (Just m) (Call kind name args) (Call kind' name' args')
         matchAgainstAccL (Just m) args args'
 matchAgainstAcc _ _ _ = Nothing
 
-matchAgainstAccL :: Maybe (Subst) -> Args -> Args -> Maybe (Subst)
+matchAgainstAccL :: Maybe (Subst) -> Args -> Args -> Maybe Subst
 
-matchAgainstAccL (Just m) [] [] = (Just m)
+matchAgainstAccL (Just m) [] [] = Just m
 matchAgainstAccL (Just m) (e : es) (e' : es') =
   matchAgainstAccL (matchAgainstAcc (Just m) e e') es es'
 matchAgainstAccL _ _ _ = Nothing

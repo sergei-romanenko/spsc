@@ -1,4 +1,4 @@
-#A Small Positive Supercompiler in Haskell
+# A Small Positive Supercompiler in Haskell
 
 See <http://spsc.googlecode.com/>.
 
