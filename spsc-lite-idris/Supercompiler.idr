@@ -74,16 +74,24 @@ mutual
 
 ---- The parts common to the basic and advanced supercompilers.
 
-findMoreGeneralAncestors : Tree -> Node -> List Node
-findMoreGeneralAncestors tree beta@(MkNode _ eB _ _ _) =
-  [ alpha | alpha <- ancestors tree beta, let eA = nodeExp alpha,
-            isFGCall eA, eB `instOf` eA]
+isMoreGeneral : Node -> Node -> Bool
+isMoreGeneral beta alpha =
+  let eB = nodeExp beta
+      eA = nodeExp alpha
+  in isFGCall eA && (eB `instOf` eA)
+
+findAMoreGeneralAncestor : Tree -> Node -> Maybe Node
+findAMoreGeneralAncestor tree beta =
+  findAncestor (isMoreGeneral beta) tree beta
 
 export
-unprocessedNodes : Tree -> List Node
-unprocessedNodes tree =
-  let leaves = catMaybes $ map (`lookup` tree) (treeLeaves tree)
-  in [ leaf | leaf <- leaves, not $ isProcessed tree leaf ]
+findAnUnprocessedNode : Tree -> Maybe Node
+findAnUnprocessedNode tree =
+  let leaves = map (getNode tree) (treeLeaves tree) in
+  let nodes = [ leaf | leaf <- leaves, not $ isProcessed tree leaf ] in
+  case nodes of
+    [] => Nothing
+    alpha :: _ => Just alpha
 
 public export
 BuildStep : Type
@@ -99,9 +107,9 @@ TreeBuilder = Program -> Exp -> Tree
 
 buildLoop : BuildLoop
 buildLoop buildStep prog tree =
-  case unprocessedNodes tree of
-    [] => pure tree
-    beta :: _ =>
+  case findAnUnprocessedNode tree of
+    Nothing => pure tree
+    Just beta =>
       do tree' <- buildStep prog tree beta
          buildLoop buildStep prog tree'
 
@@ -135,9 +143,9 @@ expandNode prog tree beta@(MkNode bId eB _ _ _) =
 export
 basicBuildStep : BuildStep
 basicBuildStep prog tree beta =
-  case findMoreGeneralAncestors tree beta of
-    [] => expandNode prog tree beta
-    alpha :: _ => loopBack prog tree beta alpha
+  case findAMoreGeneralAncestor tree beta of
+    Nothing => expandNode prog tree beta
+    Just alpha => loopBack prog tree beta alpha
 
 export
 basicBuilder : TreeBuilder
@@ -163,21 +171,26 @@ generalizeAlphaOrSplit tree beta@(MkNode _ eB _ _ _) alpha@(MkNode _ eA _ _ _) =
        Var _ => split tree beta
        _     => abstract tree alpha e aSubst
 
-findEmbeddedAncestors : Tree -> Node -> List Node
-findEmbeddedAncestors tree beta@(MkNode _ eB _ _ _) =
-  [ alpha  | alpha <- ancestors tree beta,
-             let MkNode _ eA _ _ _ = alpha,
-             isFGCall eA, eA `embeddedIn` eB]
+
+isEmbeddedAncestor : Node -> Node -> Bool
+isEmbeddedAncestor beta alpha =
+  let eB = nodeExp beta
+      eA = nodeExp alpha
+  in isFGCall eA && (eA `embeddedIn` eB)
+
+findAnEmbeddedAncestor : Tree -> Node -> Maybe Node
+findAnEmbeddedAncestor tree beta =
+  findAncestor (isEmbeddedAncestor beta) tree beta
 
 export
 advancedBuildStep : BuildStep
 advancedBuildStep prog tree beta =
-  case findMoreGeneralAncestors tree beta of
-    [] =>
-      case findEmbeddedAncestors tree beta of
-        [] => expandNode prog tree beta
-        alpha :: _ => generalizeAlphaOrSplit tree beta alpha
-    alpha :: _ => loopBack prog tree beta alpha
+  case findAMoreGeneralAncestor tree beta of
+    Nothing =>
+      case findAnEmbeddedAncestor tree beta of
+        Nothing => expandNode prog tree beta
+        Just alpha => generalizeAlphaOrSplit tree beta alpha
+    Just alpha => loopBack prog tree beta alpha
 
 export
 advancedBuilder : TreeBuilder

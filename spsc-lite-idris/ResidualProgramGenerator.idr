@@ -11,10 +11,12 @@ import ProcessTree
 
 partial
 hd : List a -> a
+hd [] = idris_crash "hd"
 hd (x :: xs) = x
 
 partial
 tl : List a -> List a
+tl [] = idris_crash "tl"
 tl (x :: xs) = xs
 
 --
@@ -27,7 +29,7 @@ Sigs = SortedMap Nat Sig
 
 isVarTest : Tree -> Node -> Bool
 isVarTest tree (b@(MkNode _ _ _ _ (bChId :: _))) =
-  maybe False (isJust . nodeContr) (lookup bChId tree)
+  isJust $ nodeContr $ getNode tree bChId
 
 getFGSig : Tree -> String -> NodeId -> Name -> List Name ->
            State (Sigs, List Rule) Sig
@@ -52,7 +54,7 @@ putFGRules newRules =
 
 getChContr : Tree -> List NodeId -> List (Name, List Name)
 getChContr tree nIds =
-  let children = mapMaybe (`lookup` tree) nIds in
+  let children = map (getNode tree) nIds in
   [ (cname, cparams)  |
     MkNode _ _ (Just (MkContraction _ cname cparams)) _ _ <- children]  
 
@@ -60,8 +62,8 @@ mutual
 
   genResExp : Tree -> Node -> State (Sigs, List Rule) Exp
   genResExp tree (b@(MkNode _ bE _ _ bChIds)) =
-    case funcAncestors tree b of
-      [] =>
+    case findFuncAncestor tree b of
+      Nothing =>
         case bE of
           Var _ => pure $ bE
           Call Ctr cname _ =>
@@ -72,18 +74,18 @@ mutual
           Call GCall name args =>
             genResCall tree b name args
           Let _ bs =>
-            do let Just chId = lookup (hd bChIds) tree
-               e' <- genResExp tree chId
+            do let chNode = getNode tree (hd bChIds)
+               e' <- genResExp tree chNode
                es' <- genResExps tree (tl bChIds)
                let vnames = map fst bs
                let subst = fromList (vnames `zip` es')
                pure $ applySubst subst e'
-      (MkNode aId aE aC _ (aChId :: _)) :: _ =>
+      Just (MkNode aId aE aC _ (aChId :: _)) =>
         do (sigs, rules) <- get
            let Just (name, params) = lookup aId sigs
            let args = map Var params
            let Just subst = matchAgainst aE bE
-           let Just aChNode = lookup aChId tree
+           let aChNode = getNode tree aChId
            case nodeContr aChNode of
              Nothing =>
                pure $ applySubst subst (Call FCall name args)
@@ -92,7 +94,7 @@ mutual
 
   genResExps : Tree -> List NodeId -> State (Sigs, List Rule) (List Exp)
   genResExps tree nIds =
-    for (mapMaybe (`lookup` tree) nIds) (genResExp tree)
+    for (map (getNode tree) nIds) (genResExp tree)
 
   genResCall : Tree -> Node -> Name -> List Exp -> State (Sigs, List Rule) Exp
   genResCall tree (b@(MkNode bId bE _ _ bChIds)) name args =
@@ -110,17 +112,17 @@ mutual
     else if isFuncNode tree bId then
       do (sigs, rules) <- get
          (name', params') <- getFGSig tree "f" bId name params
-         let Just bChNode = lookup (hd bChIds) tree
+         let bChNode = getNode tree (hd bChIds)
          body' <- genResExp tree bChNode
          putFGRules [FRule name' params' body'] 
          pure $ Call FCall name' (map Var params)
     else
-      let Just bChNode = lookup (hd bChIds) tree in
+      let bChNode = getNode tree (hd bChIds) in
       genResExp tree bChNode
 
 genResidualProgram' : Tree -> State (Sigs, List Rule) (Program, Exp)
 genResidualProgram' tree =
-  do let Just initNode = lookup 0 tree
+  do let initNode = getNode tree 0
      resExp <- genResExp tree initNode
      (_, rules) <- get
      pure (MkProgram rules, resExp)

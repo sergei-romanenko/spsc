@@ -37,9 +37,9 @@ evBuilder treeBuilder givenProg givenExp =
 
 buildLoop1 : BuildLoop
 buildLoop1 buildStep prog tree =
-  case unprocessedNodes tree of
-    [] => pure tree
-    beta :: _ =>
+  case findAnUnprocessedNode tree of
+    Nothing => pure tree
+    Just beta =>
       buildStep prog tree beta
 
 basicBuilder1 : TreeBuilder

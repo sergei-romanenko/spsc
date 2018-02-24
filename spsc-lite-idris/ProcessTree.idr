@@ -43,9 +43,15 @@ Tree = SortedMap Nat Node
 implementation Show Tree where
   show tree = show $ map snd $ toList tree
 
+getNode : Tree -> Nat -> Node
+getNode tree nId =
+  case lookup nId tree of
+    Nothing => idris_crash "getNode"
+    Just node => node
+
 treeLeavesAcc : Tree -> NodeId -> List NodeId -> List NodeId
 treeLeavesAcc tree nId acc =
-  let Just (MkNode _ _ _ _ children) = lookup nId tree
+  let children = nodeChildren $ getNode tree nId
   in if isNil children
      then nId :: acc
      else foldr (treeLeavesAcc tree) acc children
@@ -53,13 +59,28 @@ treeLeavesAcc tree nId acc =
 treeLeaves : Tree -> List NodeId
 treeLeaves tree = treeLeavesAcc tree 0 []
 
+getParent : Tree -> Node -> Maybe Node
+getParent tree node =
+  getNode tree <$> nodeParent node
+
 ancestors : Tree -> Node -> List Node
 ancestors tree node =
-  case nodeParent node of
+  case getParent tree node of
     Nothing => []
-    Just parentId =>
-      let Just parentNode = lookup parentId tree in
+    Just parentNode =>
       parentNode :: ancestors tree parentNode
+
+findAncestor : (Node -> Bool) -> Tree -> Node -> Maybe Node
+findAncestor p tree node =
+  case getParent tree node of
+    Nothing => Nothing
+    Just parentNode =>
+      if p parentNode then Just parentNode
+                      else findAncestor p tree parentNode
+
+findFuncAncestor : Tree -> Node -> Maybe Node
+findFuncAncestor tree node =
+  findAncestor (\node' => nodeExp node `equiv` nodeExp node') tree node
 
 funcAncestors : Tree -> Node -> List Node
 funcAncestors tree node =
@@ -69,8 +90,7 @@ funcAncestors tree node =
 funcNodes : Tree -> List Node
 funcNodes tree =
   do leafId <- treeLeaves tree
-     let Just node = lookup leafId tree
-     funcAncestors tree node
+     funcAncestors tree $ getNode tree leafId
 
 isFuncNode : Tree -> NodeId -> Bool
 isFuncNode tree nId =
@@ -81,7 +101,7 @@ isProcessed tree node =
   case nodeExp node of
     Var _ => True
     Call Ctr name args => isNil args
-    Call _ _ _ => isCons $ funcAncestors tree node
+    Call _ _ _ => isJust $ findFuncAncestor tree node
     Let _ _ => False
 
 equivCall : Exp -> Exp -> Bool
@@ -91,7 +111,7 @@ equivCall e e' =
 replaceSubtree : Tree -> NodeId -> Exp -> Tree
 
 replaceSubtree tree nId e' =
-  let Just (MkNode _ e c p chIds) = lookup nId tree
+  let MkNode _ e c p chIds = getNode tree nId
       tree' = foldl (flip delete) tree chIds
   in insert nId (MkNode nId e' c p []) tree'
 
@@ -110,7 +130,7 @@ freshNodeIdList n =
 
 addChildren : Tree -> NodeId -> List Branch -> State Nat Tree
 addChildren tree nId branches =
-  let Just (MkNode _ e c p chIds) = lookup nId tree in
+  let MkNode _ e c p chIds = getNode tree nId in
   do chIds' <- freshNodeIdList (length branches)
      let tree' = insert nId (MkNode nId e c p (chIds ++ chIds')) tree
      let chNodes = [ MkNode nId' e' c' (Just nId) [] |

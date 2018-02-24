@@ -29,7 +29,7 @@ applySubst m e = case e of
   Call kind name args =>
     Call kind name (map (assert_total $ applySubst m) args)
   Let e bindings =>
-    Var "?"
+    idris_crash "Algebra.applySubst"
 
 -- Matching
 
