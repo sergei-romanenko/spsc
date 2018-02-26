@@ -38,12 +38,12 @@ implementation Show Node where
 -- By convention, the root node's id is 0.
 
 Tree : Type
-Tree = SortedMap Nat Node
+Tree = SortedMap NodeId Node
 
 implementation Show Tree where
   show tree = show $ map snd $ toList tree
 
-getNode : Tree -> Nat -> Node
+getNode : Tree -> NodeId -> Node
 getNode tree nId =
   case lookup nId tree of
     Nothing => idris_crash "getNode"
@@ -82,19 +82,16 @@ findFuncAncestor : Tree -> Node -> Maybe Node
 findFuncAncestor tree node =
   findAncestor (\node' => nodeExp node `equiv` nodeExp node') tree node
 
-funcAncestors : Tree -> Node -> List Node
-funcAncestors tree node =
-  [node' | node' <- ancestors tree node,
+funcAncestors : Tree -> NodeId -> List NodeId
+funcAncestors tree nId =
+  let node = getNode tree nId in
+  [nodeId node' | node' <- ancestors tree node,
            nodeExp node `equiv` nodeExp node' ]
 
-funcNodes : Tree -> List Node
-funcNodes tree =
+funcNodeIds : Tree -> List NodeId
+funcNodeIds tree =
   do leafId <- treeLeaves tree
-     funcAncestors tree $ getNode tree leafId
-
-isFuncNode : Tree -> NodeId -> Bool
-isFuncNode tree nId =
-  nId `elem` [ nId' | MkNode nId' _ _ _ _ <- funcNodes tree]
+     funcAncestors tree leafId
 
 isProcessed : Tree -> Node -> Bool
 isProcessed tree node =
