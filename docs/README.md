@@ -33,6 +33,8 @@ Currently, there are 4 versions of SPSC Lite written in: Scala, Haskell, Python
 
 ## News
 
+**2018, February** A version of SPSC Lite written in Idris 1.2.
+
 **2009, September** A version of SPSC Lite written in Ruby 1.8.
 
 **2009, August** A version of SPSC Lite written in Python 2.6.
