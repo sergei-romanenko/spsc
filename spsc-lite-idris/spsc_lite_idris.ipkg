@@ -10,12 +10,13 @@ modules =
     AlgebraTests,
     HE,
     HETests,
+    MSG,
     MSGTests,
     ProcessTree,
-    Supercompiler,
-    SupercompilerTests,
-    ResidualProgramGenerator,
-    ResidualProgramGeneratorTests
+    PTBuilder,
+    PTBuilderTests,
+    ResProgGen,
+    ResProgGenTests
 
 tests =
     SLanguageTests.allTests,
@@ -23,4 +24,4 @@ tests =
     HETests.allTests,
     MSGTests.allTests,
     SupercompilerTests.allTests,
-    ResidualProgramGeneratorTests.allTests
+    ResProgGenTests.allTests

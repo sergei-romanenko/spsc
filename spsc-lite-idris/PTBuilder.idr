@@ -1,4 +1,4 @@
-module Supercompiler
+module PTBuilder
 
 import Data.SortedMap
 import Control.Monad.State

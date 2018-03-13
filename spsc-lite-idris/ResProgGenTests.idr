@@ -1,12 +1,12 @@
-module ResidualProgramGeneratorTests
+module ResProgGenTests
 
 import Test.Unit
 
 import SLanguage
 import SParsers
 import ProcessTree
-import Supercompiler
-import ResidualProgramGenerator
+import PTBuilder
+import ResProgGen
 
 -- Runners
 

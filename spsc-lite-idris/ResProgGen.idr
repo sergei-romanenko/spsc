@@ -1,4 +1,4 @@
-module ResidualProgramGenerator
+module ResProgGen
 
 import Data.SortedMap
 import Control.Monad.State

@@ -7,7 +7,7 @@ import Test.Unit
 import SLanguage
 import SParsers
 import ProcessTree
-import Supercompiler
+import PTBuilder
 
 --
 

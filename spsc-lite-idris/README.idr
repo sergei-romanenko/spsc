@@ -10,7 +10,7 @@ import HETests
 import MSG
 import MSGTests
 import ProcessTree
-import Supercompiler
-import SupercompilerTests
-import ResidualProgramGenerator
-import ResidualProgramGeneratorTests
+import PTBuilder
+import PTBuilderTests
+import ResProgGen
+import ResProgGenTests
