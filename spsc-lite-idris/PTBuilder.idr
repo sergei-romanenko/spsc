@@ -72,7 +72,7 @@ mutual
        [(e'', Nothing)] <- drivingStep prog e'
        pure $ (e'', Just $ MkContraction vname cname cparams')
 
----- The parts common to the basic and advanced supercompilers.
+---- The parts common to the basic and advanced tree builders.
 
 isMoreGeneral : Node -> Node -> Bool
 isMoreGeneral beta alpha =
@@ -138,7 +138,7 @@ expandNode prog tree beta@(MkNode bId eB _ _ _) =
   do branches <- drivingStep prog eB
      addChildren tree bId branches
 
----- Basic supercompiler
+---- Basic tree builder
 
 export
 basicBuildStep : BuildStep
@@ -152,7 +152,7 @@ basicBuilder : TreeBuilder
 basicBuilder prog e =
   mkTreeBuilder buildLoop basicBuildStep prog e
 
----- Advanced Supercompiler with homeomorphic imbedding and generalization  
+---- Advanced tree builder with homeomorphic imbedding and generalization  
 
 abstract : Tree -> Node -> Exp -> Subst -> State Nat Tree
 abstract tree alpha@(MkNode aId eA _ _ _) e subst =

@@ -28,11 +28,13 @@ implementation Eq IdentKind where
 data SLLTokenKind
   = TkIdent IdentKind
   | TkPunct
+  | TkWhere
   | TkIgnore
 
 implementation Eq SLLTokenKind where
   (==) (TkIdent k1) (TkIdent k2) = k1 == k2
   (==) TkPunct TkPunct = True
+  (==) TkWhere TkWhere = True
   (==) TkIgnore TkIgnore = True
   (==) _ _ = False
 
@@ -42,10 +44,12 @@ SLLToken = Token SLLTokenKind
 TokenKind SLLTokenKind where
   TokType (TkIdent x) = String
   TokType TkPunct = ()
+  TokType TkWhere = ()
   TokType TkIgnore = ()
 
   tokValue (TkIdent k) x = x
   tokValue TkPunct x = ()
+  tokValue TkWhere x = ()
   tokValue TkIgnore x = ()
 
 identifier : Lexer
@@ -67,6 +71,8 @@ gId = expect (is 'g') <+> identifier
 sllTokenMap : TokenMap SLLToken
 sllTokenMap = toTokenMap $
   [ (spaces, TkIgnore)
+  --, (exact "where" <+> eof, TkWhere)  
+  , (exact "where" <+> opt spaces, TkWhere)  
   , (uId, TkIdent UId)
   , (fId, TkIdent FId)
   , (gId, TkIdent GId)
@@ -115,6 +121,9 @@ commaSep1 p = sepBy1 (symbol ",") p
 
 commaSep : (p : Grammar SLLToken True a) -> Grammar SLLToken False (List a)
 commaSep p = sepBy (symbol ",") p
+
+kwWhere : Grammar SLLToken True ()
+kwWhere = match TkWhere
 
 --
 -- Programs
@@ -182,7 +191,19 @@ program : Grammar SLLToken False Program
 program =
   do ruleList <- many(rule)
      eof
-     pure (MkProgram ruleList)
+     pure $ MkProgram ruleList
+
+--
+-- Supercompilation tasks
+--
+
+task : Grammar SLLToken True Task
+task =
+  do e <- expression
+     kwWhere
+     p <- program
+     eof
+     pure $ MkTask e p
 
 -- Parser
 
@@ -207,3 +228,7 @@ parseExp input = parseStr expression input
 export
 parseProg : String -> Maybe Program
 parseProg input = parseStr program input
+
+export
+parseTask : String -> Maybe Task
+parseTask input = parseStr task input

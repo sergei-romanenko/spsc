@@ -125,15 +125,15 @@ mutual
       let bChNode = getNode tree (hd bChIds) in
       genResExp tree fId bChNode
 
-genResidualProgram' : Tree -> State (Sigs, List Rule) (Program, Exp)
+genResidualProgram' : Tree -> State (Sigs, List Rule) (Exp, Program)
 genResidualProgram' tree =
   do let initNode = getNode tree 0
      let fIds = funcNodeIds tree
      resExp <- genResExp tree fIds initNode
      (_, rules) <- get
-     pure (MkProgram rules, resExp)
+     pure (resExp, MkProgram rules)
 
 export
-genResidualProgram : Tree -> (Program, Exp)
+genResidualProgram : Tree -> (Exp, Program)
 genResidualProgram tree =
   (evalState $ genResidualProgram' tree) (empty, [])

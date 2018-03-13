@@ -1,6 +1,9 @@
-package mataprog
+package spsc-lite-idris
 
 opts = "-p contrib"
+
+main = Main
+executable = spsc_lite_idris
 
 modules =
     SLanguage,
@@ -16,7 +19,8 @@ modules =
     PTBuilder,
     PTBuilderTests,
     ResProgGen,
-    ResProgGenTests
+    ResProgGenTests,
+    Main
 
 tests =
     SLanguageTests.allTests,

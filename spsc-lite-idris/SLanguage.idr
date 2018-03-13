@@ -31,6 +31,8 @@ data Rule
 
 data Program = MkProgram (List Rule)
 
+data Task = MkTask Exp Program
+
 --- Show ---
 
 mutual
