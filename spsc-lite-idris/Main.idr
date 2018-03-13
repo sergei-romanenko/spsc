@@ -3,19 +3,14 @@ module Main
 import Data.SortedMap
 
 import SLanguage
---import SLanguageTests
 import SParsers
 --import Algebra
---import AlgebraTests
 --import HE
---import HETests
 --import MSG
 --import MSGTests
 import ProcessTree
 import PTBuilder
---import PTBuilderTests
 import ResProgGen
---import ResProgGenTests
 
 -- The process tree is returned by the supercompilers
 -- just to enable the user to take a look at it.
@@ -53,6 +48,17 @@ exampleTask = "f(x) where f(x) = A;";
 
 main : IO ()
 main = do
-  putStrLn "Hello! I'm SPSC Lite in Idirs!"
-  let Just res = advancedScpTask exampleTask {- | Nothing => "" -}
-  putStrLn res
+  [_, taskName] <- getArgs
+    | _ => putStrLn "Usage: spsc-lite-idris taskname"
+  let pathTask = taskName ++  ".task"
+  let pathOut = taskName ++  ".out"
+  Right task <- readFile pathTask
+    | Left ferr =>
+        putStrLn ("Error reading file " ++ pathTask ++ ": " ++ show ferr)
+  putStrLn ("# Task read from " ++ pathTask)
+  let Just out = advancedScpTask task
+    | Nothing => putStrLn ("Syntax error(s) in " ++ pathTask ++ " !")
+  Right _ <- writeFile pathOut out 
+    | Left ferr =>
+        putStrLn ("Error writing file " ++ pathOut ++ ": " ++ show ferr)
+  putStrLn ("# Output written to " ++ pathOut)

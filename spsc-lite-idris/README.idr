@@ -14,3 +14,4 @@ import PTBuilder
 import PTBuilderTests
 import ResProgGen
 import ResProgGenTests
+import Main
