@@ -14,4 +14,5 @@ import PTBuilder
 import PTBuilderTests
 import ResProgGen
 import ResProgGenTests
+import PrettyPrinter
 import Main

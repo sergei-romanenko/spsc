@@ -88,6 +88,9 @@ mutual
   implementation Show Program where
     show (MkProgram rules) = concat [show rule | rule <- rules]
 
+  implementation Show Task where
+    show (MkTask e prog) = show e ++ " where " ++ show prog
+
 --
 -- Eq
 --

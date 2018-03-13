@@ -1,3 +1,5 @@
 *.*~
 *.ibc
+tasks/*.tree
+tasks/*.res
 spsc_lite_idris

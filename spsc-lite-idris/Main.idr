@@ -11,6 +11,7 @@ import SParsers
 import ProcessTree
 import PTBuilder
 import ResProgGen
+import PrettyPrinter
 
 -- The process tree is returned by the supercompilers
 -- just to enable the user to take a look at it.
@@ -30,35 +31,25 @@ basicScp = mkScp basicBuilder
 advancedScp : Supercompiler
 advancedScp = mkScp advancedBuilder
 
-mkScpTask : TreeBuilder -> String -> Maybe String
-mkScpTask builder task =
-  do MkTask e prog <- parseTask task
-     let tree = basicBuilder prog e
-     let (resExp, resProg) = genResidualProgram tree
-     let s = show tree ++ "\n" ++
-             show resExp ++ " where " ++
-             show resProg
-     pure $ s
-
-advancedScpTask : String -> Maybe String
-advancedScpTask = mkScpTask advancedBuilder
-
-exampleTask : String
-exampleTask = "f(x) where f(x) = A;";
-
 main : IO ()
 main = do
   [_, taskName] <- getArgs
     | _ => putStrLn "Usage: spsc-lite-idris taskname"
-  let pathTask = taskName ++  ".task"
-  let pathOut = taskName ++  ".out"
+  let pathTask = taskName ++ ".task"
+  let pathTree = taskName ++ ".tree"
+  let pathRes  = taskName ++ ".res"
   Right task <- readFile pathTask
     | Left ferr =>
         putStrLn ("Error reading file " ++ pathTask ++ ": " ++ show ferr)
-  putStrLn ("# Task read from " ++ pathTask)
-  let Just out = advancedScpTask task
+  putStrLn ("* Task read from " ++ pathTask)
+  let Just (MkTask e prog) = parseTask task
     | Nothing => putStrLn ("Syntax error(s) in " ++ pathTask ++ " !")
-  Right _ <- writeFile pathOut out 
+  let (tree, resExp, resProg) = advancedScp prog e
+  Right _ <- writeFile pathTree (ppTree $ tree) 
     | Left ferr =>
-        putStrLn ("Error writing file " ++ pathOut ++ ": " ++ show ferr)
-  putStrLn ("# Output written to " ++ pathOut)
+        putStrLn ("Error writing file " ++ pathTree ++ ": " ++ show ferr)
+  putStrLn ("* Process tree written to " ++ pathTree)
+  Right _ <- writeFile pathRes (show $ MkTask resExp resProg) 
+    | Left ferr =>
+        putStrLn ("Error writing file " ++ pathRes ++ ": " ++ show ferr)
+  putStrLn ("* Output written to " ++ pathRes)
