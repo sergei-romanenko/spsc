@@ -1,0 +1,5 @@
+gAddAcc(a, b)
+where
+
+gAddAcc(Z, y) = y;
+gAddAcc(S(x), y) = gAddAcc(x, S(y));

@@ -49,7 +49,7 @@ main = do
     | Left ferr =>
         putStrLn ("Error writing file " ++ pathTree ++ ": " ++ show ferr)
   putStrLn ("* Process tree written to " ++ pathTree)
-  Right _ <- writeFile pathRes (show $ MkTask resExp resProg) 
+  Right _ <- writeFile pathRes (ppTask $ MkTask resExp resProg)
     | Left ferr =>
         putStrLn ("Error writing file " ++ pathRes ++ ": " ++ show ferr)
   putStrLn ("* Output written to " ++ pathRes)

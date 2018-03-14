@@ -7,6 +7,19 @@ import ProcessTree
 
 %default covering
 
+docProgram : Program -> Doc
+docProgram (MkProgram rules) =
+  vsep (map (text . show) rules)
+
+docTask : Task -> Doc
+docTask (MkTask exp prog) =
+  (text . show) exp |$| text "where" |+| line |$| docProgram prog
+
+export
+ppTask : Task -> String
+ppTask task =
+  toString 0.4 80 $ docTask task
+
 mutual
 
   docTree : Tree -> NodeId -> Doc
