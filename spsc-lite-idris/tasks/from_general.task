@@ -1,0 +1,4 @@
+f(a)
+where
+
+f(x) = f(S(x));

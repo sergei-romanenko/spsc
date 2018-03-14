@@ -1,0 +1,5 @@
+f(a)
+where
+
+f(x) = g(f(x));
+g(A) = B;

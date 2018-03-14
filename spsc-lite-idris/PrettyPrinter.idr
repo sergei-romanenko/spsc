@@ -24,9 +24,10 @@ mutual
 
   docTree : Tree -> NodeId -> Doc
   docTree tree nId =
-    let MkNode _ exp contr parent children = getNode tree nId in
+    let MkNode _ exp contr parent children back = getNode tree nId in
     docContr contr |+|
     text (cast nId) |+| text " : " |+| text (show exp) |+|
+    maybe empty (\backId => line |+| text ("--> " ++ cast backId)) back |+|
     (nest 4 $ docChildren tree children)
 
   docContr : Maybe Contraction -> Doc

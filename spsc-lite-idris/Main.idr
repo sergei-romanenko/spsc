@@ -16,12 +16,13 @@ import PrettyPrinter
 -- The process tree is returned by the supercompilers
 -- just to enable the user to take a look at it.
 
+{-
 Supercompiler : Type
 Supercompiler = Program -> Exp -> (Tree, Exp, Program)
 
 mkScp : TreeBuilder -> Supercompiler
 mkScp builder prog e =
-  let tree = basicBuilder prog e
+  let tree = builder prog e
       (resExp, resProg) = genResidualProgram tree
   in (tree, resExp, resProg)
 
@@ -30,6 +31,7 @@ basicScp = mkScp basicBuilder
 
 advancedScp : Supercompiler
 advancedScp = mkScp advancedBuilder
+-}
 
 main : IO ()
 main = do
@@ -44,11 +46,13 @@ main = do
   putStrLn ("* Task read from " ++ pathTask)
   let Just (MkTask e prog) = parseTask task
     | Nothing => putStrLn ("Syntax error(s) in " ++ pathTask ++ " !")
-  let (tree, resExp, resProg) = advancedScp prog e
+  --let (tree, resExp, resProg) = advancedScp prog e
+  let tree = advancedBuilder prog e
   Right _ <- writeFile pathTree (ppTree $ tree) 
     | Left ferr =>
         putStrLn ("Error writing file " ++ pathTree ++ ": " ++ show ferr)
   putStrLn ("* Process tree written to " ++ pathTree)
+  let (resExp, resProg) = genResidualProgram tree
   Right _ <- writeFile pathRes (ppTask $ MkTask resExp resProg)
     | Left ferr =>
         putStrLn ("Error writing file " ++ pathRes ++ ": " ++ show ferr)

@@ -114,7 +114,7 @@ buildLoop buildStep prog tree =
          buildLoop buildStep prog tree'
 
 initTree : Exp -> Tree
-initTree e = insert 0 (MkNode 0 e Nothing Nothing []) empty
+initTree e = insert 0 (MkNode 0 e Nothing Nothing [] Nothing) empty
 
 export
 mkTreeBuilder : BuildLoop -> BuildStep -> TreeBuilder
@@ -125,16 +125,18 @@ mkTreeBuilder loop step prog e =
 -- a let-expression, in order to make beta the same as alpha
 -- (modulo variable names).
 
-loopBack : Program -> Tree -> Node -> Node -> State Nat Tree
-loopBack prog tree beta@(MkNode bId eB _ _ _) alpha@(MkNode _ eA _ _ _) =
+generalizeNode : Program -> Tree -> Node -> Node -> State Nat Tree
+generalizeNode prog tree beta@(MkNode bId eB _ _ _ _)
+                         alpha@(MkNode _ eA _ _ _ _) =
   do let Just subst = matchAgainst eA eB
-     pure $ replaceSubtree tree bId (Let eA (toList subst))
+     let letExp = Let eA (toList subst)
+     addChildren tree bId [(letExp, Nothing)]
 
 -- This function applies a driving step to the node's expression,
 -- and, in general, adds children to the node.
 
-expandNode : Program -> Tree -> Node -> State Nat Tree
-expandNode prog tree beta@(MkNode bId eB _ _ _) =
+driveNode : Program -> Tree -> Node -> State Nat Tree
+driveNode prog tree beta@(MkNode bId eB _ _ _ _) =
   do branches <- drivingStep prog eB
      addChildren tree bId branches
 
@@ -143,9 +145,13 @@ expandNode prog tree beta@(MkNode bId eB _ _ _) =
 export
 basicBuildStep : BuildStep
 basicBuildStep prog tree beta =
-  case findAMoreGeneralAncestor tree beta of
-    Nothing => expandNode prog tree beta
-    Just alpha => loopBack prog tree beta alpha
+  case findFuncAncestor tree beta of
+    Just alpha =>
+      pure $ setBack tree beta (nodeId alpha)
+    Nothing =>
+      case findAMoreGeneralAncestor tree beta of
+        Just alpha => generalizeNode prog tree beta alpha
+        Nothing => driveNode prog tree beta
 
 export
 basicBuilder : TreeBuilder
@@ -155,17 +161,20 @@ basicBuilder prog e =
 ---- Advanced tree builder with homeomorphic imbedding and generalization  
 
 abstract : Tree -> Node -> Exp -> Subst -> State Nat Tree
-abstract tree alpha@(MkNode aId eA _ _ _) e subst =
-  pure $ replaceSubtree tree aId (Let e (toList subst))
+abstract tree alpha@(MkNode aId eA _ _ _ _) e subst =
+  do tree' <- deleteChildren tree aId
+     let letExp = Let e (toList subst)
+     addChildren tree' aId [(letExp, Nothing)]
 
 split : Tree -> Node -> State Nat Tree
-split tree b@(MkNode nId e@(Call kind name args) c p chIds) =
+split tree b@(MkNode nId e@(Call kind name args) c p chIds back) =
   do names' <- freshNameList (length args)
      let letExp = Let (Call kind name (map Var names')) (names' `zip` args)
-     pure $ replaceSubtree tree nId letExp
+     addChildren tree nId [(letExp, Nothing)]
 
 generalizeAlphaOrSplit : Tree -> Node -> Node -> State Nat Tree
-generalizeAlphaOrSplit tree beta@(MkNode _ eB _ _ _) alpha@(MkNode _ eA _ _ _) =
+generalizeAlphaOrSplit tree beta@(MkNode _ eB _ _ _ _)
+                            alpha@(MkNode _ eA _ _ _ _) =
   do MkGen e aSubst bSubst <- msg eA eB
      case e of
        Var _ => split tree beta
@@ -185,12 +194,16 @@ findAnEmbeddedAncestor tree beta =
 export
 advancedBuildStep : BuildStep
 advancedBuildStep prog tree beta =
-  case findAMoreGeneralAncestor tree beta of
+  case findFuncAncestor tree beta of
+    Just alpha =>
+      pure $ setBack tree beta (nodeId alpha)
     Nothing =>
-      case findAnEmbeddedAncestor tree beta of
-        Nothing => expandNode prog tree beta
-        Just alpha => generalizeAlphaOrSplit tree beta alpha
-    Just alpha => loopBack prog tree beta alpha
+      case findAMoreGeneralAncestor tree beta of
+        Just alpha => generalizeNode prog tree beta alpha
+        Nothing =>
+          case findAnEmbeddedAncestor tree beta of
+            Just alpha => generalizeAlphaOrSplit tree beta alpha
+            Nothing => driveNode prog tree beta
 
 export
 advancedBuilder : TreeBuilder

@@ -1,0 +1,8 @@
+gMult(a, b)
+where
+
+gAdd(Z, y) = y;
+gAdd(S(x), y) = S(gAdd(x, y));
+
+gMult(Z, y) = Z;
+gMult(S(x), y) = gAdd(gMult(x, y), y);

@@ -28,7 +28,7 @@ Sigs : Type
 Sigs = SortedMap Nat Sig
 
 isVarTest : Tree -> Node -> Bool
-isVarTest tree (b@(MkNode _ _ _ _ (bChId :: _))) =
+isVarTest tree (b@(MkNode _ _ _ _ (bChId :: _) _)) =
   isJust $ nodeContr $ getNode tree bChId
 
 isFuncNode : List NodeId -> NodeId -> Bool
@@ -59,41 +59,40 @@ getChContr : Tree -> List NodeId -> List (Name, List Name)
 getChContr tree nIds =
   let children = map (getNode tree) nIds in
   [ (cname, cparams)  |
-    MkNode _ _ (Just (MkContraction _ cname cparams)) _ _ <- children]  
+    MkNode _ _ (Just (MkContraction _ cname cparams)) _ _ _ <- children]  
 
 mutual
 
   genResExp : Tree -> List NodeId -> Node -> State (Sigs, List Rule) Exp
-  genResExp tree fIds (b@(MkNode _ bE _ _ bChIds)) =
-    case findFuncAncestor tree b of
-      Nothing =>
-        case bE of
-          Var _ => pure $ bE
-          Call Ctr cname _ =>
-            do es <- genResExps tree fIds bChIds
-               pure $ Call Ctr cname es
-          Call FCall name args =>
-            genResCall tree fIds b name args
-          Call GCall name args =>
-            genResCall tree fIds b name args
-          Let _ bs =>
-            do let chNode = getNode tree (hd bChIds)
-               e' <- genResExp tree fIds chNode
-               es' <- genResExps tree fIds (tl bChIds)
-               let vnames = map fst bs
-               let subst = fromList (vnames `zip` es')
-               pure $ applySubst subst e'
-      Just (MkNode aId aE aC _ (aChId :: _)) =>
-        do (sigs, rules) <- get
-           let Just (name, params) = lookup aId sigs
-           let args = map Var params
-           let Just subst = matchAgainst aE bE
-           let aChNode = getNode tree aChId
-           case nodeContr aChNode of
-             Nothing =>
-               pure $ applySubst subst (Call FCall name args)
-             Just _ =>
-               pure $ applySubst subst (Call GCall name args)
+  genResExp tree fIds b@(MkNode _ bE _ _ bChIds Nothing) =
+    case bE of
+      Var _ => pure $ bE
+      Call Ctr cname _ =>
+        do es <- genResExps tree fIds bChIds
+           pure $ Call Ctr cname es
+      Call FCall name args =>
+        genResCall tree fIds b name args
+      Call GCall name args =>
+        genResCall tree fIds b name args
+      Let _ bs =>
+        do let chNode = getNode tree (hd bChIds)
+           e' <- genResExp tree fIds chNode
+           es' <- genResExps tree fIds (tl bChIds)
+           let vnames = map fst bs
+           let subst = fromList (vnames `zip` es')
+           pure $ applySubst subst e'
+  genResExp tree fIds b@(MkNode _ bE _ _ bChIds (Just aId)) =
+    do let MkNode _ aE aC _ (aChId :: _) _ = getNode tree aId
+       (sigs, rules) <- get
+       let Just (name, params) = lookup aId sigs
+       let args = map Var params
+       let Just subst = matchAgainst aE bE
+       let aChNode = getNode tree aChId
+       case nodeContr aChNode of
+         Nothing =>
+           pure $ applySubst subst (Call FCall name args)
+         Just _ =>
+           pure $ applySubst subst (Call GCall name args)
 
   genResExps : Tree -> List NodeId -> List NodeId ->
                     State (Sigs, List Rule) (List Exp)
@@ -102,7 +101,7 @@ mutual
 
   genResCall : Tree -> List NodeId -> Node -> Name -> List Exp ->
                     State (Sigs, List Rule) Exp
-  genResCall tree fId (b@(MkNode bId bE _ _ bChIds)) name args =
+  genResCall tree fId (b@(MkNode bId bE _ _ bChIds _)) name args =
     let params = vars bE in
     if isVarTest tree b then
       do (sigs, rules) <- get

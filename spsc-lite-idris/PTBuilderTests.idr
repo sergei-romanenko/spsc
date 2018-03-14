@@ -1,4 +1,4 @@
-module SupercompilerTests
+module PTBuilderTests
 
 import Data.SortedMap
 import Control.Monad.State
