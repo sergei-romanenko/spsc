@@ -4,10 +4,6 @@ import Data.SortedMap
 
 import SLanguage
 import SParsers
---import Algebra
---import HE
---import MSG
---import MSGTests
 import ProcessTree
 import PTBuilder
 import ResProgGen
@@ -15,23 +11,6 @@ import PrettyPrinter
 
 -- The process tree is returned by the supercompilers
 -- just to enable the user to take a look at it.
-
-{-
-Supercompiler : Type
-Supercompiler = Program -> Exp -> (Tree, Exp, Program)
-
-mkScp : TreeBuilder -> Supercompiler
-mkScp builder prog e =
-  let tree = builder prog e
-      (resExp, resProg) = genResidualProgram tree
-  in (tree, resExp, resProg)
-
-basicScp : Supercompiler
-basicScp = mkScp basicBuilder
-
-advancedScp : Supercompiler
-advancedScp = mkScp advancedBuilder
--}
 
 main : IO ()
 main = do
@@ -46,7 +25,6 @@ main = do
   putStrLn ("* Task read from " ++ pathTask)
   let Just (MkTask e prog) = parseTask task
     | Nothing => putStrLn ("Syntax error(s) in " ++ pathTask ++ " !")
-  --let (tree, resExp, resProg) = advancedScp prog e
   let tree = advancedBuilder prog e
   Right _ <- writeFile pathTree (ppTree $ tree) 
     | Left ferr =>

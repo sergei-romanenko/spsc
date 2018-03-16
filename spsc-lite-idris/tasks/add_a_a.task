@@ -1,6 +1,5 @@
-f(a)
+gAdd(a, a)
 where
 
-f(a) = gAdd(a, a);
 gAdd(Z, y) = y;
 gAdd(S(x), y)=S(gAdd(x, y));

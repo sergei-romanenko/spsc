@@ -58,9 +58,7 @@ mutual
       Call GCall name (arg0 :: args) =>
         do branches <- drivingStep prog arg0
            pure $ [ (Call GCall name (e' :: args), c) | (e', c) <- branches]
-      Let body bindings =>
-        pure $
-          (body, Nothing) :: [(e', Nothing) | (_, e') <- bindings]
+      _ => idris_crash "drivingStep: unexpected case"
 
   driveBranch : Program -> Exp -> Name -> Name -> Params -> Params ->
                 State Nat Branch
@@ -121,6 +119,17 @@ mkTreeBuilder : BuildLoop -> BuildStep -> TreeBuilder
 mkTreeBuilder loop step prog e =
   (evalState $ loop step prog (initTree e)) 10000
 
+-- This function replaces the expression in a node with
+-- a let-expression, and then adds childe nodes.
+-- Thus, a let-node cannot be a leaf.
+
+decomposeNode : Tree -> NodeId -> Exp -> Bindings -> State Nat Tree
+decomposeNode tree nId e bindings =
+  do let branches = (e, Nothing) ::
+           [ (exp, Nothing) | (name, exp) <- bindings ]
+     let tree' = replaceSubtree tree nId (Let e bindings)
+     addChildren tree' nId branches
+
 -- If beta `instOf` alpha, we generalize beta by introducing
 -- a let-expression, in order to make beta the same as alpha
 -- (modulo variable names).
@@ -129,8 +138,8 @@ generalizeNode : Program -> Tree -> Node -> Node -> State Nat Tree
 generalizeNode prog tree beta@(MkNode bId eB _ _ _ _)
                          alpha@(MkNode _ eA _ _ _ _) =
   do let Just subst = matchAgainst eA eB
-     let letExp = Let eA (toList subst)
-     addChildren tree bId [(letExp, Nothing)]
+     let bindings = toList subst
+     decomposeNode tree bId eA bindings
 
 -- This function applies a driving step to the node's expression,
 -- and, in general, adds children to the node.
@@ -162,15 +171,14 @@ basicBuilder prog e =
 
 abstract : Tree -> Node -> Exp -> Subst -> State Nat Tree
 abstract tree alpha@(MkNode aId eA _ _ _ _) e subst =
-  do tree' <- deleteChildren tree aId
-     let letExp = Let e (toList subst)
-     addChildren tree' aId [(letExp, Nothing)]
+  decomposeNode tree aId e (toList subst)
 
 split : Tree -> Node -> State Nat Tree
 split tree b@(MkNode nId e@(Call kind name args) c p chIds back) =
   do names' <- freshNameList (length args)
-     let letExp = Let (Call kind name (map Var names')) (names' `zip` args)
-     addChildren tree nId [(letExp, Nothing)]
+     let e = Call kind name (map Var names')
+     let bindings = names' `zip` args
+     decomposeNode tree nId e bindings
 
 generalizeAlphaOrSplit : Tree -> Node -> Node -> State Nat Tree
 generalizeAlphaOrSplit tree beta@(MkNode _ eB _ _ _ _)
@@ -179,7 +187,6 @@ generalizeAlphaOrSplit tree beta@(MkNode _ eB _ _ _ _)
      case e of
        Var _ => split tree beta
        _     => abstract tree alpha e aSubst
-
 
 isEmbeddedAncestor : Node -> Node -> Bool
 isEmbeddedAncestor beta alpha =

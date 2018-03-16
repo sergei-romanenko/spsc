@@ -93,6 +93,18 @@ testAdvAddAccAddAcc = testAS
   "gAddAcc(gAddAcc(a,b),c)"
   "(gAddAcc1(a,b,c), gAddAcc2(Z,c)=c;gAddAcc2(S(v10003),c)=gAddAcc2(v10003,S(c));gAddAcc1(Z,b,c)=gAddAcc2(b,c);gAddAcc1(S(v10000),b,c)=gAddAcc1(v10000,S(b),c);)"
 
+testAdvFromGeneral : IO Bool
+testAdvFromGeneral = testAS
+  "f(x) = f(S(x));"
+  "f(a)"
+  "(f1(a), f1(a)=f1(S(a));)"
+
+testAdvFromEmb : IO Bool
+testAdvFromEmb = testAS
+  "f(x) = g(f(x));g(A) = B;"
+  "f(a)"
+  "(f1(a), g2(A)=B;f1(a)=g2(f1(a));)"
+
 export
 allTests : IO ()
 allTests = runTests
@@ -104,4 +116,6 @@ allTests = runTests
   , testAdvAddAdd
   , testAdvAddAccAB
   , testAdvAddAccAA
-  , testAdvAddAccAddAcc ]
+  , testAdvAddAccAddAcc
+  , testAdvFromGeneral
+  , testAdvFromEmb ]

@@ -35,30 +35,43 @@ evBuilder treeBuilder givenProg givenExp =
 
 --
 
-buildLoop1 : BuildLoop
-buildLoop1 buildStep prog tree =
+buildLoopN : Nat -> BuildLoop
+buildLoopN Z buildStep prog tree =
+  pure tree
+buildLoopN (S k) buildStep prog tree =
   case findAnUnprocessedNode tree of
     Nothing => pure tree
     Just beta =>
-      buildStep prog tree beta
+      do tree' <- buildStep prog tree beta
+         buildLoopN k buildStep prog tree'
 
-basicBuilder1 : TreeBuilder
-basicBuilder1 = mkTreeBuilder buildLoop1 basicBuildStep
+basicBuilderN : Nat -> TreeBuilder
+basicBuilderN k = mkTreeBuilder (buildLoopN k) basicBuildStep
 
-advancedBuilder1 : TreeBuilder
-advancedBuilder1 = mkTreeBuilder buildLoop1 advancedBuildStep
+advancedBuilderN : Nat -> TreeBuilder
+advancedBuilderN k = mkTreeBuilder (buildLoopN k) advancedBuildStep
 
 testBB : String -> String -> String -> IO Bool
 testBB prog e expected =
   assertEquals (evBuilder basicBuilder prog e) (Just expected)
 
+testBBN : Nat -> String -> String -> String -> IO Bool
+testBBN k prog e expected =
+  assertEquals (evBuilder (basicBuilderN k) prog e) (Just expected)
+
 testBB1 : String -> String -> String -> IO Bool
-testBB1 prog e expected =
-  assertEquals (evBuilder basicBuilder1 prog e) (Just expected)
+testBB1 = testBBN 1
+
+testAB : String -> String -> String -> IO Bool
+testAB prog e expected =
+  assertEquals (evBuilder advancedBuilder prog e) (Just expected)
+
+testABN : Nat -> String -> String -> String -> IO Bool
+testABN k prog e expected =
+  assertEquals (evBuilder (advancedBuilderN k) prog e) (Just expected)
 
 testAB1 : String -> String -> String -> IO Bool
-testAB1 prog e expected =
-  assertEquals (evBuilder advancedBuilder1 prog e) (Just expected)
+testAB1 = testABN 1
 
 --
 
@@ -67,6 +80,8 @@ pAdd = "gAdd(Z,y)=y;gAdd(S(x),y)=S(gAdd(x,y));"
 
 pAddAcc : String
 pAddAcc = "gAddAcc(Z,y)=y;gAddAcc(S(x),y)=gAddAcc(x,S(y));"
+
+-- Driving
 
 testCtr : IO Bool
 testCtr = testDrStep
@@ -79,6 +94,12 @@ testFCall = testDrStep
   "f(x)=x;"
   "f(A(z))"
   "[(A(z), Nothing)]"
+
+testFCall2 : IO Bool
+testFCall2 = testDrStep
+  "f(x)=f(S(x));"
+  "f(a)"
+  "[(f(S(a)), Nothing)]"
 
 testGCallCtr : IO Bool
 testGCallCtr = testDrStep
@@ -98,11 +119,7 @@ testGCallGeneral = testDrStep
   "gAddAcc(gAddAcc(a, b), c)"
   "[(gAddAcc(b,c), Just a = Z), (gAddAcc(gAddAcc(v100,S(b)),c), Just a = S(v100))]"
 
-testLet : IO Bool
-testLet = assertEquals
-  (show $ runDrStep (MkProgram [])
-    (Let (Call Ctr "C" [Var "x", Var "y"]) [("x", Var "a"), ("y", Var "b")]))
-  "[(C(x,y), Nothing), (a, Nothing), (b, Nothing)]"
+-- Basic builder
 
 testPrTrVar : IO Bool
 testPrTrVar = testBB "" "x"
@@ -112,17 +129,35 @@ testPrTrCtr : IO Bool
 testPrTrCtr = testBB "" "S(Z)"
   "[{0^_: S(Z) @[10000]}, {10000^0: Z}]"
 
+testFromGeneral : IO Bool
+testFromGeneral = testBB "f(x)=f(S(x));" "f(a)"
+  "[{0^_: f(a) @[10000]}, {10000^0: let a=S(a) in f(a) @[10001, 10002]}, {10001^10000^^0: f(a)}, {10002^10000: S(a) @[10003]}, {10003^10002: a}]"
+
 testAdd1_0 : IO Bool
 testAdd1_0 = testBB pAddAcc "gAddAcc(S(Z), Z)"
   "[{0^_: gAddAcc(S(Z),Z) @[10000]}, {10000^0: gAddAcc(Z,S(Z)) @[10001]}, {10001^10000: S(Z) @[10002]}, {10002^10001: Z}]"
+
+-- Advanced builder
 
 testAPTVar : IO Bool
 testAPTVar = testAB1 "" "x"
   "[{0^_: x}]"
 
+testAPFCall : IO Bool
+testAPFCall = testAB1 "f(x)=f(S(x));" "f(a)"
+  "[{0^_: f(a) @[10000]}, {10000^0: f(S(a))}]"
+
 testAPTCtr : IO Bool
 testAPTCtr = testAB1 "" "S(Z)"
   "[{0^_: S(Z) @[10000]}, {10000^0: Z}]"
+
+testAFromGeneral : IO Bool
+testAFromGeneral = testAB "f(x)=f(S(x));" "f(a)"
+  "[{0^_: f(a) @[10000]}, {10000^0: let a=S(a) in f(a) @[10001, 10002]}, {10001^10000^^0: f(a)}, {10002^10000: S(a) @[10003]}, {10003^10002: a}]"
+
+testAFromEmb : IO Bool
+testAFromEmb = testAB "f(x) = g(f(x));g(A) = B;" "f(a)"
+  "[{0^_: f(a) @[10000]}, {10000^0: let v10002=f(a) in g(v10002) @[10003, 10004]}, {10003^10000: g(v10002) @[10005]}, {10004^10000^^0: f(a)}, {10005^10003: B ?v10002 = A}]"
 
 testAAdd1_0 : IO Bool
 testAAdd1_0 = testAB1 pAddAcc "gAddAcc(S(Z), Z)"
@@ -141,16 +176,22 @@ allTests : IO ()
 allTests = runTests
   [ testCtr
   , testFCall
+  , testFCall2
   , testGCallCtr
   , testGCallVar
   , testGCallGeneral
-  , testLet
 
   , testPrTrVar
+  , testAPFCall
   , testPrTrCtr
+  , testFromGeneral
   , testAdd1_0
+
   , testAPTVar
+  , testAPFCall
   , testAPTCtr
+  , testAFromGeneral
+  , testAFromEmb
   , testAAdd1_0
   , testAAddAB
   , testAAddAdd

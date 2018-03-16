@@ -88,16 +88,10 @@ findFuncAncestor : Tree -> Node -> Maybe Node
 findFuncAncestor tree node =
   findAncestor (\node' => nodeExp node `equiv` nodeExp node') tree node
 
-funcAncestors : Tree -> NodeId -> List NodeId
-funcAncestors tree nId =
-  let node = getNode tree nId in
-  [nodeId node' | node' <- ancestors tree node,
-           nodeExp node `equiv` nodeExp node' ]
-
 funcNodeIds : Tree -> List NodeId
 funcNodeIds tree =
   do leafId <- treeLeaves tree
-     funcAncestors tree leafId
+     maybe [] (\backId => [backId]) (nodeBack $ getNode tree leafId)
 
 isProcessed : Tree -> Node -> Bool
 isProcessed tree node =
@@ -117,6 +111,12 @@ deleteSubtree tree nId =
       tree' = foldl deleteSubtree tree chIds
   in delete nId tree'
 
+replaceSubtree : Tree -> NodeId -> Exp -> Tree
+replaceSubtree tree nId e' =
+  let MkNode _ e c p chIds back = getNode tree nId
+      tree' = foldl deleteSubtree tree chIds
+  in insert nId (MkNode nId e' c p [] back) tree'
+
 freshNodeId : State Nat NodeId
 freshNodeId =
   do k <- get
@@ -128,12 +128,6 @@ freshNodeIdList n =
   do k <- get
      put $ n + k
      pure $ [k .. pred (n + k)]
-
-deleteChildren : Tree -> NodeId -> State Nat Tree
-deleteChildren tree nId =
-  do let MkNode _ e c p chIds back = getNode tree nId
-     let tree' = foldl deleteSubtree tree chIds
-     pure $ insert nId (MkNode nId e c p [] back) tree'
 
 addChildren : Tree -> NodeId -> List Branch -> State Nat Tree
 addChildren tree nId branches =

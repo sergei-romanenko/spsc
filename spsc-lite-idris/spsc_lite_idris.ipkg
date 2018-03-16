@@ -28,5 +28,5 @@ tests =
     AlgebraTests.allTests,
     HETests.allTests,
     MSGTests.allTests,
-    SupercompilerTests.allTests,
+    PTBuilderTests.allTests,
     ResProgGenTests.allTests

@@ -20,10 +20,13 @@ mutual
   Args : Type
   Args = List Arg
 
+  Bindings : Type
+  Bindings = List (Name, Exp)
+
   data Exp
     = Var Name
     | Call CKind Name Args
-    | Let Exp (List (Name, Exp))
+    | Let Exp Bindings
 
 data Rule
   = FRule Name Params Exp
