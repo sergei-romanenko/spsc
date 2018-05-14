@@ -28,12 +28,15 @@ class Tree(val freeId : Int, val root: Node, val children: Map[Node, List[Node]]
              children + (n -> (cs map {case (t, b) => i += 1; new Node(i, t, n, b)})))
     }
 
-  def replace(n: Node, exp: Term) = 
-    if (n == root) new Tree(freeId, n, Map().withDefaultValue(Nil))
+  def replace(n: Node, exp: Term) =
+    if (n == root)
+      new Tree(freeId,
+        new Node(n.nodeId, exp, parent = null, contr = null),
+        Map().withDefaultValue(Nil))
     else {
       val p = n.parent
-      val cs = children(p) map {m => if (m == n) new Node(freeId, exp, p, n.contr) else m}
-      new Tree(freeId+1, root, children + (p -> cs))
+      val cs = children(p) map { m => if (m == n) new Node(freeId, exp, p, n.contr) else m }
+      new Tree(freeId + 1, root, children + (p -> cs))
     }
   
   def leaves_(node: Node): List[Node] = 
