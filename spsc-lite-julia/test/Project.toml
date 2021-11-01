@@ -1,2 +1,4 @@
 [deps]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+ParserCombinator = "fae87a5f-d1ad-5cf0-8f61-c941e1580b46"
+

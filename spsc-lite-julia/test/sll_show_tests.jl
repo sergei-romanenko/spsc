@@ -31,7 +31,11 @@ end
         string(Program([
             FRule("f", [], Call(Ctr(), "A", [])),
             FRule("f1", [], Call(Ctr(), "A1", []))]))
-    @test
+    @test "g(C)=A;g1(C,x)=A;g2(C(x))=A;" ==
+    string(Program([
+        GRule("g", "C", [], [], Call(Ctr(), "A",[])),
+        GRule("g1", "C", [], ["x"], Call(Ctr(), "A",[])),
+        GRule("g2", "C", ["x"], [], Call(Ctr(), "A",[]))]))
 end
-    
+
 end

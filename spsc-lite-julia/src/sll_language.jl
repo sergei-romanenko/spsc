@@ -34,6 +34,10 @@ struct Call <: Exp
   args::Args
 end
 
+mkCtr(name::Name, args::Args) = Call(Ctr(), name, args)
+mkFCall(name::Name, args::Args) = Call(FCall(), name, args)
+mkGCall(name::Name, args::Args) = Call(GCall(), name, args)
+
 struct Let <: Exp
   exp::Exp
   bindings::Vector{Binding}
@@ -61,5 +65,6 @@ end
 
 export CKind, Name, Arg, Args, Params, Binding
 export Exp, Var, Ctr, FCall, GCall, Call, Let, Rule, FRule, GRule, Program
+export mkCtr, mkFCall, mkGCall
 
 end

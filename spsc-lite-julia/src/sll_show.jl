@@ -1,6 +1,6 @@
 module ShowUtil
 
-using ..SLanguage
+using SPSC.SLanguage
 
 function showList(io::IO, list::Vector{T}) where {T}
     for i in 1:length(list)
