@@ -16,11 +16,11 @@ function parseOK(p, expected::String, input::String)
 end
 
 function exprOK(expected::String, input::String)
-    parseOK(expr, expected, input)
+    @test expected == string(parseExpr(input))
 end
 
 function programOK(expected::String, input::String)
-    parseOK(program, expected, input)
+    @test expected == string(parseProg(input))
 end
 
 function exc(p, input)

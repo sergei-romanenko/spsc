@@ -28,15 +28,15 @@ struct Var <: Exp
   name::Name
 end
     
-struct Call <: Exp
+struct CFG <: Exp
   ckind::CKind
     name::Name
   args::Args
 end
 
-mkCtr(name::Name, args::Args) = Call(Ctr(), name, args)
-mkFCall(name::Name, args::Args) = Call(FCall(), name, args)
-mkGCall(name::Name, args::Args) = Call(GCall(), name, args)
+mkCtr(name::Name, args::Args) = CFG(Ctr(), name, args)
+mkFCall(name::Name, args::Args) = CFG(FCall(), name, args)
+mkGCall(name::Name, args::Args) = CFG(GCall(), name, args)
 
 struct Let <: Exp
   exp::Exp
@@ -64,7 +64,7 @@ struct Program
 end
 
 export CKind, Name, Arg, Args, Params, Binding
-export Exp, Var, Ctr, FCall, GCall, Call, Let, Rule, FRule, GRule, Program
+export Exp, Var, CFG, Ctr, FCall, GCall, Let, Rule, FRule, GRule, Program
 export mkCtr, mkFCall, mkGCall
 
 end

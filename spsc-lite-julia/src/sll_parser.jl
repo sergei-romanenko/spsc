@@ -23,13 +23,13 @@ spc = Drop(Star(Space()))
   variable = lIdent > Var
   
   ctrArgList = Opt(L + StarList(expr, COMMA) + R) |> identity
-  constructor = uIdent + ctrArgList > ((name, args) -> Call(Ctr(), name, args))
+  constructor = uIdent + ctrArgList > ((name, args) -> CFG(Ctr(), name, args))
 
   fArgList = L + StarList(expr, COMMA) + R |> identity
-  fCall = fIdent + fArgList > ((name, args) -> Call(FCall(), name, args))
+  fCall = fIdent + fArgList > ((name, args) -> CFG(FCall(), name, args))
 
   gArgList = L + PlusList(expr, COMMA) + R |> identity
-  gCall = gIdent + gArgList > ((name, args) -> Call(GCall(), name, args))
+  gCall = gIdent + gArgList > ((name, args) -> CFG(GCall(), name, args))
   
   expr.matcher = constructor | fCall | gCall | variable
   
@@ -50,7 +50,16 @@ spc = Drop(Star(Space()))
 
 end
 
+function parseExpr(input::String)::Exp
+  parse_one(input, expr + Eos())[1]
+end
+
+function parseProg(input::String)::Program
+  parse_one(input, program + Eos())[1]
+end
+
 export lIdent, uIdent, fIdent, gIdent
 export expr, program
+export parseExpr, parseProg
 
 end

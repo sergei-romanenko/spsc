@@ -21,13 +21,11 @@ function Base.show(io::IO, v::Var)
     print(io, v.name)
 end
 
-function Base.show(io::IO, call::Call)
+function Base.show(io::IO, call::CFG)
     print(io, call.name)
-    l = length(call.args) 
-    if call.ckind isa Ctr && l == 0
-        return
+    if !(call.ckind isa Ctr) || !isempty(call.args)
+        showPList(io, call.args)
     end
-    showPList(io, call.args)
 end
 
 function Base.show(io::IO, binding::Binding)
@@ -38,8 +36,11 @@ end
 
 function Base.show(io::IO, e::Let)
     print(io, "let ")
-    showList(io, e.bindings)
-    print(io, " in ")
+    if !isempty(e.bindings)
+        showList(io, e.bindings)
+        print(io, " ")
+    end
+    print(io, "in ")
     print(io, e.exp)
 end
 
@@ -55,10 +56,10 @@ function Base.show(io::IO, g::GRule)
     print(io, g.name)
     print(io, "(")
     print(io, g.cname)
-    if length(g.cparams) > 0
+    if !isempty(g.cparams)
         showPList(io, g.cparams)
     end
-    if length(g.params) > 0
+    if !isempty(g.params)
         print(io, ",")
         showList(io, g.params)
     end
