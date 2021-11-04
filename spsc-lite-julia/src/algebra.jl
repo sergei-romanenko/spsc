@@ -35,6 +35,11 @@ end
 Subst = Dict{Name,Exp}
 UNS = Union{Nothing,Subst}
 
+function substToString(s::Subst)
+  kvs = ["$key->$(s[key]);" for key in sort(collect(keys(s)))]
+  string(kvs...)
+end
+
 function applySubst(s::Subst, e::Exp)::Exp end
 
 applySubst(s::Subst, v::Var) = get(s, v.name, v)
@@ -78,9 +83,29 @@ instOf(e1::Exp, e2::Exp)::Bool =
 equiv(e1::Exp, e2::Exp)::Bool =
   instOf(e1, e2) && instOf(e2, e1)
 
+# Name generator
+
+mutable struct NameGen
+  prefix::String
+  tick::Int64
+end
+
+function freshName(ng::NameGen)
+  tick = ng.tick
+  ng.tick = tick+1
+  string(ng.prefix, tick)
+end
+
+function freshNameList(ng::NameGen, n)
+  tick = ng.tick
+  ng.tick = tick + n
+  [string(ng.prefix, tick+k) for k in 0:n-1]
+end
+
 export theSameFunctor, vars
-export Subst, UNS, applySubst
+export Subst, substToString, UNS, applySubst
 export matchAgainst
 export instOf, equiv
+export NameGen, freshName, freshNameList
 
 end

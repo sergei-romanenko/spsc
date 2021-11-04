@@ -8,16 +8,16 @@ using SPSC.Algebra
 @info "Testing Algebra"
 
 function runTheSameFunctor(e1::String, e2::String)::Bool
-  theSameFunctor(parseExpr(e1), parseExpr(e2))
+    theSameFunctor(parseExpr(e1), parseExpr(e2))
 end
 
 @testset "theSameFunctor" begin
-  @test runTheSameFunctor("A", "A")
-  @test !runTheSameFunctor("A", "A(x)")
-  @test runTheSameFunctor("f(A)", "f(B)")
-  @test runTheSameFunctor("g(A)", "g(B)")
-  @test !runTheSameFunctor("A" , "B")
-  @test !runTheSameFunctor("A", "f()")
+    @test runTheSameFunctor("A", "A")
+    @test !runTheSameFunctor("A", "A(x)")
+    @test runTheSameFunctor("f(A)", "f(B)")
+    @test runTheSameFunctor("g(A)", "g(B)")
+    @test !runTheSameFunctor("A", "B")
+    @test !runTheSameFunctor("A", "f()")
 end
 
 @testset "Testing ==" begin
@@ -34,12 +34,8 @@ end
 end
 
 function matchOK(e1, e2, expected)
-  actual = "*"
   s = matchAgainst(parseExpr(e1), parseExpr(e2))
-  if s isa Subst
-    kvs = ["$key->$(s[key]);" for key in sort(collect(keys(s)))]
-    actual = string(kvs...)
-        end
+  actual = (s isa Subst) ? substToString(s) : "*"
   @test expected == actual
 end
 
@@ -78,6 +74,13 @@ testEquiv(e1::String, e2::String, expected::Bool) =
 @testset "equiv" begin
   testEquiv("gA(fB(x,y),C)", "gA(fB(a,b),C)", true)
   testEquiv("gA(fB(x,y),x)", "gA(fB(a,a),b)", false)
+end
+
+@testset "NameGen" begin
+  ng = NameGen("v", 100)
+  @test "v100" == freshName(ng)
+  @test "v101" == freshName(ng)
+  @test ["v102", "v103", "v104"] == freshNameList(ng, 3)
 end
 
 end
