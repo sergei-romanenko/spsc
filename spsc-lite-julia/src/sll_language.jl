@@ -38,6 +38,10 @@ mkCtr(name::Name, args::Args) = CFG(Ctr(), name, args)
 mkFCall(name::Name, args::Args) = CFG(FCall(), name, args)
 mkGCall(name::Name, args::Args) = CFG(GCall(), name, args)
 
+isFGCall(e::Exp) = false
+isFGCall(e::CFG) =
+  e.ckind isa FCall || e.ckind isa GCall
+
 struct Let <: Exp
   exp::Exp
   bindings::Vector{Binding}
@@ -66,5 +70,6 @@ end
 export CKind, Name, Arg, Args, Params, Binding
 export Exp, Var, CFG, Ctr, FCall, GCall, Let, Rule, FRule, GRule, Program
 export mkCtr, mkFCall, mkGCall
+export isFGCall
 
 end
