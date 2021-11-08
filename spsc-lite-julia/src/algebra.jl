@@ -3,7 +3,7 @@ module Algebra
 using SPSC.SLanguage
 
 theSameFunctor(e1::CFG, e2::CFG)::Bool =
-  e1.ckind == e2.ckind &&
+  e1.kind == e2.kind &&
   e1.name == e2.name &&
   length(e1.args) == length(e2.args)
 
@@ -45,7 +45,7 @@ function applySubst(s::Subst, e::Exp)::Exp end
 applySubst(s::Subst, v::Var) = get(s, v.name, v)
 
 applySubst(s::Subst, e::CFG) =
-  CFG(e.ckind, e.name, [applySubst(s, arg) for arg in e.args])
+  CFG(e.kind, e.name, [applySubst(s, arg) for arg in e.args])
 
 matchAgainstAcc(s::Subst, e1::Exp, e2::Exp)::Bool = false  
 
@@ -60,12 +60,11 @@ function matchAgainstAcc(s::Subst, v::Var, e2::Exp)
 end
 
 function matchAgainstAcc(s::Subst, e1::CFG, e2::CFG)::Bool
-    (e1.ckind == e2.ckind && e1.name == e2.name) || return false
+  theSameFunctor(e1, e2) || return false
     matchAgainstAccL(s, e1.args, e2.args)
 end
 
 function matchAgainstAccL(s::Subst, args1::Args, args2::Args)::Bool
-    length(args1) == length(args2) || return false
     for (e1, e2) in zip(args1, args2)
         matchAgainstAcc(s, e1, e2) || return false
     end

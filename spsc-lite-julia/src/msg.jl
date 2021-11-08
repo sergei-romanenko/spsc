@@ -34,7 +34,7 @@ function commonFunctor(ng::NameGen, e::Exp, s1::Subst, s2::Subst)::Exp
         merge!(s1, Subst(zip(ns, c1.args)))
         delete!(s2, n)
         merge!(s2, Subst(zip(ns, c2.args)))
-        return applySubst(Subst(n => CFG(c1.ckind, c1.name, [Var(ns[i]) for i in 1:l])), e)
+        return applySubst(Subst(n => CFG(c1.kind, c1.name, [Var(ns[i]) for i in 1:l])), e)
     end
     return e
 end

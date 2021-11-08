@@ -23,7 +23,7 @@ end
 
 function Base.show(io::IO, call::CFG)
     print(io, call.name)
-    if !(call.ckind isa Ctr) || !isempty(call.args)
+    if !(call.kind == Ctr) || !isempty(call.args)
         showPList(io, call.args)
     end
 end

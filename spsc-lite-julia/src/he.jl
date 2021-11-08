@@ -7,7 +7,7 @@ aVarIsUnderAttack(e::Exp)::Bool = false
 aVarIsUnderAttack(v::Var) = true
 
 function aVarIsUnderAttack(e::CFG)
-    e.ckind isa GCall || return false
+    e.kind == GCall || return false
     aVarIsUnderAttack(e.args[1])
 end
 

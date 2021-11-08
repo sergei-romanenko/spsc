@@ -23,13 +23,13 @@ spc = Drop(Star(Space()))
   variable = lIdent > Var
   
   ctrArgList = Opt(L + StarList(expr, COMMA) + R) |> identity
-  constructor = uIdent + ctrArgList > ((name, args) -> CFG(Ctr(), name, args))
+  constructor = uIdent + ctrArgList > ((name, args) -> CFG(Ctr, name, args))
 
   fArgList = L + StarList(expr, COMMA) + R |> identity
-  fCall = fIdent + fArgList > ((name, args) -> CFG(FCall(), name, args))
+  fCall = fIdent + fArgList > ((name, args) -> CFG(FCall, name, args))
 
   gArgList = L + PlusList(expr, COMMA) + R |> identity
-  gCall = gIdent + gArgList > ((name, args) -> CFG(GCall(), name, args))
+  gCall = gIdent + gArgList > ((name, args) -> CFG(GCall, name, args))
   
   expr.matcher = constructor | fCall | gCall | variable
   

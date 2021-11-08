@@ -23,14 +23,14 @@ end
 @testset "Testing ==" begin
     @test Var("x") == Var("x")
     @test Var("x") != Var("y")
-    @test CFG(Ctr(), "A", []) == CFG(Ctr(), "A", [])
-    @test CFG(Ctr(), "A", []) != CFG(Ctr(), "B", [])
+    @test CFG(Ctr, "A", []) == CFG(Ctr, "A", [])
+    @test CFG(Ctr, "A", []) != CFG(Ctr, "B", [])
     @test [] == []
     @test [Var("x")] == [Var("x")]
     @test [Var("x")] != [Var("y")]
     @test [Var("x")] != [Var("x"), Var("z")]
-    @test CFG(Ctr(), "A", [Var("x")]) == CFG(Ctr(), "A", [Var("x")])
-    @test CFG(Ctr(), "A", [Var("x")]) != CFG(Ctr(), "A", [Var("y")])
+    @test CFG(Ctr, "A", [Var("x")]) == CFG(Ctr, "A", [Var("x")])
+    @test CFG(Ctr, "A", [Var("x")]) != CFG(Ctr, "A", [Var("y")])
 end
 
 function matchOK(e1, e2, expected)
