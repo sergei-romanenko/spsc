@@ -15,13 +15,12 @@ const OptContraction = Union{Contraction,Nothing}
 function Base.show(io::IO, c::Contraction)
     print(io, c.vname)
     print(io, "=")
-    print(io, c.name)
+    print(io, c.cname)
     if !isempty(c.cparams)
         print(io, "(")
         print(io, join(c.cparams, ","))
         print(io, ")")
     end
-    print(io, pat_s)
 end
 
 const NodeId = Int64
@@ -74,12 +73,16 @@ function findMoreGeneralAncestor(n::Node)::OptNode
     return nothing
 end
 
-isProcessed(n::Node)::Bool = false
-isProcessed(v::Var)::Bool = true
-function isProcessed(c::CFG)::Bool
-    c.ckind isa Ctr && return isempty(c.args)
-    funcAncestor(c) isa Node
+isProcessed(n::Node, e::Var)::Bool = true
+
+function isProcessed(n::Node, e::CFG)::Bool
+    e.kind == Ctr && return isempty(e.args)
+    return funcAncestor(n) !== nothing
 end
+
+isProcessed(n::Node, e::Let)::Bool = false
+
+isProcessed(n::Node)::Bool = isProcessed(n, n.e)
 
 subtreeNodes(n::Node)::Channel{Node} = Channel{Node}() do c
     put!(c, n)
@@ -139,7 +142,7 @@ end
 
 struct Branch
     e::Exp
-contr::OptContraction
+    contr::OptContraction
 end
 
 function addChildren(tree::Tree, n::Node, branches::Vector{Branch})::Nothing
@@ -157,5 +160,6 @@ end
 export Contraction, Node
 export nodes, leaves
 export Tree, Branch, addChildren, replaceSubtree
+export findUnprocessedNode, findMoreGeneralAncestor
 
 end

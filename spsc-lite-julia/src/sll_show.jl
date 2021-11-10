@@ -31,7 +31,7 @@ end
 function Base.show(io::IO, binding::Binding)
     print(io, binding.name)
     print(io, "=")
-    print(io, binding.exp)
+    print(io, binding.e)
 end
 
 function Base.show(io::IO, e::Let)
@@ -41,7 +41,7 @@ function Base.show(io::IO, e::Let)
         print(io, " ")
     end
     print(io, "in ")
-    print(io, e.exp)
+    print(io, e.body)
 end
 
 function Base.show(io::IO, f::FRule)

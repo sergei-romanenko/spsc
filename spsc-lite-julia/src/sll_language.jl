@@ -11,7 +11,7 @@ const Params = Vector{Name}
 
 struct Binding
     name::Name
-    exp::Exp
+    e::Exp
 end
 
 struct Var <: Exp
@@ -24,11 +24,14 @@ struct CFG <: Exp
     args::Args
 end
 
+isCtr(e::Exp) = false
+isCtr(e::CFG) = e.kind == Ctr
+
 isFGCall(e::Exp) = false
 isFGCall(e::CFG) = e.kind == FCall || e.kind == GCall
 
 struct Let <: Exp
-    exp::Exp
+    body::Exp
     bindings::Vector{Binding}
 end
 
@@ -54,6 +57,6 @@ end
 
 export CKind, Name, Arg, Args, Params, Binding
 export Exp, Var, CFG, Ctr, FCall, GCall, Let, Rule, FRule, GRule, Program
-export isFGCall
+export isCtr, isFGCall
 
 end
