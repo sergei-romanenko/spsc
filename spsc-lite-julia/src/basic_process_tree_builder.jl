@@ -97,54 +97,56 @@ end
 # a let-expression, in order to make beta the same as alpha
 # (modulo variable names).
 
-function loopBack(bld::BasicPTBuilder, beta::Node, alpha::Node)
+function loopBack(tree::Tree, beta::Node, alpha::Node)
     subst = matchAgainst(alpha.e, beta.e)
     ks = collect(keys(subst))
     sort!(ks)
     bindings = [Binding(k, subst[k]) for k in ks]
     letExp = Let(alpha.e, bindings)
-    replaceSubtree(bld.tree, beta, letExp)
+    replaceSubtree(tree, beta, letExp)
 end
 
 # This function applies a driving step to the node's expression,
 # and, in general, adds children to the node.
 
-function expandNode(bld::BasicPTBuilder, beta::Node)
-    branches = drivingStep(bld.d, beta.e)
-    addChildren(bld.tree, beta, branches)
+function expandNode(d::DrivingEngine, tree::Tree, beta::Node)
+    branches = drivingStep(d, beta.e)
+    addChildren(tree, beta, branches)
 end
 
 # Basic supercompiler process tree builder
 
-function buildStep(bld::BasicPTBuilder, beta::Node)
+function basicBuildStep(d::DrivingEngine, tree::Tree, beta::Node)
     # This method is overridden in the advanced version of
     # the process tree builder.
     alpha = findMoreGeneralAncestor(beta)
     if alpha isa Node
-        loopBack(bld, beta, alpha)
+        loopBack(tree, beta, alpha)
     else
-        expandNode(bld, beta)
+        expandNode(d, tree, beta)
     end
 end
 
-function buildProcessTree(bld::BasicPTBuilder, k::Int64)
+function buildBasicProcessTree(d::DrivingEngine, tree::Tree, k::Int64)
     # Specifying k = -1 results in an unlimited building loop.
     while true
         k > 0 || break
         k -= 1
-        beta = findUnprocessedNode(bld.tree)
+        beta = findUnprocessedNode(tree)
         beta isa Node || break
-        buildStep(bld, beta)
+        basicBuildStep(d, tree, beta)
     end
 end
 
 function buildBasicProcessTree(ng::NameGen, k::Int64, prog::Program, e::Exp)::Tree
     d = DrivingEngine(ng, prog)
-    bld = BasicPTBuilder(d, Tree(e))
-    buildProcessTree(bld, k)
-    return bld.tree
+    tree = Tree(e)
+    buildBasicProcessTree(d, tree, k)
+    return tree
 end
 
-export DrivingEngine, drivingStep, buildBasicProcessTree
+export DrivingEngine, drivingStep
+export loopBack, expandNode
+export buildBasicProcessTree
 
 end

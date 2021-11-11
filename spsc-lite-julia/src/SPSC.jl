@@ -8,6 +8,7 @@ include("he.jl")
 include("msg.jl")
 include("process_tree.jl")
 include("basic_process_tree_builder.jl")
+include("advanced_process_tree_builder.jl")
 
 end # SPSC
 

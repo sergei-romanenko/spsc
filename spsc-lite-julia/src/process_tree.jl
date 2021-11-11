@@ -158,7 +158,7 @@ function replaceSubtree(tree::Tree, n::Node, e::Exp)::Nothing
 end
 
 export Contraction, Node
-export nodes, leaves
+export ancestors, nodes, leaves
 export Tree, Branch, addChildren, replaceSubtree
 export findUnprocessedNode, findMoreGeneralAncestor
 
