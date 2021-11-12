@@ -86,11 +86,6 @@ function driveBranch(d::DrivingEngine, e::Exp, rule::Rule)
     return Branch(e2, Contraction(vname, cname, cparams))
 end
 
-struct BasicPTBuilder
-    d::DrivingEngine
-    tree::Tree
-end
-
 # The parts common to the basic and advanced supercompilers.
 
 # If beta `instOf` alpha, we generalize beta by introducing
@@ -114,9 +109,15 @@ function expandNode(d::DrivingEngine, tree::Tree, beta::Node)
     addChildren(tree, beta, branches)
 end
 
+# Kinds of supercompilers
+
+abstract type AbstractSC end
+
 # Basic supercompiler process tree builder
 
-function basicBuildStep(d::DrivingEngine, tree::Tree, beta::Node)
+struct BasicSC <: AbstractSC end
+
+function buildStep(::BasicSC, d::DrivingEngine, tree::Tree, beta::Node)
     # This method is overridden in the advanced version of
     # the process tree builder.
     alpha = findMoreGeneralAncestor(beta)
@@ -127,26 +128,27 @@ function basicBuildStep(d::DrivingEngine, tree::Tree, beta::Node)
     end
 end
 
-function buildBasicProcessTree(d::DrivingEngine, tree::Tree, k::Int64)
+function buildProcessTree(sc::AbstractSC, ng::NameGen, k::Int64, prog::Program, e::Exp)::Tree
+    d = DrivingEngine(ng, prog)
+    tree = Tree(e)
     # Specifying k = -1 results in an unlimited building loop.
     while true
         k > 0 || break
         k -= 1
         beta = findUnprocessedNode(tree)
         beta isa Node || break
-        basicBuildStep(d, tree, beta)
+        buildStep(sc, d, tree, beta)
     end
+    return tree
 end
 
 function buildBasicProcessTree(ng::NameGen, k::Int64, prog::Program, e::Exp)::Tree
-    d = DrivingEngine(ng, prog)
-    tree = Tree(e)
-    buildBasicProcessTree(d, tree, k)
-    return tree
+    buildProcessTree(BasicSC(), ng, k, prog, e)
 end
 
 export DrivingEngine, drivingStep
 export loopBack, expandNode
+export AbstractSC, buildProcessTree
 export buildBasicProcessTree
 
 end
