@@ -113,20 +113,8 @@ end
 
 abstract type AbstractSC end
 
-# Basic supercompiler process tree builder
-
-struct BasicSC <: AbstractSC end
-
-function buildStep(::BasicSC, d::DrivingEngine, tree::Tree, beta::Node)
-    # This method is overridden in the advanced version of
-    # the process tree builder.
-    alpha = findMoreGeneralAncestor(beta)
-    if alpha isa Node
-        loopBack(tree, beta, alpha)
-    else
-        expandNode(d, tree, beta)
-    end
-end
+buildStep(sc::AbstractSC, d::DrivingEngine, tree::Tree, beta::Node) =
+    error("buildStep not implemented for " * string(sc))
 
 function buildProcessTree(sc::AbstractSC, ng::NameGen, k::Int64, prog::Program, e::Exp)::Tree
     d = DrivingEngine(ng, prog)
@@ -140,6 +128,21 @@ function buildProcessTree(sc::AbstractSC, ng::NameGen, k::Int64, prog::Program, 
         buildStep(sc, d, tree, beta)
     end
     return tree
+end
+
+# Basic supercompiler process tree builder
+
+struct BasicSC <: AbstractSC end
+
+function buildStep(::BasicSC, d::DrivingEngine, tree::Tree, beta::Node)
+    # This method is overridden in the advanced version of
+    # the process tree builder.
+    alpha = findMoreGeneralAncestor(beta)
+    if alpha isa Node
+        loopBack(tree, beta, alpha)
+    else
+        expandNode(d, tree, beta)
+    end
 end
 
 function buildBasicProcessTree(ng::NameGen, k::Int64, prog::Program, e::Exp)::Tree
