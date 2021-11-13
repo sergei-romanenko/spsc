@@ -4,7 +4,6 @@ using Test
 using SPSC.SLanguage
 using SPSC.SParsers
 using SPSC.Algebra
-# using SPSC.ProcessTree
 using SPSC.BasicProcessTreeBuilder
 
 function drStep0(prog::Program, e::Exp, expected::String)
