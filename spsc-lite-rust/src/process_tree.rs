@@ -53,7 +53,6 @@ impl Node {
     pub fn get_children(&self) -> Vec<RcNode> {
         self.children.borrow().clone()
     }
-
 }
 
 impl fmt::Display for Node {
@@ -135,15 +134,14 @@ fn is_processed(n: &RcNode) -> bool {
     }
 }
 
-pub fn is_var_test(n:&RcNode)-> bool {
+pub fn is_var_test(n: &RcNode) -> bool {
     let children = n.children.borrow();
     !children.is_empty() && children[0].contr.is_some()
 }
 
-pub fn get_child(n:&RcNode, i:usize)-> RcNode {
+pub fn get_child(n: &RcNode, i: usize) -> RcNode {
     Rc::clone(&n.children.borrow()[i])
 }
-
 
 struct SubtreeNodes {
     node: RcNode,
@@ -295,7 +293,7 @@ impl fmt::Display for Branch {
         write!(f, "{}", self.term)?;
         write!(f, ",")?;
         if let Some(contr) = &self.contr {
-        write!(f, "{}", contr)?;
+            write!(f, "{}", contr)?;
         } else {
             write!(f, "*")?;
         }
@@ -303,7 +301,6 @@ impl fmt::Display for Branch {
         Ok(())
     }
 }
-
 
 pub fn add_children(tree: &mut Tree, node: &RcNode, branches: Vec<Branch>) {
     let children = branches.iter().map(|b| {
@@ -319,9 +316,9 @@ pub fn add_children(tree: &mut Tree, node: &RcNode, branches: Vec<Branch>) {
     node.children.borrow_mut().extend(children);
 }
 
-pub fn replace_subtree(node: &RcNode, body: RcTerm) {
+pub fn replace_subtree(node: &RcNode, body: &RcTerm) {
     node.children.borrow_mut().clear();
-    *node.body.borrow_mut() = body;
+    *node.body.borrow_mut() = Rc::clone(body);
 }
 
 #[cfg(test)]
@@ -365,7 +362,7 @@ mod tests {
             "{0:(r,,,[1,2]),1:(m1,,0,[3]),3:(n,,1,[]),2:(m2,,0,[])}"
         );
 
-        replace_subtree(m2, Term::var("x"));
+        replace_subtree(m2, &Term::var("x"));
         assert_eq!(
             format!("{}", tree),
             "{0:(r,,,[1,2]),1:(m1,,0,[3]),3:(n,,1,[]),2:(x,,0,[])}"

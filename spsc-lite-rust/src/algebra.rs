@@ -4,21 +4,17 @@ use itertools::Itertools;
 use std::collections::BTreeMap;
 use std::rc::Rc;
 
-pub fn vars(t: RcTerm) -> Vec<Name> {
+pub fn vars(t: &RcTerm) -> Vec<Name> {
     // We don't use sets here, in order to preserve
     // the original order of variables in the expression.
     // (The order is preserved just for readability of
     // residual programs.)
     let mut vs: Vec<Name> = Vec::new();
-    match &*t {
+    match &**t {
         Term::Var { name } => vs.push(name.clone()),
-        Term::CFG {
-            kind: _,
-            name: _,
-            args,
-        } => {
+        Term::CFG { args, .. } => {
             for arg in args {
-                for v in vars(arg.clone()) {
+                for v in vars(&arg) {
                     if !(vs.contains(&v)) {
                         vs.push(v.clone());
                     }
@@ -60,16 +56,16 @@ pub fn subst_to_string(s: &Subst) -> String {
         .join("")
 }
 
-pub fn apply_subst(s: &Subst, t: RcTerm) -> RcTerm {
-    match &*t {
+pub fn apply_subst(s: &Subst, t: &RcTerm) -> RcTerm {
+    match &**t {
         Term::Var { name } => match s.get(name) {
-            None => t,
+            None => Rc::clone(t),
             Some(t2) => Rc::clone(t2),
         },
         Term::CFG { kind, name, args } => {
             let args = args
                 .iter()
-                .map(|arg| apply_subst(s, Rc::clone(arg)))
+                .map(|arg| apply_subst(s, arg))
                 .collect();
             Rc::new(Term::CFG {
                 kind: kind.clone(),
@@ -81,10 +77,10 @@ pub fn apply_subst(s: &Subst, t: RcTerm) -> RcTerm {
     }
 }
 
-fn match_against_acc(s: &mut Subst, t1: RcTerm, t2: RcTerm) -> bool {
-    match (&*t1, &*t2) {
+fn match_against_acc(s: &mut Subst, t1: &RcTerm, t2: &RcTerm) -> bool {
+    match (&**t1, &**t2) {
         (Term::Var { name }, _) => match s.get(name) {
-            Some(t) => *t == t2,
+            Some(t) => *t == *t2,
             None => {
                 s.insert(name.clone(), t2.clone());
                 true
@@ -93,7 +89,7 @@ fn match_against_acc(s: &mut Subst, t1: RcTerm, t2: RcTerm) -> bool {
         (Term::CFG { args: args1, .. }, Term::CFG { args: args2, .. }) => {
             the_same_functor(&t1, &t2) && {
                 for (a1, a2) in args1.iter().zip(args2.iter()) {
-                    if !match_against_acc(s, Rc::clone(&a1), Rc::clone(&a2)) {
+                    if !match_against_acc(s, &a1, &a2) {
                         return false;
                     }
                 }
@@ -104,7 +100,7 @@ fn match_against_acc(s: &mut Subst, t1: RcTerm, t2: RcTerm) -> bool {
     }
 }
 
-pub fn match_against(t1: RcTerm, t2: RcTerm) -> Option<Subst> {
+pub fn match_against(t1: &RcTerm, t2: &RcTerm) -> Option<Subst> {
     let mut s: Subst = Subst::new();
     if match_against_acc(&mut s, t1, t2) {
         Some(s)
@@ -114,7 +110,7 @@ pub fn match_against(t1: RcTerm, t2: RcTerm) -> Option<Subst> {
 }
 
 pub fn inst_of(t1: &RcTerm, t2: &RcTerm) -> bool {
-    match_against(Rc::clone(t2), Rc::clone(t1)).is_some()
+    match_against(t2, t1).is_some()
 }
 
 pub fn equiv(t1: &RcTerm, t2: &RcTerm) -> bool {
@@ -158,7 +154,7 @@ mod tests {
 
     #[test]
     fn test_vars() {
-        assert_eq!(vec!["x", "y", "a"], vars(parse_term("A(x,B(y,x),a)")));
+        assert_eq!(vec!["x", "y", "a"], vars(&parse_term("A(x,B(y,x),a)")));
     }
 
     fn run_the_same_functor(t1: &str, t2: &str) -> bool {
@@ -192,12 +188,12 @@ mod tests {
             Subst::from([(String::from("x1"), t1), (String::from("x2"), t2)]);
         assert_eq!(
             "Cons(t1,Cons(t2,Cons(x3,Nil)))",
-            apply_subst(&s, t).to_string()
+            apply_subst(&s, &t).to_string()
         );
     }
 
     fn match_ok(t1: &str, t2: &str, expected: &str) {
-        match match_against(parse_term(t1), parse_term(t2)) {
+        match match_against(&parse_term(t1), &parse_term(t2)) {
             Some(actual) => {
                 assert_eq!(expected, subst_to_string(&actual));
             }
@@ -208,7 +204,7 @@ mod tests {
     }
 
     fn match_none(t1: &str, t2: &str) {
-        assert_eq!(match_against(parse_term(t1), parse_term(t2)), None);
+        assert_eq!(match_against(&parse_term(t1), &parse_term(t2)), None);
     }
 
     #[test]

@@ -7,20 +7,20 @@ use crate::process_tree_builder::*;
 
 use std::rc::Rc;
 
-// Advanced Supercompiler with homeomorphic imbedding and generalization
+// Advanced Supercompiler with homeomorphic embedding and generalization
 
 struct AdvancedBuildStep;
 
-fn abstract_node(alpha: RcNode, t: RcTerm, subst: Subst) {
+fn abstract_node(alpha: &RcNode, t: &RcTerm, subst: Subst) {
     let bindings = subst
         .iter()
         .map(|(n, t)| (n.clone(), Rc::clone(t)))
         .collect();
-    let let_term = Term::mk_let(t, bindings);
-    replace_subtree(&alpha, let_term);
+    let let_term = Term::mk_let(Rc::clone(t), bindings);
+    replace_subtree(alpha, &let_term);
 }
 
-fn split_node(ng: &mut NameGen, beta: RcNode) {
+fn split_node(ng: &mut NameGen, beta: &RcNode) {
     let t = beta.get_body();
     match &*t {
         Term::CFG { kind, name, args } => {
@@ -33,25 +33,25 @@ fn split_node(ng: &mut NameGen, beta: RcNode) {
                 .map(|(n, t)| (n.clone(), Rc::clone(t)))
                 .collect();
             let let_term = Term::mk_let(t1, bs1);
-            replace_subtree(&beta, let_term);
+            replace_subtree(beta, &let_term);
         }
         _ => unimplemented!(),
     }
 }
 
-fn generalize_alpha_or_split(ng: &mut NameGen, beta: RcNode, alpha: RcNode) {
-    let g = msg(ng, alpha.get_body(), beta.get_body());
+fn generalize_alpha_or_split(ng: &mut NameGen, beta: &RcNode, alpha: &RcNode) {
+    let g = msg(ng, &alpha.get_body(), &beta.get_body());
     if g.t.is_var() {
         split_node(ng, beta);
     } else {
-        abstract_node(alpha, g.t, g.s1);
+        abstract_node(alpha, &g.t, g.s1);
     }
 }
 
-fn find_embedded_ancestor(beta: RcNode) -> Option<RcNode> {
-    for alpha in Ancestors::new(&beta) {
+fn find_embedded_ancestor(beta: &RcNode) -> Option<RcNode> {
+    for alpha in Ancestors::new(beta) {
         if alpha.get_body().is_fg_call()
-            && embedded_in(alpha.get_body(), beta.get_body())
+            && embedded_in(&alpha.get_body(), &beta.get_body())
         {
             return Some(alpha);
         }
@@ -60,15 +60,19 @@ fn find_embedded_ancestor(beta: RcNode) -> Option<RcNode> {
 }
 
 impl BuildStep for AdvancedBuildStep {
-    fn build_step(&self, d: &mut DrivingEngine, tree: &mut Tree, beta: RcNode) {
-        if let Some(alpha) = find_more_general_ancestor(&beta) {
-            loop_back(beta, alpha);
+    fn build_step(
+        &self,
+        d: &mut DrivingEngine,
+        tree: &mut Tree,
+        beta: &RcNode,
+    ) {
+        if let Some(alpha) = find_more_general_ancestor(beta) {
+            loop_back(beta, &alpha);
         } else {
-            if let Some(alpha) = find_embedded_ancestor(Rc::clone(&beta))
-            {
-                generalize_alpha_or_split(&mut d.name_gen, beta, alpha)
+            if let Some(alpha) = find_embedded_ancestor(beta) {
+                generalize_alpha_or_split(&mut d.name_gen, beta, &alpha)
             } else {
-                d.expand_node(tree, Rc::clone(&beta));
+                d.expand_node(tree, beta);
             }
         }
     }

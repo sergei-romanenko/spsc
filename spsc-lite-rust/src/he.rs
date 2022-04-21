@@ -1,55 +1,47 @@
 use crate::algebra::*;
 use crate::language::*;
 
-use std::rc::Rc;
-
-fn a_var_is_under_attack(t: RcTerm) -> bool {
-  match &*t {
+fn a_var_is_under_attack(t: &RcTerm) -> bool {
+  match &**t {
     Term::Var { .. } => true,
     Term::CFG { kind, args, .. } if *kind == TKind::GCall => {
-      a_var_is_under_attack(Rc::clone(&args[0]))
+      a_var_is_under_attack(&args[0])
     }
     _ => false,
   }
 }
 
-// This is the "classic" homeomorphic imbedding relation.
+// This is the "classic" homeomorphic embedding relation.
 
-fn he_by_diving(t1: RcTerm, t2: RcTerm) -> bool {
-  match &*t2 {
-    Term::CFG { args, .. } => {
-      args.iter().any(|t| he(Rc::clone(&t1), Rc::clone(t)))
-    }
+fn he_by_diving(t1: &RcTerm, t2: &RcTerm) -> bool {
+  match &**t2 {
+    Term::CFG { args, .. } => args.iter().any(|t| he(t1, t)),
     _ => false,
   }
 }
 
-fn he_by_coupling(t1: RcTerm, t2: RcTerm) -> bool {
-  match (&*t1, &*t2) {
+fn he_by_coupling(t1: &RcTerm, t2: &RcTerm) -> bool {
+  match (&**t1, &**t2) {
     (Term::Var { .. }, Term::Var { .. }) => true,
     (Term::CFG { args: args1, .. }, Term::CFG { args: args2, .. }) => {
       the_same_functor(&t1, &t2) && {
-        args1
-          .iter()
-          .zip(args2.iter())
-          .all(|(a1, a2)| he(Rc::clone(a1), Rc::clone(a2)))
+        args1.iter().zip(args2.iter()).all(|(a1, a2)| he(a1, a2))
       }
     }
     (_, _) => false,
   }
 }
 
-pub fn he(t1: RcTerm, t2: RcTerm) -> bool {
-  he_by_diving(Rc::clone(&t1), Rc::clone(&t2)) || he_by_coupling(t1, t2)
+pub fn he(t1: &RcTerm, t2: &RcTerm) -> bool {
+  he_by_diving(t1, t2) || he_by_coupling(t1, t2)
 }
 
 // Enhanced homeomorphic embedding:
 // expressions are compared only if they belong
 // to the same category (as defined by `aVarIsUnderAttack`).
 
-pub fn embedded_in(t1: RcTerm, t2: RcTerm) -> bool {
-  a_var_is_under_attack(Rc::clone(&t1)) == a_var_is_under_attack(Rc::clone(&t2))
-    && he(t1, t2)
+pub fn embedded_in(t1: &RcTerm, t2: &RcTerm) -> bool {
+  a_var_is_under_attack(t1) == a_var_is_under_attack(t2) && he(t1, t2)
 }
 
 #[cfg(test)]
@@ -58,11 +50,11 @@ mod tests {
   use crate::parser::*;
 
   fn run_aviua(t: &str) -> bool {
-    a_var_is_under_attack(parse_term(t))
+    a_var_is_under_attack(&parse_term(t))
   }
 
   fn run_he(t1: &str, t2: &str) -> bool {
-    he(parse_term(t1), parse_term(t2))
+    he(&parse_term(t1), &parse_term(t2))
   }
 
   #[test]

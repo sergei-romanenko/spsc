@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+        "aviua",
         "cargs",
         "cname",
         "cparams",
@@ -8,7 +9,10 @@
         "gcall",
         "grule",
         "grules",
+        "homeomorphic",
+        "itertools",
         "Sigs",
+        "subterms",
         "supercompiler",
         "supercompilers",
         "vname"

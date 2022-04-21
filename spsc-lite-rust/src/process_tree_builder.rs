@@ -46,8 +46,8 @@ impl DrivingEngine {
         }
     }
 
-    fn driving_step(&mut self, t: RcTerm) -> Vec<Branch> {
-        match &*t {
+    fn driving_step(&mut self, t: &RcTerm) -> Vec<Branch> {
+        match &**t {
             Term::Var { .. } => unimplemented!(),
             Term::CFG { kind, name, args } => match kind {
                 TKind::Ctr => args
@@ -63,7 +63,7 @@ impl DrivingEngine {
                     for (n, t) in frule.params.iter().zip(args.iter()) {
                         p2a.insert(n.clone(), Rc::clone(t));
                     }
-                    let body = apply_subst(&p2a, Rc::clone(&frule.body));
+                    let body = apply_subst(&p2a, &frule.body);
                     vec![Branch {
                         term: body,
                         contr: None,
@@ -85,8 +85,8 @@ impl DrivingEngine {
                             let mut vname2ctr = Subst::new();
                             vname2ctr
                                 .insert(vname.clone(), Term::ctr(cname, cargs));
-                            let t1 = apply_subst(&vname2ctr, Rc::clone(&t));
-                            let branches = self.driving_step(t1);
+                            let t1 = apply_subst(&vname2ctr, &t);
+                            let branches = self.driving_step(&t1);
                             let t2 = &branches[0].term;
                             let branch = Branch {
                                 term: Rc::clone(t2),
@@ -115,14 +115,14 @@ impl DrivingEngine {
                         {
                             p2a.insert(n.clone(), Rc::clone(t));
                         }
-                        let body = apply_subst(&p2a, Rc::clone(&grule.body));
+                        let body = apply_subst(&p2a, &grule.body);
                         vec![Branch {
                             term: body,
                             contr: None,
                         }]
                     }
                     _ => {
-                        let branches0 = self.driving_step(Rc::clone(&args[0]));
+                        let branches0 = self.driving_step(&args[0]);
                         let mut new_branches = Vec::new();
                         for b in branches0 {
                             let mut b_args = Vec::new();
@@ -163,9 +163,9 @@ impl DrivingEngine {
     // This function applies a driving step to the node's expression,
     // and, in general, adds children to the node.
 
-    pub fn expand_node(&mut self, tree: &mut Tree, beta: RcNode) {
-        let branches = self.driving_step(beta.get_body());
-        add_children(tree, &beta, branches)
+    pub fn expand_node(&mut self, tree: &mut Tree, beta: &RcNode) {
+        let branches = self.driving_step(&beta.get_body());
+        add_children(tree, beta, branches)
     }
 }
 
@@ -173,14 +173,14 @@ impl DrivingEngine {
 // a let-expression, in order to make beta the same as alpha
 // (modulo variable names).
 
-pub fn loop_back(beta: RcNode, alpha: RcNode) {
-    if let Some(subst) = match_against(alpha.get_body(), beta.get_body()) {
+pub fn loop_back(beta: &RcNode, alpha: &RcNode) {
+    if let Some(subst) = match_against(&alpha.get_body(), &beta.get_body()) {
         let mut bindings = Vec::new();
         for (n, t) in subst.iter() {
             bindings.push((n.clone(), Rc::clone(t)));
         }
         let let_term = Term::mk_let(alpha.get_body(), bindings);
-        replace_subtree(&beta, let_term);
+        replace_subtree(beta, &let_term);
     } else {
         unimplemented!()
     };
@@ -189,15 +189,20 @@ pub fn loop_back(beta: RcNode, alpha: RcNode) {
 // Kinds of supercompilers
 
 pub trait BuildStep {
-    fn build_step(&self, d: &mut DrivingEngine, tree: &mut Tree, beta: RcNode);
+    fn build_step(&self, d: &mut DrivingEngine, tree: &mut Tree, beta: &RcNode);
 }
 
 struct BasicBuildStep;
 
 impl BuildStep for BasicBuildStep {
-    fn build_step(&self, d: &mut DrivingEngine, tree: &mut Tree, beta: RcNode) {
-        if let Some(alpha) = find_more_general_ancestor(&beta) {
-            loop_back(beta, alpha);
+    fn build_step(
+        &self,
+        d: &mut DrivingEngine,
+        tree: &mut Tree,
+        beta: &RcNode,
+    ) {
+        if let Some(alpha) = find_more_general_ancestor(beta) {
+            loop_back(beta, &alpha);
         } else {
             d.expand_node(tree, beta);
         }
@@ -221,7 +226,7 @@ pub fn build_process_tree<T: BuildStep>(
         }
         k -= 1;
         if let Some(beta) = find_unprocessed_node(&tree) {
-            bs.build_step(&mut d, &mut tree, beta);
+            bs.build_step(&mut d, &mut tree, &beta);
         } else {
             break;
         }
@@ -247,7 +252,7 @@ mod tests {
 
     fn dr_step0(prog: Program, t: RcTerm, expected: &str) {
         let mut d = DrivingEngine::new(NameGen::new("v", 100), prog);
-        let branches = d.driving_step(t);
+        let branches = d.driving_step(&t);
         let actual = branches
             .iter()
             .map(|b| b.to_string())

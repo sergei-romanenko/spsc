@@ -25,7 +25,7 @@ impl ResPrGen {
     }
 }
 
-pub fn gen_residual_program(tree: Tree) -> (Program, RcTerm) {
+pub fn gen_residual_program(tree: &Tree) -> (Program, RcTerm) {
     let mut g = ResPrGen::new(tree.clone());
     let res_term = gen_term(&mut g, &tree.root);
     return (Program::new(g.rules), res_term);
@@ -35,11 +35,11 @@ fn gen_term(g: &mut ResPrGen, beta: &RcNode) -> RcTerm {
     if let Some(alpha) = func_ancestor(&beta) {
         let (name, params) = g.sigs[&alpha.get_node_id()].clone();
         let args = params.iter().map(|param| Term::var(param)).collect();
-        let subst = match_against(alpha.get_body(), beta.get_body()).unwrap();
+        let subst = match_against(&alpha.get_body(), &beta.get_body()).unwrap();
         if let Some(_) = get_child(&alpha, 0).get_contr() {
-            return apply_subst(&subst, Term::gcall(&name, args));
+            return apply_subst(&subst, &Term::gcall(&name, args));
         } else {
-            return apply_subst(&subst, Term::fcall(&name, args));
+            return apply_subst(&subst, &Term::fcall(&name, args));
         }
     } else {
         gen_term_beta(g, beta)
@@ -55,7 +55,7 @@ fn gen_term_beta(g: &mut ResPrGen, beta: &RcNode) -> RcTerm {
                 beta.get_children().iter().map(|n| gen_term(g, n)).collect();
             Term::ctr(name, res_terms)
         }
-        Term::CFG { name, .. } => gen_call(g, beta, Rc::clone(&body), name),
+        Term::CFG { name, .. } => gen_call(g, beta, &body, name),
         Term::Let { bindings, .. } => {
             let children: Vec<RcNode> = beta.get_children();
             let res_body = gen_term(g, &children[0]);
@@ -66,7 +66,7 @@ fn gen_term_beta(g: &mut ResPrGen, beta: &RcNode) -> RcTerm {
                     gen_term(g, &children[k + 1]),
                 );
             }
-            apply_subst(&subst, res_body)
+            apply_subst(&subst, &res_body)
         }
     }
 }
@@ -95,7 +95,7 @@ fn get_fg_sig(
     }
 }
 
-fn gen_call(g: &mut ResPrGen, beta: &RcNode, t: RcTerm, name: &str) -> RcTerm {
+fn gen_call(g: &mut ResPrGen, beta: &RcNode, t: &RcTerm, name: &str) -> RcTerm {
     let params: Params = vars(t);
     let params1: Params = Vec::from(params.get(1..).unwrap());
     let var_params = params.iter().map(|param| Term::var(param)).collect();
@@ -149,7 +149,7 @@ mod tests {
     fn run_basic_scp(prog: Program, t: RcTerm) -> (Program, RcTerm) {
         let ng = NameGen::new("v", 100);
         let tree = build_basic_process_tree(ng, 100, prog, t);
-        return gen_residual_program(tree);
+        return gen_residual_program(&tree);
     }
 
     fn basic_scp_ok(prog: &str, t: &str, expected: &str) {
@@ -180,7 +180,7 @@ mod tests {
     fn run_advanced_scp(prog: Program, t: RcTerm) -> (Program, RcTerm) {
         let ng = NameGen::new("v", 100);
         let tree = build_advanced_process_tree(ng, 100, prog, t);
-        return gen_residual_program(tree);
+        return gen_residual_program(&tree);
     }
 
     fn advanced_scp_ok(prog: &str, t: &str, expected: &str) {

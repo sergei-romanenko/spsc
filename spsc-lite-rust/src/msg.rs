@@ -55,13 +55,13 @@ fn common_functor(
                         n,
                         Term::mk_cfg(kind1.clone(), name1, nvs),
                     )]),
-                    Rc::clone(t),
+                    t,
                 );
             }
             _ => (),
         }
     }
-    return t.clone();
+    return Rc::clone(t);
 }
 
 fn find_common_subst(s1: &Subst, s2: &Subst) -> Option<(Name, Name)> {
@@ -75,26 +75,26 @@ fn find_common_subst(s1: &Subst, s2: &Subst) -> Option<(Name, Name)> {
     return None;
 }
 
-fn common_subst(t: RcTerm, s1: &mut Subst, s2: &mut Subst) -> RcTerm {
+fn common_subst(t: &RcTerm, s1: &mut Subst, s2: &mut Subst) -> RcTerm {
     if let Some((n1, n2)) = find_common_subst(&s1, &s2) {
         s1.remove(&n1);
         s2.remove(&n1);
         let m: Subst = Subst::from([(n1.clone(), Term::var(&n2))]);
         return apply_subst(&m, t);
     } else {
-        t
+        Rc::clone(t)
     }
 }
 
-pub fn msg(ng: &mut NameGen, t1: RcTerm, t2: RcTerm) -> Gen {
+pub fn msg(ng: &mut NameGen, t1: &RcTerm, t2: &RcTerm) -> Gen {
     let n = ng.fresh_name();
-    let mut s1 = Subst::from([(n.clone(), t1)]);
-    let mut s2 = Subst::from([(n.clone(), t2)]);
+    let mut s1 = Subst::from([(n.clone(), Rc::clone(t1))]);
+    let mut s2 = Subst::from([(n.clone(), Rc::clone(t2))]);
     let mut t = Term::var(&n);
     loop {
         let old_t = t.clone();
         let t_cf = common_functor(ng, &t, &mut s1, &mut s2);
-        t = common_subst(t_cf, &mut s1, &mut s2);
+        t = common_subst(&t_cf, &mut s1, &mut s2);
         if t == old_t {
             break;
         }
@@ -109,7 +109,7 @@ mod tests {
 
     fn msg_ok(t1: &str, t2: &str, expected: &str) {
         let mut ng = NameGen::new("v", 1);
-        let gen = msg(&mut ng, parse_term(t1), parse_term(t2));
+        let gen = msg(&mut ng, &parse_term(t1), &parse_term(t2));
         assert_eq!(expected, gen.to_string());
     }
 
