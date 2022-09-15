@@ -12,11 +12,11 @@ using SPSC.ProcessTree
     r = t.root
     b1 = Branch(Var("m1"), nothing)
     b2 = Branch(Var("m2"), nothing)
-    addChildren(t, r, Branch[b1, b2])
+    addChildren!(t, r, Branch[b1, b2])
     m1 = r.children[1]
     m2 = r.children[2]
-    addChildren(t, m1, [Branch(Var("n"), nothing)])
-    replaceSubtree(t, m2, Var("x"))
+    addChildren!(t, m1, [Branch(Var("n"), nothing)])
+    replaceSubtree!(t, m2, Var("x"))
 
     @test string(t) ==
         "{0:(r,nothing,nothing,[1,2]),1:(m1,nothing,0,[3]),3:(n,nothing,1,[]),2:(x,nothing,0,[])}"

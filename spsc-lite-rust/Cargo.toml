@@ -2,6 +2,7 @@
 name = "spsc-lite-rust"
 version = "0.1.0"
 edition = "2021"
+authors = ["Sergei Romanenko <sergei.romanenko@supercompilers.ru>"]
 
 [lib]
 doctest = false

@@ -1,4 +1,4 @@
-module BasicProcessTreeBuilder_Tests
+module AdvancedProcessTreeBuilder_Tests
 
 using Test
 using SPSC.SLanguage

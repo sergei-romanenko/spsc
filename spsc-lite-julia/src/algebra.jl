@@ -47,9 +47,9 @@ applySubst(s::Subst, v::Var) = get(s, v.name, v)
 applySubst(s::Subst, e::CFG) =
   CFG(e.kind, e.name, [applySubst(s, arg) for arg in e.args])
 
-matchAgainstAcc(s::Subst, e1::Exp, e2::Exp)::Bool = false  
+matchAgainstAcc!(s::Subst, e1::Exp, e2::Exp)::Bool = false  
 
-function matchAgainstAcc(s::Subst, v::Var, e2::Exp)
+function matchAgainstAcc!(s::Subst, v::Var, e2::Exp)
     e = get(s, v.name, nothing)
     if e isa Nothing
         s[v.name] = e2
@@ -59,21 +59,21 @@ function matchAgainstAcc(s::Subst, v::Var, e2::Exp)
     end
 end
 
-function matchAgainstAcc(s::Subst, e1::CFG, e2::CFG)::Bool
+function matchAgainstAcc!(s::Subst, e1::CFG, e2::CFG)::Bool
   theSameFunctor(e1, e2) || return false
     matchAgainstAccL(s, e1.args, e2.args)
 end
 
 function matchAgainstAccL(s::Subst, args1::Args, args2::Args)::Bool
     for (e1, e2) in zip(args1, args2)
-        matchAgainstAcc(s, e1, e2) || return false
+        matchAgainstAcc!(s, e1, e2) || return false
     end
     return true
 end
 
 function matchAgainst(e1::Exp, e2::Exp)::UNS
     s = Dict{Name,Exp}()
-    matchAgainstAcc(s, e1, e2) ? s : nothing
+    matchAgainstAcc!(s, e1, e2) ? s : nothing
 end
 
 instOf(e1::Exp, e2::Exp)::Bool =

@@ -17,15 +17,15 @@ ResPrGen(tree::Tree) = ResPrGen(tree, Sigs(), Rule[])
 
 function genResidualProgram(tree::Tree)
     g = ResPrGen(tree)
-    resExp = genExp(g, tree.root)
+    resExp = genExp!(g, tree.root)
     return (Program(g.rules), resExp)
 end
 
-function genExp(g::ResPrGen, beta::Node)
-    genExp(g, beta, funcAncestor(beta))
+function genExp!(g::ResPrGen, beta::Node)
+    genExp!(g, beta, funcAncestor(beta))
 end
 
-function genExp(g::ResPrGen, beta::Node, alpha::Node)
+function genExp!(g::ResPrGen, beta::Node, alpha::Node)
     (name, params) = g.sigs[alpha.nodeId]
     args = [Var(param) for param in params]
     subst = matchAgainst(alpha.e, beta.e)
@@ -37,25 +37,25 @@ function genExp(g::ResPrGen, beta::Node, alpha::Node)
     end
 end
 
-function genExp(g::ResPrGen, beta::Node, ::Nothing)
-    genExpBeta(g, beta, beta.e)
+function genExp!(g::ResPrGen, beta::Node, ::Nothing)
+    genExp!Beta(g, beta, beta.e)
 end
 
-function genExpBeta(g::ResPrGen, beta::Node, e::Var)::Exp
+function genExp!Beta(g::ResPrGen, beta::Node, e::Var)::Exp
     return e
 end
 
-function genExpBeta(g::ResPrGen, beta::Node, e::CFG)::Exp
+function genExp!Beta(g::ResPrGen, beta::Node, e::CFG)::Exp
     if isCtr(e)
-        resExps = [genExp(g, n) for n in beta.children]
+        resExps = [genExp!(g, n) for n in beta.children]
         return CFG(Ctr, e.name, resExps)
     else
-        return genCall(g, beta)
+        return genCall!(g, beta)
     end
 end
 
-function genExpBeta(g::ResPrGen, beta::Node, e::Let)::Exp
-    resExpList = [genExp(g, n) for n in beta.children]
+function genExp!Beta(g::ResPrGen, beta::Node, e::Let)::Exp
+    resExpList = [genExp!(g, n) for n in beta.children]
     vnames = [b.name for b in e.bindings]
     subst = Dict(zip(vnames, resExpList[2:end]))
     return applySubst(subst, resExpList[1])
@@ -65,7 +65,7 @@ function isVarTest(beta::Node)::Bool
     beta.children[1].contr !== nothing
 end
 
-function getFGSig(g, prefix, beta, name, vs)
+function getFGSig!(g, prefix, beta, name, vs)
     sig = get(g.sigs, beta.nodeId, nothing)
     if sig !== nothing
         return sig
@@ -77,14 +77,14 @@ function getFGSig(g, prefix, beta, name, vs)
     end
 end
 
-function genCall(g::ResPrGen, beta::Node)
+function genCall!(g::ResPrGen, beta::Node)
     e = beta.e
     name = e.name
     args = e.args
     params = vars(e)
     if isVarTest(beta)
-        (name1, vs1) = getFGSig(g, "g", beta, name, params)
-        bodies = [genExp(g, n) for n in beta.children]
+        (name1, vs1) = getFGSig!(g, "g", beta, name, params)
+        bodies = [genExp!(g, n) for n in beta.children]
         contrs = [(n.contr.cname, n.contr.cparams)
                   for n in beta.children]
         grules = [GRule(name1, cname1, cparams1, params[2:end], body1)
@@ -92,12 +92,12 @@ function genCall(g::ResPrGen, beta::Node)
         append!(g.rules, grules)
         return CFG(GCall, name1, [Var(param) for param in params])
     elseif isFuncNode(g.tree, beta)
-        (name1, vs1) = getFGSig(g, "f", beta, name, params)
-        body1 = genExp(g, beta.children[1])
+        (name1, vs1) = getFGSig!(g, "f", beta, name, params)
+        body1 = genExp!(g, beta.children[1])
         push!(g.rules, FRule(name1, params1, body1))
         return CFG(FCall, name1, [Var(param) for param in params])
     else
-        return genExp(g, beta.children[1])
+        return genExp!(g, beta.children[1])
     end
 end
 

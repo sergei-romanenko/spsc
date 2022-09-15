@@ -21,7 +21,7 @@ function Base.show(io::IO, gen::Gen)
     print(io, "}")
 end
 
-function commonFunctor(ng::NameGen, e::Exp, s1::Subst, s2::Subst)::Exp
+function commonFunctor!(ng::NameGen, e::Exp, s1::Subst, s2::Subst)::Exp
     for n in keys(s1)
         e1 = s1[n]
         e2 = s2[n]
@@ -39,7 +39,7 @@ function commonFunctor(ng::NameGen, e::Exp, s1::Subst, s2::Subst)::Exp
     return e
 end
 
-function commonSubst(e::Exp, s1::Subst, s2::Subst)::Exp
+function commonSubst!(e::Exp, s1::Subst, s2::Subst)::Exp
     for (n1, e1) in s1, (n2, e2) in s1
         if (n1 != n2 && e1 == e2) && (s2[n1] == s2[n2])
             delete!(s1, n1)
@@ -57,7 +57,7 @@ function msg(ng::NameGen, e1::Exp, e2::Exp)::Gen
     e = Var(n)
     while true
         old_e = e
-        e = commonSubst(commonFunctor(ng, e, s1, s2), s1, s2)
+        e = commonSubst!(commonFunctor!(ng, e, s1, s2), s1, s2)
         (e == old_e) && break
     end
     return Gen(e, s1, s2)

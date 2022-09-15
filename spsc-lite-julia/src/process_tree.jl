@@ -26,7 +26,7 @@ end
 const NodeId = Int64
 
 mutable struct Node
-    # The constructor is supposed to be called via ProcessTree#newNode only.
+    # The constructor is supposed to be called via ProcessTree#newNode! only.
     # nodeId is only used for unit testing purposes.
     nodeId::NodeId
     e::Exp
@@ -134,7 +134,7 @@ function isFuncNode(tree::Tree, node)
     return false
 end
 
-function newNode(tree::Tree, e::Exp, contr::OptContraction, parent::OptNode, children::Vector{Node})::Node
+function newNode!(tree::Tree, e::Exp, contr::OptContraction, parent::OptNode, children::Vector{Node})::Node
     i = tree.freshNodeId
     tree.freshNodeId += 1
     Node(i, e, contr, parent, children)
@@ -145,13 +145,13 @@ struct Branch
     contr::OptContraction
 end
 
-function addChildren(tree::Tree, n::Node, branches::Vector{Branch})::Nothing
-    children = [newNode(tree, b.e, b.contr, n, Node[]) for b in branches]
+function addChildren!(tree::Tree, n::Node, branches::Vector{Branch})::Nothing
+    children = [newNode!(tree, b.e, b.contr, n, Node[]) for b in branches]
     append!(n.children, children)
     return
 end
 
-function replaceSubtree(tree::Tree, n::Node, e::Exp)::Nothing
+function replaceSubtree!(tree::Tree, n::Node, e::Exp)::Nothing
     n.children = Vector{Node}[]
     n.e = e
     return
@@ -159,7 +159,7 @@ end
 
 export Contraction, Node, NodeId
 export ancestors, nodes, leaves, funcAncestor
-export Tree, Branch, addChildren, replaceSubtree
+export Tree, Branch, addChildren!, replaceSubtree!
 export isFuncNode
 export findUnprocessedNode, findMoreGeneralAncestor
 

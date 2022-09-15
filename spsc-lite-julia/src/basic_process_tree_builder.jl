@@ -92,29 +92,29 @@ end
 # a let-expression, in order to make beta the same as alpha
 # (modulo variable names).
 
-function loopBack(tree::Tree, beta::Node, alpha::Node)
+function loopBack!(tree::Tree, beta::Node, alpha::Node)
     subst = matchAgainst(alpha.e, beta.e)
     ks = collect(keys(subst))
     sort!(ks)
     bindings = [Binding(k, subst[k]) for k in ks]
     letExp = Let(alpha.e, bindings)
-    replaceSubtree(tree, beta, letExp)
+    replaceSubtree!(tree, beta, letExp)
 end
 
 # This function applies a driving step to the node's expression,
 # and, in general, adds children to the node.
 
-function expandNode(d::DrivingEngine, tree::Tree, beta::Node)
+function expandNode!(d::DrivingEngine, tree::Tree, beta::Node)
     branches = drivingStep(d, beta.e)
-    addChildren(tree, beta, branches)
+    addChildren!(tree, beta, branches)
 end
 
 # Kinds of supercompilers
 
 abstract type AbstractSC end
 
-buildStep(sc::AbstractSC, d::DrivingEngine, tree::Tree, beta::Node) =
-    error("buildStep not implemented for " * string(sc))
+buildStep!(sc::AbstractSC, d::DrivingEngine, tree::Tree, beta::Node) =
+    error("buildStep! not implemented for " * string(sc))
 
 function buildProcessTree(sc::AbstractSC, ng::NameGen, k::Int64, prog::Program, e::Exp)::Tree
     d = DrivingEngine(ng, prog)
@@ -125,7 +125,7 @@ function buildProcessTree(sc::AbstractSC, ng::NameGen, k::Int64, prog::Program, 
         k -= 1
         beta = findUnprocessedNode(tree)
         beta isa Node || break
-        buildStep(sc, d, tree, beta)
+        buildStep!(sc, d, tree, beta)
     end
     return tree
 end
@@ -134,14 +134,14 @@ end
 
 struct BasicSC <: AbstractSC end
 
-function buildStep(::BasicSC, d::DrivingEngine, tree::Tree, beta::Node)
+function buildStep!(::BasicSC, d::DrivingEngine, tree::Tree, beta::Node)
     # This method is overridden in the advanced version of
     # the process tree builder.
     alpha = findMoreGeneralAncestor(beta)
     if alpha isa Node
-        loopBack(tree, beta, alpha)
+        loopBack!(tree, beta, alpha)
     else
-        expandNode(d, tree, beta)
+        expandNode!(d, tree, beta)
     end
 end
 
@@ -150,7 +150,7 @@ function buildBasicProcessTree(ng::NameGen, k::Int64, prog::Program, e::Exp)::Tr
 end
 
 export DrivingEngine, drivingStep
-export loopBack, expandNode
+export loopBack!, expandNode!
 export AbstractSC, buildProcessTree
 export buildBasicProcessTree
 
