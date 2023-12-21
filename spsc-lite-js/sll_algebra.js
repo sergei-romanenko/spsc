@@ -119,7 +119,7 @@ var sll_algebra = {
 		case 'Variable':
 			return [exp];
 		default:
-			var names = {}, all_vars = [];
+			var all_vars = [];
 			for (var i = 0; i < exp.args.length; i++) {
 				all_vars = all_vars.concat(this.vars(exp.args[i]));
 			}
