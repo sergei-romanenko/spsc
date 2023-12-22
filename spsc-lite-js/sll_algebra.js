@@ -1,4 +1,6 @@
-var sll_algebra = {
+import {sll_lang} from "./sll_lang.js"
+
+export const sll_algebra = {
 	shell_equals: function(e1, e2) {
 		return (e1.kind == e2.kind) && (e1.name == e2.name);
 	},

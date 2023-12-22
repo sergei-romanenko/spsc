@@ -4,9 +4,12 @@
 //
 //////////////////////////
 
+import {sll_lang} from "./sll_lang.js"
+import {parsers} from "./parsers.js"
+
 var p = parsers;
 
-var sll_parser = {
+export const sll_parser = {
 	// tokens
 	v_name: parsers.token(/^[a-z]\w*/), c_name: parsers.token(/^[A-Z]\w*/),
 	g_name: parsers.token(/^g\w*/), f_name: parsers.token(/^f\w*/),

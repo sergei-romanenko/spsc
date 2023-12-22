@@ -1,4 +1,6 @@
-var node = function(exp, contraction) {
+import {sll_algebra} from "./sll_algebra.js";
+
+const node = function(exp, contraction) {
 	return {
 		exp: exp, 
 		contraction: contraction,
@@ -62,7 +64,7 @@ var node = function(exp, contraction) {
 	};
 };
 
-var tree = function(exp) {
+export const tree = function(exp) {
 	return {
 		root: node(exp, null),
 		// tc = [exp, contraction]*

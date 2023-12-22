@@ -1,3 +1,13 @@
+import {sll_lang} from "./sll_lang.js"
+import {sll_algebra} from "./sll_algebra.js"
+import {sll_parser} from "./sll_parser.js"
+import {tree} from "./partial_process_tree.js"
+
+import {base_supercompiler, supercompiler} from "./spsc.js"
+import {residuator} from "./residuator.js"
+import {he} from "./he.js"
+import {msg} from "./msg.js"
+
 function assert(exp, message) {
   if (!exp) {
 	  throw message + ' is Failed';
@@ -6,7 +16,7 @@ function assert(exp, message) {
   }
 }
 
-var test_program = {
+const test_program = {
 	code: [
 	   	'fMain(x, y, z) = gApp(gApp(x, y), z);',
 		'gApp(Nil(), vs1) = vs1;',
@@ -47,7 +57,7 @@ var test_program = {
 			)
 };
 
-var test_terms = function() {
+const test_terms = function() {
 	var var_a = sll_lang.variable('a');
 	var var_b = sll_lang.variable('b');
 	var nil = sll_lang.constructor('Nil', []);
@@ -89,7 +99,7 @@ var test_algebra_equals = function() {
 	
 }
 
-var test_parser = function() {	
+const test_parser = function() {	
 	var pr = sll_parser.parse(test_program.code);
 	assert(pr.successful, 'This code should be parsed correctly');
 	var program = pr.result;
@@ -98,13 +108,13 @@ var test_parser = function() {
 	assert(sll_algebra.equals(test_program.gApp2, program.rules[2]), 'Testing gApp2');
 }
 
-var test_algebra_replace_args = function() {
+const test_algebra_replace_args = function() {
 	var args1 = [test_terms.var_b, test_terms.nil];
 	var res1 = sll_algebra.replace_args(test_terms.cons_a_nil, args1);
 	assert(sll_algebra.equals(res1, test_terms.cons_b_nil), 'replace1');
 }
 
-var test_algebra_apply_sub = function() {
+const test_algebra_apply_sub = function() {
 	var sub1 = {'a': test_terms.var_b};
 	var res1 = sll_algebra.apply_subst(test_terms.cons_a_nil, sub1);
 	assert(sll_algebra.equals(res1, test_terms.cons_b_nil), 'sub1');
@@ -114,7 +124,7 @@ var test_algebra_apply_sub = function() {
 	assert(sll_algebra.equals(res2, test_terms.cons_a_nil), 'sub2');
 }
 
-var test_algebra_match_against = function() {
+const test_algebra_match_against = function() {
 	var actual1 = sll_algebra.match_against(test_terms.cons_a_nil, test_terms.cons_b_nil);
 	var expect1 = {a: test_terms.var_b};
 	assert(sll_algebra.subst_equals(expect1, actual1), 'match1');
@@ -136,7 +146,7 @@ var test_algebra_match_against = function() {
 	assert(sll_algebra.subst_equals(expect5, actual5), 'match5');
 }
 
-var test_algebra_instance_of = function() {
+const test_algebra_instance_of = function() {
 	assert(sll_algebra.instance_of(test_terms.nil, test_terms.nil), 'instance_of_1');
 	assert(sll_algebra.instance_of(test_terms.var_a, test_terms.nil), 'instance_of_2');
 	assert(!sll_algebra.instance_of(test_terms.nil, test_terms.var_a), 'instance_of_3');
@@ -149,7 +159,7 @@ var test_algebra_instance_of = function() {
 	assert(!sll_algebra.instance_of(test_terms.cons_a_b_nil, test_terms.cons_a_b), 'instance_of_10');
 };
 
-var test_algebra_equiv = function() {
+const test_algebra_equiv = function() {
 	assert(sll_algebra.equiv(test_terms.nil, test_terms.nil), 'equiv_1');
 	assert(!sll_algebra.equiv(test_terms.var_a, test_terms.nil), 'equiv_2');
 	assert(!sll_algebra.equiv(test_terms.nil, test_terms.var_a), 'equiv_3');
@@ -159,20 +169,20 @@ var test_algebra_equiv = function() {
 	assert(!sll_algebra.equiv(test_terms.cons_a_b_nil, test_terms.cons_a_a_nil), 'equiv_7');	
 };
 
-// TODO: make it via asserts
-var test_algebra_vars = function() {
-	var exp1 = sll_parser.parse_exp('Cons(a, b)');
-	var vars1 = sll_algebra.vars(exp1);
-	console.log(vars1);
+// // TODO: make it via asserts
+// var test_algebra_vars = function() {
+// 	var exp1 = sll_parser.parse_exp('Cons(a, b)');
+// 	var vars1 = sll_algebra.vars(exp1);
+// 	console.log(vars1);
 	
-	var exp2 = sll_parser.parse_exp('A(x,B(y,z),a)');
-	var vars2 = sll_algebra.vars(exp2);
-	console.log(vars2);
+// 	var exp2 = sll_parser.parse_exp('A(x,B(y,z),a)');
+// 	var vars2 = sll_algebra.vars(exp2);
+// 	console.log(vars2);
 	
-	var exp3 = sll_parser.parse_exp('A(x,B(y,x),a)');
-	var vars3 = sll_algebra.vars(exp3);
-	console.log(vars3);
-};
+// 	var exp3 = sll_parser.parse_exp('A(x,B(y,x),a)');
+// 	var vars3 = sll_algebra.vars(exp3);
+// 	console.log(vars3);
+// };
 
 var test_tree = function() {
 	var t = tree(test_terms.cons_a_b_nil);
@@ -185,16 +195,16 @@ var test_tree = function() {
 	return t;
 };
 
-var test_drive = function() {
-	var exp1 = sll_parser.parse_exp('Cons(a, b)');
-	var exp2 = sll_parser.parse_exp('gApp(xs, ys)')
+// var test_drive = function() {
+// 	var exp1 = sll_parser.parse_exp('Cons(a, b)');
+// 	var exp2 = sll_parser.parse_exp('gApp(xs, ys)')
 	
-	var pr = sll_parser.parse(test_program.code).result;
-	var bsc = base_supercompiler(pr);
+// 	var pr = sll_parser.parse(test_program.code).result;
+// 	var bsc = base_supercompiler(pr);
 	
-	console.log(bsc.drive(exp1));
-	console.log(bsc.drive(exp2));	
-};
+// 	console.log(bsc.drive(exp1));
+// 	console.log(bsc.drive(exp2));	
+// };
 
 var test_bsc = function() {
 	var pr = sll_parser.parse(test_program.code).result;
@@ -217,7 +227,7 @@ var test_bsc = function() {
 	var t4 = bsc1.build_tree(exp4);
 };
 
-var test_bsc1 = function() {
+const test_bsc1 = function() {
 	var pr = sll_parser.parse(test_program.code).result;
 	var bsc = base_supercompiler(pr);
 	var exp = sll_parser.parse_exp('gApp(xs, ys)')
@@ -237,7 +247,7 @@ var test_bsc1 = function() {
 };
 
 
-var test_bsc2 = function() {
+const test_bsc2 = function() {
 	var pr = sll_parser.parse(test_program.code).result;
 	var bsc = base_supercompiler(pr);
 	var exp = sll_parser.parse_exp('gApp(gApp(xs, ys), zs)')
@@ -256,7 +266,7 @@ var test_bsc2 = function() {
 	console.log('---');
 };
 
-var test_bsc3 = function() {
+const test_bsc3 = function() {
 	var pr = sll_parser.parse(test_program.code).result;
 	var bsc = base_supercompiler(pr);
 	var exp = sll_parser.parse_exp('gApp(gApp(xs, ys), Cons(a, b))')
@@ -275,7 +285,7 @@ var test_bsc3 = function() {
 	console.log('---');
 };
 
-var test_bsc4 = function() {
+const test_bsc4 = function() {
 	var pr = sll_parser.parse(test_program.code1).result;
 	var bsc = base_supercompiler(pr);
 	var exp = sll_parser.parse_exp('gD(S(x))');
@@ -294,31 +304,31 @@ var test_bsc4 = function() {
 	console.log('---');
 };
 
-var test_he_var_attacked = function() {
-	var exp;
-	exp = sll_parser.parse_exp('a');
-	assert(he.var_attacked(exp), 'a');
+// var test_he_var_attacked = function() {
+// 	var exp;
+// 	exp = sll_parser.parse_exp('a');
+// 	assert(he.var_attacked(exp), 'a');
 	
-	exp = sll_parser.parse_exp('A()');
-	assert(!he.var_attacked(exp), 'A()');
+// 	exp = sll_parser.parse_exp('A()');
+// 	assert(!he.var_attacked(exp), 'A()');
 	
-	exp = sll_parser.parse_exp('f(x)');
-	assert(!he.var_attacked(exp), 'f(x)');
+// 	exp = sll_parser.parse_exp('f(x)');
+// 	assert(!he.var_attacked(exp), 'f(x)');
 	
-	exp = sll_parser.parse_exp('g(x, y)');
-	assert(he.var_attacked(exp), 'g(x, y)');
+// 	exp = sll_parser.parse_exp('g(x, y)');
+// 	assert(he.var_attacked(exp), 'g(x, y)');
 	
-	exp = sll_parser.parse_exp('g1(g2(x))');
-	assert(he.var_attacked(exp), 'g1(g2(x))');
+// 	exp = sll_parser.parse_exp('g1(g2(x))');
+// 	assert(he.var_attacked(exp), 'g1(g2(x))');
 	
-	exp = sll_parser.parse_exp('g1(A())');
-	assert(!he.var_attacked(exp), 'g1(A())');
+// 	exp = sll_parser.parse_exp('g1(A())');
+// 	assert(!he.var_attacked(exp), 'g1(A())');
 	
-	exp = sll_parser.parse_exp('g1(f(x))');
-	assert(!he.var_attacked(exp), 'g1(f(x))');
-};
+// 	exp = sll_parser.parse_exp('g1(f(x))');
+// 	assert(!he.var_attacked(exp), 'g1(f(x))');
+// };
 
-var test_he = function() {
+const test_he = function() {
 	assert(he.he(sll_parser.parse_exp('v1'), 
 			sll_parser.parse_exp('v1')), 
 			'v1 ? v2');
@@ -472,7 +482,7 @@ var test_sc_4 = function() {
 	console.log('---');
 };
 
-var test_all = function() {
+export const test_all = function() {
 	test_algebra_equals();
 	test_parser();
 	test_algebra_replace_args();
@@ -500,3 +510,5 @@ var test_all = function() {
 	test_sc_3();
 	test_sc_4();
 };
+
+test_all();

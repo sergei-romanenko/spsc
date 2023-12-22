@@ -1,8 +1,11 @@
-var gen = function(exp, m1, m2) {
+import {sll_lang} from "./sll_lang.js"
+import {sll_algebra} from "./sll_algebra.js"
+
+const gen = function(exp, m1, m2) {
 	return {exp: exp, m1: m1, m2: m2};
 };
 
-var msg = {
+export const msg = {
 	msg: function(e1, e2) {
 		var v = sll_algebra.fresh_var();
 		var m1 = {}, m2 = {};

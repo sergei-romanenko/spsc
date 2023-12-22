@@ -1,4 +1,7 @@
-var residuator = function(tree) {
+import {sll_lang} from "./sll_lang.js";
+import {sll_algebra} from "./sll_algebra.js";
+
+export const residuator = function(tree) {
 	var function_counter = 0;
 	var defs = [];
 	

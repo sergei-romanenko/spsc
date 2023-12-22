@@ -4,7 +4,7 @@
 //
 //////////////////////////
 
-var parsers = {
+export const parsers = {
 	success: function (result, next) {
 		return {result: result, next: next, successful: true};
 	},

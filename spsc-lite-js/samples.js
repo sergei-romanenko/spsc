@@ -1,4 +1,4 @@
-samples = {
+export const samples = {
 	append2 : {
 		rules : [ 'gApp(Nil(), vs1) = vs1;',
 		          'gApp(Cons(u, us), vs) = Cons(u, gApp(us, vs));' ],

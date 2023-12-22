@@ -1,0 +1,12 @@
+{
+  "name": "spsc-lite-js",
+  "version": "1.0.0",
+  "description": "SPSC Lite in JavaScript",
+  "type": "module",
+  "main": "test.js",
+  "scripts": {
+    "test" : "node test.js"
+  },
+  "author": "Ilya Klyuchnikov",
+  "license": "ISC"
+}

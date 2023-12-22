@@ -1,4 +1,6 @@
-var he = {
+import {sll_algebra} from "./sll_algebra.js"
+
+export const he = {
 	
 	smart_he: function(exp1, exp2) {
 		return this.var_attacked(exp1) == this.var_attacked(exp2) && this.he(exp1, exp2);

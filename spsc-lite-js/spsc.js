@@ -1,4 +1,10 @@
-var base_supercompiler = function(program) {
+import {sll_lang} from "./sll_lang.js"
+import {sll_algebra} from "./sll_algebra.js"
+import {tree} from "./partial_process_tree.js"
+import {he} from "./he.js"
+import {msg} from "./msg.js"
+
+export const base_supercompiler = function(program) {
 	return {
 		program: program,
 		
@@ -109,7 +115,7 @@ var base_supercompiler = function(program) {
 	};
 };
 
-var supercompiler = function(program) {
+export const supercompiler = function(program) {
 	
 	var s = base_supercompiler(program);
 	

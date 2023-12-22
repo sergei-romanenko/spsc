@@ -4,7 +4,7 @@
 //
 //////////////////////////
 
-var sll_lang = {
+export const sll_lang = {
 
 	pattern: function(name, args) {
 		return {
