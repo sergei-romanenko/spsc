@@ -1,5 +1,6 @@
-import {sll_lang} from "./sll_lang.js"
-import {sll_algebra} from "./sll_algebra.js"
+import * as Lang from "./sll_lang.js"
+// import * as sll_algebra from "./sll_algebra.js"
+import { sll_algebra } from "./sll_algebra.js"
 
 const gen = function(exp, m1, m2) {
 	return {exp: exp, m1: m1, m2: m2};
@@ -61,7 +62,7 @@ export const msg = {
 						sll_algebra.equals(g.m2[v1], g.m2[v2])) {
 					
 					var sub = {};
-					sub[v1] = sll_lang.variable(v2);
+					sub[v1] = Lang.variable(v2);
 					
 					var m1 = this.copy_map(g.m1);
 					var m2 = this.copy_map(g.m2);

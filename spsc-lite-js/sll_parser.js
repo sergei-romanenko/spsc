@@ -4,7 +4,7 @@
 //
 //////////////////////////
 
-import {sll_lang} from "./sll_lang.js"
+import * as Lang from "./sll_lang.js"
 import {parsers} from "./parsers.js"
 
 var p = parsers;
@@ -28,7 +28,7 @@ export const sll_parser = {
 					       sll_parser.rparen
 					       ]
 					      ),
-					function(r) {return sll_lang.pattern(r[0], r[2]);}
+					function(r) {return Lang.pattern(r[0], r[2]);}
 				);
 			return p_par(s);
 		},
@@ -37,7 +37,7 @@ export const sll_parser = {
 			var v_par = 
 				p.transform(
 					sll_parser.v_name,
-					function(r) {return sll_lang.variable(r)}
+					function(r) {return Lang.variable(r)}
 				);
 			return v_par(s);
 		},
@@ -52,7 +52,7 @@ export const sll_parser = {
 					       sll_parser.rparen
 					       ]
 					      ),
-					function(r) {return sll_lang.constructor(r[0], r[2]);}
+					function(r) {return Lang.constructor(r[0], r[2]);}
 				);
 			return c_par(s);
 		},
@@ -67,7 +67,7 @@ export const sll_parser = {
 					       sll_parser.rparen
 					       ]
 					      ),
-					function(r) {return sll_lang.fcall(r[0], r[2]);}
+					function(r) {return Lang.fcall(r[0], r[2]);}
 				);
 			return f_par(s);
 		},
@@ -82,7 +82,7 @@ export const sll_parser = {
 					       sll_parser.rparen
 					       ]
 					      ),
-					function(r) {return sll_lang.gcall(r[0], r[2]);}
+					function(r) {return Lang.gcall(r[0], r[2]);}
 				);
 			return g_par(s);
 		},
@@ -108,7 +108,7 @@ export const sll_parser = {
 							sll_parser.eq, 
 							sll_parser.exp, 
 							sll_parser.semicolon]),
-					function(r) {return sll_lang.frule(r[0], r[2], r[5]);}
+					function(r) {return Lang.frule(r[0], r[2], r[5]);}
 				);
 			return f_par(s);
 		},
@@ -129,7 +129,7 @@ export const sll_parser = {
 						for (var i = 0; i < r[3].length; i++) {
 							vars.push(r[3][i][1]);
 						}
-						return sll_lang.grule(r[0], r[2], vars, r[6]);
+						return Lang.grule(r[0], r[2], vars, r[6]);
 					}
 				);
 			return g_par(s);
@@ -143,7 +143,7 @@ export const sll_parser = {
 					       sll_parser.eof
 					       ]
 					      ),
-					function (r) {return sll_lang.program(r[0]);}
+					function (r) {return Lang.program(r[0]);}
 				);
 			return p_par(s);
 		},

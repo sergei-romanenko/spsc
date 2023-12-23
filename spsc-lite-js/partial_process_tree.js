@@ -1,4 +1,5 @@
-import {sll_algebra} from "./sll_algebra.js";
+// import * as sll_algebra from "./sll_algebra.js"
+import { sll_algebra } from "./sll_algebra.js"
 
 const node = function(exp, contraction) {
 	return {

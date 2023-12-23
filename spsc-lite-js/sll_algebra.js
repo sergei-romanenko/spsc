@@ -1,4 +1,4 @@
-import {sll_lang} from "./sll_lang.js"
+import * as Lang from "./sll_lang.js"
 
 export const sll_algebra = {
 	shell_equals: function(e1, e2) {
@@ -103,7 +103,7 @@ export const sll_algebra = {
 		var i = 0;
 		return function () {
 			i++;
-			return sll_lang.variable('v_' + i);
+			return Lang.variable('v_' + i);
 		};
 	}(),
 	
