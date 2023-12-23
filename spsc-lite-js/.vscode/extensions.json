@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "ritwickdey.liveserver",
+        "wallabyjs.quokka-vscode",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+    ]
+}
