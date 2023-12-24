@@ -5,126 +5,132 @@
 //////////////////////////
 
 import * as Lang from "./sll_lang.js"
-import {parsers} from "./parsers.js"
+import { parsers as P } from "./parsers.js"
 
-var p = parsers;
+// tokens
 
-export const sll_parser = {
-	// tokens
-	v_name: parsers.token(/^[a-z]\w*/), c_name: parsers.token(/^[A-Z]\w*/),
-	g_name: parsers.token(/^g\w*/), f_name: parsers.token(/^f\w*/),
-	lparen: parsers.token(/^\(/), rparen: parsers.token(/^\)/),
-	eq: parsers.token(/^=/), comma: parsers.token(/^,/),
-	semicolon: parsers.token(/^;/), eof: parsers.token(/^$/),
-	// parsers
-	ptr: 
-		function(s) { 
-			var p_par = 
-				p.transform(
-					p.and([
-					       sll_parser.c_name, 
-					       sll_parser.lparen, 
-					       p.repeat_sep(sll_parser.vrb, sll_parser.comma),
-					       sll_parser.rparen
-					       ]
-					      ),
-					function(r) {return Lang.pattern(r[0], r[2]);}
-				);
-			return p_par(s);
-		},
-	vrb: 
-		function(s) {
-			var v_par = 
-				p.transform(
-					sll_parser.v_name,
-					function(r) {return Lang.variable(r)}
-				);
-			return v_par(s);
-		},
-	ctr:
-		function(s) {
-			var c_par = 
-				p.transform(
-					p.and([
-					       sll_parser.c_name,
-					       sll_parser.lparen,
-					       p.repeat_sep(sll_parser.exp, sll_parser.comma),
-					       sll_parser.rparen
-					       ]
-					      ),
-					function(r) {return Lang.constructor(r[0], r[2]);}
-				);
-			return c_par(s);
-		},
-	fcall:
-		function(s) {
-			var f_par = 
-				p.transform(
-					p.and([
-					       sll_parser.f_name,
-					       sll_parser.lparen,
-					       p.repeat_sep(sll_parser.exp, sll_parser.comma),
-					       sll_parser.rparen
-					       ]
-					      ),
-					function(r) {return Lang.fcall(r[0], r[2]);}
-				);
-			return f_par(s);
-		},
-	gcall:
-		function(s) {
-			var g_par = 
-				p.transform(
-					p.and([
-					       sll_parser.g_name,
-					       sll_parser.lparen,
-					       p.repeat_sep(sll_parser.exp, sll_parser.comma),
-					       sll_parser.rparen
-					       ]
-					      ),
-					function(r) {return Lang.gcall(r[0], r[2]);}
-				);
-			return g_par(s);
-		},
-	exp: 
-		function(s) {
-			var t_par = p.or([
-			                  sll_parser.ctr,
-			                  sll_parser.fcall,
-			                  sll_parser.gcall,
-			                  sll_parser.vrb
-			                 ]
-			                );
+const v_name = P.token(/^[a-z]\w*/)
+const c_name = P.token(/^[A-Z]\w*/)
+const g_name = P.token(/^g\w*/)
+const f_name = P.token(/^f\w*/)
+const lparen = P.token(/^\(/)
+const rparen = P.token(/^\)/)
+const eq = P.token(/^=/)
+const comma = P.token(/^,/)
+const semicolon = P.token(/^;/)
+const eof = P.token(/^$/)
+
+// parsers
+
+function ptr(s) {
+	var p_par =
+		P.transform(
+			P.and([
+				c_name,
+				lparen,
+				P.repeat_sep(vrb, comma),
+				rparen
+			]
+			),
+			function (r) { return Lang.pattern(r[0], r[2]); }
+		);
+	return p_par(s);
+}
+
+function vrb(s) {
+	var v_par =
+		P.transform(
+			v_name,
+			function (r) { return Lang.variable(r) }
+		);
+	return v_par(s);
+}
+
+function ctr(s) {
+	var c_par =
+		P.transform(
+			P.and([
+				c_name,
+				lparen,
+				P.repeat_sep(sll_parser.exp, comma),
+				rparen
+			]
+			),
+			function (r) { return Lang.constructor(r[0], r[2]); }
+		);
+	return c_par(s);
+}
+
+function fcall(s) {
+	var f_par =
+		P.transform(
+			P.and([
+				f_name,
+				lparen,
+				P.repeat_sep(sll_parser.exp, comma),
+				rparen
+			]
+			),
+			function (r) { return Lang.fcall(r[0], r[2]); }
+		);
+	return f_par(s);
+}
+
+function gcall(s) {
+	var g_par =
+		P.transform(
+			P.and([
+				g_name,
+				lparen,
+				P.repeat_sep(sll_parser.exp, comma),
+				rparen
+			]
+			),
+			function (r) { return Lang.gcall(r[0], r[2]); }
+		);
+	return g_par(s);
+}
+
+const sll_parser = {
+	exp:
+		function (s) {
+			var t_par = P.or([
+				ctr,
+				fcall,
+				gcall,
+				vrb
+			]
+			);
 			return t_par(s);
 		},
 	frule:
-		function(s) {
-			var f_par = 
-				p.transform(
-					p.and([sll_parser.f_name, 
-					       sll_parser.lparen, 
-							p.repeat_sep(sll_parser.vrb, sll_parser.comma), 
-							sll_parser.rparen, 
-							sll_parser.eq, 
-							sll_parser.exp, 
-							sll_parser.semicolon]),
-					function(r) {return Lang.frule(r[0], r[2], r[5]);}
+		function (s) {
+			var f_par =
+				P.transform(
+					P.and([f_name,
+						lparen,
+						P.repeat_sep(vrb, comma),
+						rparen,
+						eq,
+						sll_parser.exp,
+						semicolon]),
+					function (r) { return Lang.frule(r[0], r[2], r[5]); }
 				);
 			return f_par(s);
 		},
 	grule:
-		function(s) {
-			var g_par = 
-				p.transform(
-					p.and([sll_parser.g_name, 
-					       sll_parser.lparen, 
-							sll_parser.ptr, 
-							p.repeat(p.and([sll_parser.comma, sll_parser.vrb])), 
-							sll_parser.rparen, 
-							sll_parser.eq, 
-							sll_parser.exp, 
-							sll_parser.semicolon]),
-					function(r) {
+		function (s) {
+			var g_par =
+				P.transform(
+					P.and([g_name,
+						lparen,
+						ptr,
+						P.repeat(P.and([comma, vrb])),
+						rparen,
+						eq,
+						sll_parser.exp,
+						semicolon]),
+					function (r) {
 						var vars = [];
 						for (var i = 0; i < r[3].length; i++) {
 							vars.push(r[3][i][1]);
@@ -135,25 +141,27 @@ export const sll_parser = {
 			return g_par(s);
 		},
 	program:
-		function(s) {
-			var p_par = 
-				p.transform(
-					p.and([
-					       p.repeat(p.or([sll_parser.frule, sll_parser.grule])),
-					       sll_parser.eof
-					       ]
-					      ),
-					function (r) {return Lang.program(r[0]);}
+		function (s) {
+			var p_par =
+				P.transform(
+					P.and([
+						P.repeat(P.or([sll_parser.frule, sll_parser.grule])),
+						eof
+					]
+					),
+					function (r) { return Lang.program(r[0]); }
 				);
 			return p_par(s);
 		},
 	parse:
-		function(s) {
+		function (s) {
 			return sll_parser.program(s.replace(/\s*/g, ''));
 		},
 	parse_exp:
-		function(s) {
-			var pr = p.and([this.exp, sll_parser.eof])(s.replace(/\s*/g, ''));
+		function (s) {
+			var pr = P.and([this.exp, eof])(s.replace(/\s*/g, ''));
 			return pr.result[0];
 		}
 };
+
+export { sll_parser }
