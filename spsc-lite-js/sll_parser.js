@@ -5,7 +5,7 @@
 //////////////////////////
 
 import * as Lang from "./sll_lang.js"
-import { parsers as P } from "./parsers.js"
+import * as P from "./parsers.js"
 
 // tokens
 
