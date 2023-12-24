@@ -1,7 +1,7 @@
 import * as Lang from "./sll_lang.js"
 // import * as sll_algebra from "./sll_algebra.js"
 import { sll_algebra } from "./sll_algebra.js"
-import { sll_parser } from "./sll_parser.js"
+import * as Parser from "./sll_parser.js"
 import { tree } from "./partial_process_tree.js"
 import { base_supercompiler, supercompiler } from "./spsc.js"
 import { residuator } from "./residuator.js"
@@ -100,7 +100,7 @@ var test_algebra_equals = function () {
 }
 
 const test_parser = function () {
-	var pr = sll_parser.parse(test_program.code);
+	var pr = Parser.parse(test_program.code);
 	assert(pr.successful, 'This code should be parsed correctly');
 	var program = pr.result;
 	assert(sll_algebra.equals(test_program.fMain, program.rules[0]), 'Testing fMain');
@@ -171,15 +171,15 @@ const test_algebra_equiv = function () {
 
 // // TODO: make it via asserts
 // var test_algebra_vars = function() {
-// 	var exp1 = sll_parser.parse_exp('Cons(a, b)');
+// 	var exp1 = Parser.parse_exp('Cons(a, b)');
 // 	var vars1 = sll_algebra.vars(exp1);
 // 	console.log(vars1);
 
-// 	var exp2 = sll_parser.parse_exp('A(x,B(y,z),a)');
+// 	var exp2 = Parser.parse_exp('A(x,B(y,z),a)');
 // 	var vars2 = sll_algebra.vars(exp2);
 // 	console.log(vars2);
 
-// 	var exp3 = sll_parser.parse_exp('A(x,B(y,x),a)');
+// 	var exp3 = Parser.parse_exp('A(x,B(y,x),a)');
 // 	var vars3 = sll_algebra.vars(exp3);
 // 	console.log(vars3);
 // };
@@ -196,10 +196,10 @@ var test_tree = function () {
 };
 
 // var test_drive = function() {
-// 	var exp1 = sll_parser.parse_exp('Cons(a, b)');
-// 	var exp2 = sll_parser.parse_exp('gApp(xs, ys)')
+// 	var exp1 = Parser.parse_exp('Cons(a, b)');
+// 	var exp2 = Parser.parse_exp('gApp(xs, ys)')
 
-// 	var pr = sll_parser.parse(test_program.code).result;
+// 	var pr = Parser.parse(test_program.code).result;
 // 	var bsc = base_supercompiler(pr);
 
 // 	console.log(bsc.drive(exp1));
@@ -210,30 +210,30 @@ var test_tree = function () {
 
 
 var test_bsc = function () {
-	var pr = sll_parser.parse(test_program.code).result;
+	var pr = Parser.parse(test_program.code).result;
 	var bsc = base_supercompiler(pr);
 
-	var exp1 = sll_parser.parse_exp('gApp(xs, ys)');
+	var exp1 = Parser.parse_exp('gApp(xs, ys)');
 	var t1 = bsc.build_tree(exp1);
 
-	var exp2 = sll_parser.parse_exp('gApp(gApp(xs, ys), zs)')
+	var exp2 = Parser.parse_exp('gApp(gApp(xs, ys), zs)')
 	var t2 = bsc.build_tree(exp2);
 
-	var exp3 = sll_parser.parse_exp('gApp(gApp(xs, ys), Cons(a, b))')
+	var exp3 = Parser.parse_exp('gApp(gApp(xs, ys), Cons(a, b))')
 	var t3 = bsc.build_tree(exp3);
 
 
-	var pr1 = sll_parser.parse(test_program.code1).result;
+	var pr1 = Parser.parse(test_program.code1).result;
 	var bsc1 = base_supercompiler(pr1);
 
-	var exp4 = sll_parser.parse_exp('gD(S(x))')
+	var exp4 = Parser.parse_exp('gD(S(x))')
 	var t4 = bsc1.build_tree(exp4);
 };
 
 const test_bsc1 = function () {
-	var pr = sll_parser.parse(test_program.code).result;
+	var pr = Parser.parse(test_program.code).result;
 	var bsc = base_supercompiler(pr);
-	var exp = sll_parser.parse_exp('gApp(xs, ys)')
+	var exp = Parser.parse_exp('gApp(xs, ys)')
 
 	console.log('bsc:');
 	console.log(exp.toString());
@@ -251,9 +251,9 @@ const test_bsc1 = function () {
 
 
 const test_bsc2 = function () {
-	var pr = sll_parser.parse(test_program.code).result;
+	var pr = Parser.parse(test_program.code).result;
 	var bsc = base_supercompiler(pr);
-	var exp = sll_parser.parse_exp('gApp(gApp(xs, ys), zs)')
+	var exp = Parser.parse_exp('gApp(gApp(xs, ys), zs)')
 
 	console.log('bsc:');
 	console.log(exp.toString());
@@ -270,9 +270,9 @@ const test_bsc2 = function () {
 };
 
 const test_bsc3 = function () {
-	var pr = sll_parser.parse(test_program.code).result;
+	var pr = Parser.parse(test_program.code).result;
 	var bsc = base_supercompiler(pr);
-	var exp = sll_parser.parse_exp('gApp(gApp(xs, ys), Cons(a, b))')
+	var exp = Parser.parse_exp('gApp(gApp(xs, ys), Cons(a, b))')
 
 	console.log('bsc:');
 	console.log(exp.toString());
@@ -289,9 +289,9 @@ const test_bsc3 = function () {
 };
 
 const test_bsc4 = function () {
-	var pr = sll_parser.parse(test_program.code1).result;
+	var pr = Parser.parse(test_program.code1).result;
 	var bsc = base_supercompiler(pr);
-	var exp = sll_parser.parse_exp('gD(S(x))');
+	var exp = Parser.parse_exp('gD(S(x))');
 
 	console.log('bsc:');
 	console.log(exp.toString());
@@ -309,109 +309,109 @@ const test_bsc4 = function () {
 
 // var test_he_var_attacked = function() {
 // 	var exp;
-// 	exp = sll_parser.parse_exp('a');
+// 	exp = Parser.parse_exp('a');
 // 	assert(HE.var_attacked(exp), 'a');
 
-// 	exp = sll_parser.parse_exp('A()');
+// 	exp = Parser.parse_exp('A()');
 // 	assert(!HE.var_attacked(exp), 'A()');
 
-// 	exp = sll_parser.parse_exp('f(x)');
+// 	exp = Parser.parse_exp('f(x)');
 // 	assert(!HE.var_attacked(exp), 'f(x)');
 
-// 	exp = sll_parser.parse_exp('g(x, y)');
+// 	exp = Parser.parse_exp('g(x, y)');
 // 	assert(HE.var_attacked(exp), 'g(x, y)');
 
-// 	exp = sll_parser.parse_exp('g1(g2(x))');
+// 	exp = Parser.parse_exp('g1(g2(x))');
 // 	assert(HE.var_attacked(exp), 'g1(g2(x))');
 
-// 	exp = sll_parser.parse_exp('g1(A())');
+// 	exp = Parser.parse_exp('g1(A())');
 // 	assert(!HE.var_attacked(exp), 'g1(A())');
 
-// 	exp = sll_parser.parse_exp('g1(f(x))');
+// 	exp = Parser.parse_exp('g1(f(x))');
 // 	assert(!HE.var_attacked(exp), 'g1(f(x))');
 // };
 
 const test_he = function () {
-	assert(HE.he(sll_parser.parse_exp('v1'),
-		sll_parser.parse_exp('v1')),
+	assert(HE.he(Parser.parse_exp('v1'),
+		Parser.parse_exp('v1')),
 		'v1 ? v2');
 
-	assert(HE.he(sll_parser.parse_exp('v1'),
-		sll_parser.parse_exp('F(v2)')),
+	assert(HE.he(Parser.parse_exp('v1'),
+		Parser.parse_exp('F(v2)')),
 		'v1 ? F(v2)');
 
-	assert(!HE.he(sll_parser.parse_exp('F(v2)'),
-		sll_parser.parse_exp('v1')),
+	assert(!HE.he(Parser.parse_exp('F(v2)'),
+		Parser.parse_exp('v1')),
 		'F(v2) ? v1');
 
-	assert(HE.he(sll_parser.parse_exp('F(v1)'),
-		sll_parser.parse_exp('F(v1)')),
+	assert(HE.he(Parser.parse_exp('F(v1)'),
+		Parser.parse_exp('F(v1)')),
 		'F(v1) ? F(v1)');
 
-	assert(HE.he(sll_parser.parse_exp('F(v1)'),
-		sll_parser.parse_exp('F(H(v2))')),
+	assert(HE.he(Parser.parse_exp('F(v1)'),
+		Parser.parse_exp('F(H(v2))')),
 		'F(v1) ? F(H(v2))');
 
-	assert(HE.he(sll_parser.parse_exp('F(v1)'),
-		sll_parser.parse_exp('G(v0,F(H(v2)))')),
+	assert(HE.he(Parser.parse_exp('F(v1)'),
+		Parser.parse_exp('G(v0,F(H(v2)))')),
 		'F(v1) ? G(v0,F(H(v2)))');
 
-	assert(HE.he(sll_parser.parse_exp('F(v1,G(v2))'),
-		sll_parser.parse_exp('F(H(w1),G(w2))')),
+	assert(HE.he(Parser.parse_exp('F(v1,G(v2))'),
+		Parser.parse_exp('F(H(w1),G(w2))')),
 		'F(v1,G(v2)) ? F(H(w1),G(w2))');
 
-	assert(!HE.he(sll_parser.parse_exp('f(v1)'),
-		sll_parser.parse_exp('g(w1)')),
+	assert(!HE.he(Parser.parse_exp('f(v1)'),
+		Parser.parse_exp('g(w1)')),
 		'f(v1) ? g(w1)');
 };
 
 var test_msg_1 = function () {
-	var exp1 = sll_parser.parse_exp('F(v1)');
-	var exp2 = sll_parser.parse_exp('F(v2)');
+	var exp1 = Parser.parse_exp('F(v1)');
+	var exp2 = Parser.parse_exp('F(v2)');
 	var gen = MSG.msg(exp1, exp2);
 	console.log(gen);
 };
 
 var test_msg_2 = function () {
-	var exp1 = sll_parser.parse_exp('F(v1)');
-	var exp2 = sll_parser.parse_exp('G(v2)');
+	var exp1 = Parser.parse_exp('F(v1)');
+	var exp2 = Parser.parse_exp('G(v2)');
 	var gen = MSG.msg(exp1, exp2);
 	console.log(gen);
 };
 
 var test_msg_3 = function () {
-	var exp1 = sll_parser.parse_exp('A(a1,C(a2,a3))');
-	var exp2 = sll_parser.parse_exp('A(b1,C(b2,b3))');
+	var exp1 = Parser.parse_exp('A(a1,C(a2,a3))');
+	var exp2 = Parser.parse_exp('A(b1,C(b2,b3))');
 	var gen = MSG.msg(exp1, exp2);
 	console.log(gen);
 };
 
 var test_msg_4 = function () {
-	var exp1 = sll_parser.parse_exp('f(a1,a2,a1)');
-	var exp2 = sll_parser.parse_exp('f(b1,b2,b1)');
+	var exp1 = Parser.parse_exp('f(a1,a2,a1)');
+	var exp2 = Parser.parse_exp('f(b1,b2,b1)');
 	var gen = MSG.msg(exp1, exp2);
 	console.log(gen);
 };
 
 var test_msg_5 = function () {
-	var exp1 = sll_parser.parse_exp('f(a,a)');
-	var exp2 = sll_parser.parse_exp('f(b,S(b))');
+	var exp1 = Parser.parse_exp('f(a,a)');
+	var exp2 = Parser.parse_exp('f(b,S(b))');
 	var gen = MSG.msg(exp1, exp2);
 	console.log(gen);
 };
 
 var test_msg_6 = function () {
-	var exp1 = sll_parser.parse_exp('gD(S(x))');
-	var exp2 = sll_parser.parse_exp('gD(S(S(x)))');
+	var exp1 = Parser.parse_exp('gD(S(x))');
+	var exp2 = Parser.parse_exp('gD(S(S(x)))');
 	var gen = MSG.msg(exp1, exp2);
 	console.log(gen);
 };
 
 var test_sc_1 = function () {
-	var pr = sll_parser.parse(test_program.code).result;
+	var pr = Parser.parse(test_program.code).result;
 	var s = supercompiler(pr);
 	var bsc = supercompiler(pr);
-	var exp = sll_parser.parse_exp('gApp(xs, ys)')
+	var exp = Parser.parse_exp('gApp(xs, ys)')
 
 	console.log('sc:');
 	console.log(exp.toString());
@@ -429,9 +429,9 @@ var test_sc_1 = function () {
 
 
 var test_sc_2 = function () {
-	var pr = sll_parser.parse(test_program.code).result;
+	var pr = Parser.parse(test_program.code).result;
 	var bsc = supercompiler(pr);
-	var exp = sll_parser.parse_exp('gApp(gApp(xs, ys), zs)')
+	var exp = Parser.parse_exp('gApp(gApp(xs, ys), zs)')
 
 	console.log('sc:');
 	console.log(exp.toString());
@@ -448,9 +448,9 @@ var test_sc_2 = function () {
 };
 
 var test_sc_3 = function () {
-	var pr = sll_parser.parse(test_program.code).result;
+	var pr = Parser.parse(test_program.code).result;
 	var bsc = supercompiler(pr);
-	var exp = sll_parser.parse_exp('gApp(gApp(xs, ys), Cons(a, b))')
+	var exp = Parser.parse_exp('gApp(gApp(xs, ys), Cons(a, b))')
 
 	console.log('sc:');
 	console.log(exp.toString());
@@ -467,9 +467,9 @@ var test_sc_3 = function () {
 };
 
 var test_sc_4 = function () {
-	var pr = sll_parser.parse(test_program.code1).result;
+	var pr = Parser.parse(test_program.code1).result;
 	var bsc = supercompiler(pr);
-	var exp = sll_parser.parse_exp('gD(S(x))');
+	var exp = Parser.parse_exp('gD(S(x))');
 
 	console.log('sc:');
 	console.log(exp.toString());

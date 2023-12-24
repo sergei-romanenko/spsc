@@ -1,4 +1,4 @@
-import { sll_parser } from "./sll_parser.js"
+import * as Parser from "./sll_parser.js"
 import { residuator } from "./residuator.js"
 import { supercompiler } from "./spsc.js"
 import { samples } from "./samples.js"
@@ -9,8 +9,8 @@ function supercompile() {
 
     // console.log(src_code);
 
-    var program = sll_parser.parse(src_code).result;
-    var goal = sll_parser.parse_exp(src_goal);
+    var program = Parser.parse(src_code).result;
+    var goal = Parser.parse_exp(src_goal);
     var sc = supercompiler(program);
     var tree = sc.build_tree(goal);
 

@@ -52,7 +52,7 @@ function ctr(s) {
 			P.and([
 				c_name,
 				lparen,
-				P.repeat_sep(sll_parser.exp, comma),
+				P.repeat_sep(exp, comma),
 				rparen
 			]
 			),
@@ -67,7 +67,7 @@ function fcall(s) {
 			P.and([
 				f_name,
 				lparen,
-				P.repeat_sep(sll_parser.exp, comma),
+				P.repeat_sep(exp, comma),
 				rparen
 			]
 			),
@@ -82,7 +82,7 @@ function gcall(s) {
 			P.and([
 				g_name,
 				lparen,
-				P.repeat_sep(sll_parser.exp, comma),
+				P.repeat_sep(exp, comma),
 				rparen
 			]
 			),
@@ -91,77 +91,74 @@ function gcall(s) {
 	return g_par(s);
 }
 
-const sll_parser = {
-	exp:
-		function (s) {
-			var t_par = P.or([
-				ctr,
-				fcall,
-				gcall,
-				vrb
-			]
-			);
-			return t_par(s);
-		},
-	frule:
-		function (s) {
-			var f_par =
-				P.transform(
-					P.and([f_name,
-						lparen,
-						P.repeat_sep(vrb, comma),
-						rparen,
-						eq,
-						sll_parser.exp,
-						semicolon]),
-					function (r) { return Lang.frule(r[0], r[2], r[5]); }
-				);
-			return f_par(s);
-		},
-	grule:
-		function (s) {
-			var g_par =
-				P.transform(
-					P.and([g_name,
-						lparen,
-						ptr,
-						P.repeat(P.and([comma, vrb])),
-						rparen,
-						eq,
-						sll_parser.exp,
-						semicolon]),
-					function (r) {
-						var vars = [];
-						for (var i = 0; i < r[3].length; i++) {
-							vars.push(r[3][i][1]);
-						}
-						return Lang.grule(r[0], r[2], vars, r[6]);
-					}
-				);
-			return g_par(s);
-		},
-	program:
-		function (s) {
-			var p_par =
-				P.transform(
-					P.and([
-						P.repeat(P.or([sll_parser.frule, sll_parser.grule])),
-						eof
-					]
-					),
-					function (r) { return Lang.program(r[0]); }
-				);
-			return p_par(s);
-		},
-	parse:
-		function (s) {
-			return sll_parser.program(s.replace(/\s*/g, ''));
-		},
-	parse_exp:
-		function (s) {
-			var pr = P.and([this.exp, eof])(s.replace(/\s*/g, ''));
-			return pr.result[0];
-		}
-};
+function exp(s) {
+	var t_par = P.or([
+		ctr,
+		fcall,
+		gcall,
+		vrb
+	]
+	);
+	return t_par(s);
+}
 
-export { sll_parser }
+function frule(s) {
+	var f_par =
+		P.transform(
+			P.and([f_name,
+				lparen,
+				P.repeat_sep(vrb, comma),
+				rparen,
+				eq,
+				exp,
+				semicolon]),
+			function (r) { return Lang.frule(r[0], r[2], r[5]); }
+		);
+	return f_par(s);
+}
+
+function grule(s) {
+	var g_par =
+		P.transform(
+			P.and([g_name,
+				lparen,
+				ptr,
+				P.repeat(P.and([comma, vrb])),
+				rparen,
+				eq,
+				exp,
+				semicolon]),
+			function (r) {
+				var vars = [];
+				for (var i = 0; i < r[3].length; i++) {
+					vars.push(r[3][i][1]);
+				}
+				return Lang.grule(r[0], r[2], vars, r[6]);
+			}
+		);
+	return g_par(s);
+}
+
+function program(s) {
+	var p_par =
+		P.transform(
+			P.and([
+				P.repeat(P.or([frule, grule])),
+				eof
+			]
+			),
+			function (r) { return Lang.program(r[0]); }
+		);
+	return p_par(s);
+}
+
+function parse(s) {
+	return program(s.replace(/\s*/g, ''));
+}
+
+function parse_exp(s) {
+	var pr = P.and([exp, eof])(s.replace(/\s*/g, ''));
+	return pr.result[0];
+}
+
+export { parse, parse_exp }
