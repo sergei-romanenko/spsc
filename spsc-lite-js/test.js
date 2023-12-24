@@ -6,7 +6,7 @@ import { tree } from "./partial_process_tree.js"
 import { base_supercompiler, supercompiler } from "./spsc.js"
 import { residuator } from "./residuator.js"
 import * as HE from "./he.js"
-import { msg } from "./msg.js"
+import * as MSG from "./msg.js"
 
 function assert(exp, message) {
 	if (!exp) {
@@ -368,42 +368,42 @@ const test_he = function () {
 var test_msg_1 = function () {
 	var exp1 = sll_parser.parse_exp('F(v1)');
 	var exp2 = sll_parser.parse_exp('F(v2)');
-	var gen = msg.msg(exp1, exp2);
+	var gen = MSG.msg(exp1, exp2);
 	console.log(gen);
 };
 
 var test_msg_2 = function () {
 	var exp1 = sll_parser.parse_exp('F(v1)');
 	var exp2 = sll_parser.parse_exp('G(v2)');
-	var gen = msg.msg(exp1, exp2);
+	var gen = MSG.msg(exp1, exp2);
 	console.log(gen);
 };
 
 var test_msg_3 = function () {
 	var exp1 = sll_parser.parse_exp('A(a1,C(a2,a3))');
 	var exp2 = sll_parser.parse_exp('A(b1,C(b2,b3))');
-	var gen = msg.msg(exp1, exp2);
+	var gen = MSG.msg(exp1, exp2);
 	console.log(gen);
 };
 
 var test_msg_4 = function () {
 	var exp1 = sll_parser.parse_exp('f(a1,a2,a1)');
 	var exp2 = sll_parser.parse_exp('f(b1,b2,b1)');
-	var gen = msg.msg(exp1, exp2);
+	var gen = MSG.msg(exp1, exp2);
 	console.log(gen);
 };
 
 var test_msg_5 = function () {
 	var exp1 = sll_parser.parse_exp('f(a,a)');
 	var exp2 = sll_parser.parse_exp('f(b,S(b))');
-	var gen = msg.msg(exp1, exp2);
+	var gen = MSG.msg(exp1, exp2);
 	console.log(gen);
 };
 
 var test_msg_6 = function () {
 	var exp1 = sll_parser.parse_exp('gD(S(x))');
 	var exp2 = sll_parser.parse_exp('gD(S(S(x)))');
-	var gen = msg.msg(exp1, exp2);
+	var gen = MSG.msg(exp1, exp2);
 	console.log(gen);
 };
 

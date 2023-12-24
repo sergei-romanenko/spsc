@@ -1,9 +1,9 @@
 // import * as sll_algebra from "./sll_algebra.js"
 import { sll_algebra } from "./sll_algebra.js"
 
-const node = function(exp, contraction) {
+function node(exp, contraction) {
 	return {
-		exp: exp, 
+		exp: exp,
 		contraction: contraction,
 		children: [],
 		ancestors: function () {
@@ -16,7 +16,7 @@ const node = function(exp, contraction) {
 		leaves: function () {
 			var ls = [];
 			if (this.children.length > 0) {
-				for (var i = 0; i< this.children.length; i++) {
+				for (var i = 0; i < this.children.length; i++) {
 					ls.push(this.children[i].leaves());
 				}
 				return Array.prototype.concat.apply([], ls);
@@ -26,31 +26,31 @@ const node = function(exp, contraction) {
 		},
 		is_processed: function () {
 			switch (this.exp.kind) {
-			case 'Variable':
-				return true;
-			case 'Constructor':
-				return this.exp.args.length == 0;
-			case 'FCall':
-			case 'GCall':
-				return this.get_functional_node() != null;
-			default:
-				return false;
+				case 'Variable':
+					return true;
+				case 'Constructor':
+					return this.exp.args.length == 0;
+				case 'FCall':
+				case 'GCall':
+					return this.get_functional_node() != null;
+				default:
+					return false;
 			}
 		},
-		get_functional_node: function(){
+		get_functional_node: function () {
 			switch (this.exp.kind) {
-			case 'FCall':
-			case 'GCall':
-				var ancs = this.ancestors();
-				for (var i = 0; i < ancs.length; i ++) {
-					if (ancs[i].exp.kind == this.exp.kind && sll_algebra.equiv(this.exp, ancs[i].exp)) {
-						return ancs[i];
+				case 'FCall':
+				case 'GCall':
+					var ancs = this.ancestors();
+					for (var i = 0; i < ancs.length; i++) {
+						if (ancs[i].exp.kind == this.exp.kind && sll_algebra.equiv(this.exp, ancs[i].exp)) {
+							return ancs[i];
+						}
 					}
-				}
-			default: return null;
+				default: return null;
 			}
 		},
-		toString: function(indent) {
+		toString: function (indent) {
 			var ind = indent || '';
 			var chs = [];
 			for (var i = 0; i < this.children.length; i++) {
@@ -58,18 +58,18 @@ const node = function(exp, contraction) {
 			}
 			var con = ind + '|';
 			if (this.contraction) {
-				con = con + this.contraction.join('='); 
+				con = con + this.contraction.join('=');
 			}
 			return [con, ind + '|__' + this.exp.toString()].concat(chs).join('\n ');
 		}
 	};
 };
 
-export const tree = function(exp) {
+function tree(exp) {
 	return {
 		root: node(exp, null),
 		// tc = [exp, contraction]*
-		add_children: function(n, tc) {
+		add_children: function (n, tc) {
 			for (var i = 0; i < tc.length; i++) {
 				var child_node = node(tc[i][0], tc[i][1]);
 				child_node.parent = n;
@@ -77,10 +77,10 @@ export const tree = function(exp) {
 			}
 			return this;
 		},
-		leaves: function() {
+		leaves: function () {
 			return this.root.leaves();
 		},
-		get_unprocessed_leaf: function() {
+		get_unprocessed_leaf: function () {
 			var all_leaves = this.leaves();
 			for (var i = 0; i < all_leaves.length; i++) {
 				if (!all_leaves[i].is_processed()) {
@@ -89,7 +89,7 @@ export const tree = function(exp) {
 			}
 			return null;
 		},
-		replace: function(n, exp) {
+		replace: function (n, exp) {
 			if (n == this.root) {
 				this.root = node(exp, null);
 			} else {
@@ -102,8 +102,10 @@ export const tree = function(exp) {
 				}
 			}
 		},
-		toString: function() {
+		toString: function () {
 			return this.root.toString();
 		}
 	};
 };
+
+export { tree }

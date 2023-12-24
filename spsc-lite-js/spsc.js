@@ -3,9 +3,9 @@ import * as Lang from "./sll_lang.js"
 import { sll_algebra } from "./sll_algebra.js"
 import { tree } from "./partial_process_tree.js"
 import * as HE from "./he.js"
-import { msg } from "./msg.js"
+import * as  MSG from "./msg.js"
 
-export const base_supercompiler = function (program) {
+function base_supercompiler(program) {
 	return {
 		program: program,
 
@@ -116,7 +116,7 @@ export const base_supercompiler = function (program) {
 	};
 };
 
-export const supercompiler = function (program) {
+function supercompiler(program) {
 
 	var s = base_supercompiler(program);
 
@@ -141,7 +141,7 @@ export const supercompiler = function (program) {
 					if (a) {
 						if (sll_algebra.instance_of(a.exp, b.exp)) {
 							this.abs(t, b, a);
-						} else if (msg.msg(a.exp, b.exp).exp.kind == 'Variable') {
+						} else if (MSG.msg(a.exp, b.exp).exp.kind == 'Variable') {
 							this.split(t, b);
 						} else {
 							this.abs(t, a, b);
@@ -159,7 +159,7 @@ export const supercompiler = function (program) {
 	};
 
 	s.abs = function (t, a, b) {
-		var g = msg.msg(a.exp, b.exp);
+		var g = MSG.msg(a.exp, b.exp);
 		var map = g.m1;
 		var bindings = [];
 		for (var n in map) {
@@ -183,3 +183,5 @@ export const supercompiler = function (program) {
 
 	return s;
 };
+
+export { base_supercompiler, supercompiler }
