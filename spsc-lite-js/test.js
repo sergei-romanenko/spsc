@@ -26,6 +26,10 @@ const test_program = {
 		'gD(Z()) = Z();',
 		'gD(S(x)) = gD(S(S(x)));'
 	].join('\n'),
+	code2: [
+		'g1(C(x)) = B();',
+		'g2(B(), x) = x;'
+	].join('\n'),
 	fMain: Lang.frule(
 		'fMain',
 		[
@@ -485,6 +489,26 @@ var test_sc_4 = function () {
 	console.log('---');
 };
 
+// See <https://github.com/sergei-romanenko/spsc/issues/3>.
+var test_sc_5 = function () {
+	var pr = Parser.parse(test_program.code2).result;
+	var bsc = supercompiler(pr);
+	var exp = Parser.parse_exp('g2(g1(x), x)');
+
+	console.log('sc:');
+	console.log(exp.toString());
+	console.log(pr.toString());
+
+	var t = bsc.build_tree(exp);
+	var result = residuator(t).residuate();
+
+	console.log('sc result:');
+	console.log(result[0].toString());
+	console.log(result[1].toString());
+
+	console.log('---');
+};
+
 export const test_all = function () {
 	test_algebra_equals();
 	test_parser();
@@ -513,6 +537,7 @@ export const test_all = function () {
 	test_sc_2();
 	test_sc_3();
 	test_sc_4();
+	test_sc_5();
 };
 
 test_all();
