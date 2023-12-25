@@ -1,6 +1,5 @@
 import * as Lang from "./sll_lang.js"
-// import * as sll_algebra from "./sll_algebra.js"
-import { sll_algebra } from "./sll_algebra.js"
+import * as Algebra from "./sll_algebra.js"
 import { tree } from "./partial_process_tree.js"
 import * as HE from "./he.js"
 import * as  MSG from "./msg.js"
@@ -23,7 +22,7 @@ function base_supercompiler(program) {
 					for (var i = 0; i < e.args.length; i++) {
 						map[f_rule.args[i].name] = e.args[i];
 					}
-					return [[sll_algebra.apply_subst(f_rule.exp, map), null]];
+					return [[Algebra.apply_subst(f_rule.exp, map), null]];
 				case 'GCall':
 					var arg1 = e.args[0];
 					switch (arg1.kind) {
@@ -36,7 +35,7 @@ function base_supercompiler(program) {
 							for (var i = 0; i < g_rule.args.length; i++) {
 								map[g_rule.args[i].name] = e.args[i + 1];
 							}
-							return [[sll_algebra.apply_subst(g_rule.exp, map), null]];
+							return [[Algebra.apply_subst(g_rule.exp, map), null]];
 						case 'Variable':
 							var res = [];
 							var g_rules = this.program.gs[e.name];
@@ -45,7 +44,7 @@ function base_supercompiler(program) {
 								var fc = Lang.constructor(fp.name, fp.args);
 								var map = {};
 								map[arg1.name] = fc;
-								var x = this.drive(sll_algebra.apply_subst(e, map));
+								var x = this.drive(Algebra.apply_subst(e, map));
 								res.push([x[0][0], [arg1, fp]]);
 							}
 							return res;
@@ -59,7 +58,7 @@ function base_supercompiler(program) {
 										if (inner_dr[1]) {
 											var map = {}
 											map[inner_dr[1][0].name] = Lang.constructor(inner_dr[1][1].name, inner_dr[1][1].args);
-											return sll_algebra.apply_subst(arg, map);
+											return Algebra.apply_subst(arg, map);
 										} else {
 											return arg;
 										}
@@ -80,7 +79,7 @@ function base_supercompiler(program) {
 		fresh_pattern: function (p) {
 			var new_args = [];
 			for (var i = 0; i < p.args.length; i++) {
-				new_args.push(sll_algebra.fresh_var());
+				new_args.push(Algebra.fresh_var());
 			}
 			return Lang.pattern(p.name, new_args);
 		},
@@ -98,13 +97,13 @@ function base_supercompiler(program) {
 						var a = null;
 						for (var i = 0; i < ancs.length; i++) {
 							var _a = ancs[i];
-							if (_a.exp.kind == b.exp.kind && sll_algebra.instance_of(_a.exp, b.exp)) {
+							if (_a.exp.kind == b.exp.kind && Algebra.instance_of(_a.exp, b.exp)) {
 								a = _a;
 								break;
 							}
 						}
 						if (a) {
-							var map = sll_algebra.match_against(a.exp, b.exp);
+							var map = Algebra.match_against(a.exp, b.exp);
 							var bindings = [];
 							for (var n in map) {
 								bindings.push([n, map[n]]);
@@ -148,7 +147,7 @@ function supercompiler(program) {
 						}
 					}
 					if (a) {
-						if (sll_algebra.instance_of(a.exp, b.exp)) {
+						if (Algebra.instance_of(a.exp, b.exp)) {
 							this.abs(t, b, a);
 						} else if (MSG.msg(a.exp, b.exp).exp.kind == 'Variable') {
 							this.split(t, b);
@@ -182,11 +181,11 @@ function supercompiler(program) {
 		var fresh_vars = [];
 		var bindings = [];
 		for (var i = 0; i < n.exp.args.length; i++) {
-			var fresh_var = sll_algebra.fresh_var();
+			var fresh_var = Algebra.fresh_var();
 			fresh_vars.push(fresh_var);
 			bindings.push([fresh_var.name, n.exp.args[i]]);
 		}
-		var l = Lang.let_(sll_algebra.replace_args(n.exp, fresh_vars), bindings);
+		var l = Lang.let_(Algebra.replace_args(n.exp, fresh_vars), bindings);
 		t.replace(n, l);
 	};
 

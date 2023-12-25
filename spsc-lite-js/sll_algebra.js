@@ -1,129 +1,127 @@
 import * as Lang from "./sll_lang.js"
 
-export const sll_algebra = {
-	shell_equals: function(e1, e2) {
-		return (e1.kind == e2.kind) && (e1.name == e2.name);
-	},
-	
-	equals:  function(e1, e2) {
-		var sh_eq = this.shell_equals(e1, e2);
-		if (!sh_eq) {
-			return false;
-		}
-		if (e1.args.length != e2.args.length) {
-			return false;
-		}
-		for (var i = 0; i < e1.args.length; i++) {
-			if (!this.equals(e1.args[i], e2.args[i])) {
-				return false;
-			}
-		}
-		if (e1.pattern && !this.equals(e1.pattern, e2.pattern)) {
-			return false;
-		}
-		if (e1.exp && !this.equals(e1.exp, e2.exp)) {
-			return false;
-		}
-		return true;
-	},
+function shell_equals(e1, e2) {
+	return (e1.kind == e2.kind) && (e1.name == e2.name);
+}
 
-	replace_args: function(exp, args) {
-		return {kind: exp.kind, name: exp.name, args: args, toString: exp.toString};
-	},
-	
-	apply_subst: function(exp, map) {
-		switch (exp.kind) {
+function equals(e1, e2) {
+	var sh_eq = shell_equals(e1, e2);
+	if (!sh_eq) {
+		return false;
+	}
+	if (e1.args.length != e2.args.length) {
+		return false;
+	}
+	for (var i = 0; i < e1.args.length; i++) {
+		if (!equals(e1.args[i], e2.args[i])) {
+			return false;
+		}
+	}
+	if (e1.pattern && !equals(e1.pattern, e2.pattern)) {
+		return false;
+	}
+	if (e1.exp && !equals(e1.exp, e2.exp)) {
+		return false;
+	}
+	return true;
+}
+
+function replace_args(exp, args) {
+	return { kind: exp.kind, name: exp.name, args: args, toString: exp.toString };
+}
+
+function apply_subst(exp, map) {
+	switch (exp.kind) {
 		case 'Variable':
 			return map[exp.name] || exp;
 		default:
 			var args = [];
 			for (var i = 0; i < exp.args.length; i++) {
-				args.push(this.apply_subst(exp.args[i], map));
+				args.push(apply_subst(exp.args[i], map));
 			}
-			return this.replace_args(exp, args);
-		}
-	},
-	
-	match_against: function(exp1, exp2) {
-		var that = this;
-		var map = {};
-		var walk = function(e1, e2) {
-			if (e1.kind == 'Variable') {
-				if (map[e1.name]) {
-					return that.equals(map[e1.name], e2);
-				} else {
-					map[e1.name] = e2;
-					return true;
-				}
-			}
-			if (e2.kind == 'Variable') {
-				return false;
-			}
-			if (!that.shell_equals(e1, e2)) {
-				return false;
-			}
-			for (var i = 0; i < e1.args.length; i++) {
-				if ( !walk(e1.args[i], e2.args[i]) ) {
-					return false;
-				}
-			}
-			return true;
-		}
-		if (walk(exp1, exp2)) {
-			return map;
-		} else {
-			return null;
-		}
-	},
-	
-	subst_equals: function (sub1, sub2) {
-		if (sub1 == null || sub2 == null) {
-			return sub1 == sub2;
-		}
-		for (var n in sub1) {
-			if (!sub2[n]) {
-				return false;
-			}
-			if (!this.equals(sub1[n], sub2[n])) {
-				return false;
+			return replace_args(exp, args);
+	}
+}
+
+function match_against(exp1, exp2) {
+	var map = {};
+	var walk = function (e1, e2) {
+		if (e1.kind == 'Variable') {
+			if (map[e1.name]) {
+				return equals(map[e1.name], e2);
+			} else {
+				map[e1.name] = e2;
+				return true;
 			}
 		}
-		for (var n in sub2) {
-			if (!sub1[n]) {
-				return false;
-			}
-			if (!this.equals(sub2[n], sub1[n])) {
+		if (e2.kind == 'Variable') {
+			return false;
+		}
+		if (!shell_equals(e1, e2)) {
+			return false;
+		}
+		for (var i = 0; i < e1.args.length; i++) {
+			if (!walk(e1.args[i], e2.args[i])) {
 				return false;
 			}
 		}
 		return true;
-	},
-	
-	fresh_var: function () {
-		var i = 0;
-		return function () {
-			i++;
-			return Lang.variable('v_' + i);
-		};
-	}(),
-	
-	// test whether e2 is an instance of e1
-	instance_of: function(e1, e2) {
-		return this.match_against(e1, e2) != null;
-	},
-	
-	equiv: function(e1, e2) {
-		return this.instance_of(e1, e2) && this.instance_of(e2, e1);
-	},
-	
-	vars: function(exp) {
-		switch (exp.kind) {
+	}
+	if (walk(exp1, exp2)) {
+		return map;
+	} else {
+		return null;
+	}
+}
+
+function subst_equals(sub1, sub2) {
+	if (sub1 == null || sub2 == null) {
+		return sub1 == sub2;
+	}
+	for (var n in sub1) {
+		if (!sub2[n]) {
+			return false;
+		}
+		if (!equals(sub1[n], sub2[n])) {
+			return false;
+		}
+	}
+	for (var n in sub2) {
+		if (!sub1[n]) {
+			return false;
+		}
+		if (!equals(sub2[n], sub1[n])) {
+			return false;
+		}
+	}
+	return true;
+}
+
+const fresh_var = function () {
+	var i = 0;
+	return function () {
+		i++;
+		return Lang.variable('v_' + i);
+	};
+}()
+
+// test whether e2 is an instance of e1
+function instance_of(e1, e2) {
+	return match_against(e1, e2) != null;
+}
+
+function equiv(e1, e2) {
+	return instance_of(e1, e2) && instance_of(e2, e1);
+}
+
+function vars(exp) {
+	switch (exp.kind) {
 		case 'Variable':
 			return [exp];
 		default:
 			var all_vars = [];
 			for (var i = 0; i < exp.args.length; i++) {
-				all_vars = all_vars.concat(this.vars(exp.args[i]));
+				all_vars = all_vars.concat(vars(exp.args[i]));
 			}
 			// now we need to remove duplicates
 			var unique_vars = [], gathered_names = {};
@@ -135,6 +133,10 @@ export const sll_algebra = {
 				}
 			}
 			return unique_vars;
-		}
 	}
-};
+}
+
+export {
+	shell_equals, equals, replace_args, apply_subst, match_against,
+	subst_equals, fresh_var, instance_of, equiv, vars
+}

@@ -1,13 +1,12 @@
 import * as Lang from "./sll_lang.js"
-// import * as sll_algebra from "./sll_algebra.js"
-import { sll_algebra } from "./sll_algebra.js"
+import * as Algebra from "./sll_algebra.js"
 
 function gen(exp, m1, m2) {
 	return { exp: exp, m1: m1, m2: m2 };
 };
 
 function msg(e1, e2) {
-	var v = sll_algebra.fresh_var();
+	var v = Algebra.fresh_var();
 	var m1 = {}, m2 = {};
 	m1[v.name] = e1;
 	m2[v.name] = e2;
@@ -17,7 +16,7 @@ function msg(e1, e2) {
 		exp = g.exp;
 		g = common_functor(g);
 		g = common_subst(g);
-	} while (!sll_algebra.equals(exp, g.exp));
+	} while (!Algebra.equals(exp, g.exp));
 	return g;
 }
 
@@ -28,21 +27,21 @@ function common_functor(g) {
 		exp2 = g.m2[v];
 		if (exp1 && exp2 &&
 			exp1.kind != 'Let' && exp2.kind != 'Let' &&
-			sll_algebra.shell_equals(exp1, exp2)) {
+			Algebra.shell_equals(exp1, exp2)) {
 
 			var fresh_vars = [];
 
 			var m1 = copy_map(g.m1);
 			var m2 = copy_map(g.m2);
 			for (var i = 0; i < exp1.args.length; i++) {
-				var fresh_var = sll_algebra.fresh_var();
+				var fresh_var = Algebra.fresh_var();
 				fresh_vars.push(fresh_var);
 				m1[fresh_var.name] = exp1.args[i];
 				m2[fresh_var.name] = exp2.args[i];
 			}
 			var m = {};
-			m[v] = sll_algebra.replace_args(exp1, fresh_vars);
-			var exp = sll_algebra.apply_subst(g.exp, m);
+			m[v] = Algebra.replace_args(exp1, fresh_vars);
+			var exp = Algebra.apply_subst(g.exp, m);
 
 			delete m1[v];
 			delete m2[v];
@@ -57,8 +56,8 @@ function common_subst(g) {
 	for (var v1 in g.m1) {
 		for (var v2 in g.m1) {
 			if (v1 != v2 && g.m2[v1] && g.m2[v2] &&
-				sll_algebra.equals(g.m1[v1], g.m1[v2]) &&
-				sll_algebra.equals(g.m2[v1], g.m2[v2])) {
+				Algebra.equals(g.m1[v1], g.m1[v2]) &&
+				Algebra.equals(g.m2[v1], g.m2[v2])) {
 
 				var sub = {};
 				sub[v1] = Lang.variable(v2);
@@ -69,7 +68,7 @@ function common_subst(g) {
 				delete m1[v1];
 				delete m2[v1];
 
-				var exp = sll_algebra.apply_subst(g.exp, sub);
+				var exp = Algebra.apply_subst(g.exp, sub);
 				return gen(exp, m1, m2);
 			}
 		}

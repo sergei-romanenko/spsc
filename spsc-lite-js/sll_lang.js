@@ -6,12 +6,12 @@
 
 function pattern(name, args) {
 	return {
-		kind: 'Pattern', 
-		name: name, 
+		kind: 'Pattern',
+		name: name,
 		args: args,
-		toString: function() {
+		toString: function () {
 			return this.name + '(' + this.args.join(', ') + ')';
-		} 
+		}
 	};
 }
 
@@ -20,9 +20,9 @@ function variable(name) {
 		kind: 'Variable',
 		name: name,
 		args: [],
-		toString: function() {
+		toString: function () {
 			return this.name;
-		} 
+		}
 	};
 }
 
@@ -31,7 +31,7 @@ function constructor(name, args) {
 		kind: 'Constructor',
 		name: name,
 		args: args,
-		toString: function() {
+		toString: function () {
 			return this.name + '(' + this.args.join(', ') + ')';
 		}
 	};
@@ -42,7 +42,7 @@ function fcall(name, args) {
 		kind: 'FCall',
 		name: name,
 		args: args,
-		toString: function() {
+		toString: function () {
 			return this.name + '(' + this.args.join(', ') + ')';
 		}
 	};
@@ -53,7 +53,7 @@ function gcall(name, args) {
 		kind: 'GCall',
 		name: name,
 		args: args,
-		toString: function() {
+		toString: function () {
 			return this.name + '(' + this.args.join(', ') + ')';
 		}
 	};
@@ -64,12 +64,12 @@ function let_(exp, bindings) {
 		kind: 'Let',
 		exp: exp,
 		bindings: bindings,
-		toString: function() {
+		toString: function () {
 			var s0 = [];
 			for (var i = 0; i < this.bindings.length; i++) {
 				s0.push(this.bindings[i].join('='));
 			}
-			return 'let ' + s0.join(', ') + ' in ' + this.exp; 
+			return 'let ' + s0.join(', ') + ' in ' + this.exp;
 		}
 	};
 }
@@ -80,7 +80,7 @@ function frule(name, args, exp) {
 		name: name,
 		args: args,
 		exp: exp,
-		toString: function() {
+		toString: function () {
 			return this.name + '(' + this.args.join(', ') + ') = ' + this.exp.toString() + ';';
 		}
 	};
@@ -93,7 +93,7 @@ function grule(name, pattern, args, exp) {
 		pattern: pattern,
 		args: args,
 		exp: exp,
-		toString: function() {
+		toString: function () {
 			return this.name + '(' + [this.pattern].concat(this.args).join(', ') + ') = ' + this.exp.toString() + ';';
 		}
 	};
@@ -103,29 +103,29 @@ function program(rules) {
 	var p = {
 		kind: 'Program',
 		rules: rules,
-		f: {}, 
-		g: {}, 
+		f: {},
+		g: {},
 		gs: {},
-		toString: function() {
+		toString: function () {
 			return this.rules.join('\n');
 		}
 	};
 	for (var i = 0; i < rules.length; i++) {
 		var rule = rules[i];
 		switch (rule.kind) {
-		case 'FRule': 
-			p.f[rule.name] = rule;
-			break;
-		case 'GRule':
-			p.g[rule.name + '_' + rule.pattern.name] = rule;
-			if (!p.gs[rule.name]) {
-				p.gs[rule.name] = [];
-			}
-			p.gs[rule.name].push(rule);
-			break;
+			case 'FRule':
+				p.f[rule.name] = rule;
+				break;
+			case 'GRule':
+				p.g[rule.name + '_' + rule.pattern.name] = rule;
+				if (!p.gs[rule.name]) {
+					p.gs[rule.name] = [];
+				}
+				p.gs[rule.name].push(rule);
+				break;
 		}
 	}
 	return p;
 }
 
-export {pattern, variable, constructor, fcall, gcall, let_, frule, grule, program}
+export { pattern, variable, constructor, fcall, gcall, let_, frule, grule, program }

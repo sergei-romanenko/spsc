@@ -1,5 +1,4 @@
-// import * as sll_algebra from "./sll_algebra.js"
-import { sll_algebra } from "./sll_algebra.js"
+import * as Algebra from "./sll_algebra.js"
 
 function smart_he(exp1, exp2) {
 	return var_attacked(exp1) == var_attacked(exp2) &&
@@ -33,7 +32,7 @@ function he_by_coupling(exp1, exp2) {
 	if (exp1.kind == 'Variable' && exp2.kind == 'Variable') {
 		return true;
 	}
-	if (sll_algebra.shell_equals(exp1, exp2) && exp1.args.length == exp2.args.length) {
+	if (Algebra.shell_equals(exp1, exp2) && exp1.args.length == exp2.args.length) {
 		for (var i = 0; i < exp1.args.length; i++) {
 			if (!he(exp1.args[i], exp2.args[i])) {
 				return false;

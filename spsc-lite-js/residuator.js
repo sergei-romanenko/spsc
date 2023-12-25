@@ -1,6 +1,5 @@
 import * as Lang from "./sll_lang.js";
-// import * as sll_algebra from "./sll_algebra.js"
-import { sll_algebra } from "./sll_algebra.js"
+import * as Algebra from "./sll_algebra.js"
 
 function residuator(tree) {
 	var function_counter = 0;
@@ -27,7 +26,7 @@ function residuator(tree) {
 					for (var i = 0; i < exp.bindings.length; i++) {
 						map[exp.bindings[i][0]] = this.walk(node.children[i + 1]);
 					}
-					return sll_algebra.apply_subst(body, map);
+					return Algebra.apply_subst(body, map);
 				case 'Constructor':
 					var args = [];
 					for (var i = 0; i < node.children.length; i++) {
@@ -38,11 +37,11 @@ function residuator(tree) {
 				case 'GCall':
 					var func_node = node.get_functional_node();
 					if (func_node) {
-						var map = sll_algebra.match_against(func_node.exp, node.exp);
+						var map = Algebra.match_against(func_node.exp, node.exp);
 						if (func_node.children[0].contraction) {
-							return sll_algebra.apply_subst(Lang.fcall(func_node.sig[0], func_node.sig[1]), map);
+							return Algebra.apply_subst(Lang.fcall(func_node.sig[0], func_node.sig[1]), map);
 						} else {
-							return sll_algebra.apply_subst(Lang.gcall(func_node.sig[0], func_node.sig[1]), map);
+							return Algebra.apply_subst(Lang.gcall(func_node.sig[0], func_node.sig[1]), map);
 						}
 					} else {
 						return this.walkCall(node, exp.name, exp.args);
@@ -51,7 +50,7 @@ function residuator(tree) {
 		},
 
 		walkCall: function (node, name, args) {
-			var vs = sll_algebra.vars(node.exp);
+			var vs = Algebra.vars(node.exp);
 			if (node.children[0].contraction) {
 
 				var gname = this.new_function_name(name, 'g');

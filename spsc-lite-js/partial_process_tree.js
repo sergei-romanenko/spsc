@@ -1,5 +1,4 @@
-// import * as sll_algebra from "./sll_algebra.js"
-import { sll_algebra } from "./sll_algebra.js"
+import * as Algebra from "./sll_algebra.js"
 
 function node(exp, contraction) {
 	return {
@@ -43,7 +42,7 @@ function node(exp, contraction) {
 				case 'GCall':
 					var ancs = this.ancestors();
 					for (var i = 0; i < ancs.length; i++) {
-						if (ancs[i].exp.kind == this.exp.kind && sll_algebra.equiv(this.exp, ancs[i].exp)) {
+						if (ancs[i].exp.kind == this.exp.kind && Algebra.equiv(this.exp, ancs[i].exp)) {
 							return ancs[i];
 						}
 					}

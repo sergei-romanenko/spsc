@@ -1,6 +1,5 @@
 import * as Lang from "./sll_lang.js"
-// import * as sll_algebra from "./sll_algebra.js"
-import { sll_algebra } from "./sll_algebra.js"
+import * as Algebra from "./sll_algebra.js"
 import * as Parser from "./sll_parser.js"
 import { tree } from "./partial_process_tree.js"
 import { base_supercompiler, supercompiler } from "./spsc.js"
@@ -87,19 +86,19 @@ const test_terms = function () {
 
 var test_algebra_equals = function () {
 
-	assert(sll_algebra.equals(test_terms.var_a, test_terms.var_a), 'a == a');
-	assert(!sll_algebra.equals(test_terms.var_a, test_terms.var_b), 'a != b');
+	assert(Algebra.equals(test_terms.var_a, test_terms.var_a), 'a == a');
+	assert(!Algebra.equals(test_terms.var_a, test_terms.var_b), 'a != b');
 
-	assert(sll_algebra.equals(test_terms.nil, test_terms.nil), 'Nil() == Nil()');
-	assert(!sll_algebra.equals(test_terms.cons_b_nil, test_terms.nil), 'Cons(b, Nil()) != Nil()	');
-	assert(!sll_algebra.equals(test_terms.nil, test_terms.cons_b_nil), 'Nil() != Cons(b, Nil())');
+	assert(Algebra.equals(test_terms.nil, test_terms.nil), 'Nil() == Nil()');
+	assert(!Algebra.equals(test_terms.cons_b_nil, test_terms.nil), 'Cons(b, Nil()) != Nil()	');
+	assert(!Algebra.equals(test_terms.nil, test_terms.cons_b_nil), 'Nil() != Cons(b, Nil())');
 
-	assert(!sll_algebra.equals(test_terms.cons_a_nil, test_terms.cons_b_nil), 'Cons(a, Nil()) != Cons(b, Nil());');
-	assert(!sll_algebra.equals(test_terms.cons_b_nil, test_terms.cons_a_nil), 'Cons(b, Nil()) != Cons(a, Nil());');
-	assert(sll_algebra.equals(test_terms.cons_a_nil, test_terms.cons_a_nil), 'Cons(a, Nil()) == Cons(a, Nil());');
+	assert(!Algebra.equals(test_terms.cons_a_nil, test_terms.cons_b_nil), 'Cons(a, Nil()) != Cons(b, Nil());');
+	assert(!Algebra.equals(test_terms.cons_b_nil, test_terms.cons_a_nil), 'Cons(b, Nil()) != Cons(a, Nil());');
+	assert(Algebra.equals(test_terms.cons_a_nil, test_terms.cons_a_nil), 'Cons(a, Nil()) == Cons(a, Nil());');
 
-	assert(sll_algebra.equals(test_terms.cons_a_b_nil, test_terms.cons_a_b_nil), 'Cons(a, Cons(b, Nil())) == Cons(a, Cons(b, Nil()))');
-	assert(!sll_algebra.equals(test_terms.cons_a_b_nil, test_terms.cons_b_a_nil), 'Cons(a, Cons(b, Nil())) != Cons(b, Cons(a, Nil()))');
+	assert(Algebra.equals(test_terms.cons_a_b_nil, test_terms.cons_a_b_nil), 'Cons(a, Cons(b, Nil())) == Cons(a, Cons(b, Nil()))');
+	assert(!Algebra.equals(test_terms.cons_a_b_nil, test_terms.cons_b_a_nil), 'Cons(a, Cons(b, Nil())) != Cons(b, Cons(a, Nil()))');
 
 }
 
@@ -107,84 +106,84 @@ const test_parser = function () {
 	var pr = Parser.parse(test_program.code);
 	assert(pr.successful, 'This code should be parsed correctly');
 	var program = pr.result;
-	assert(sll_algebra.equals(test_program.fMain, program.rules[0]), 'Testing fMain');
-	assert(sll_algebra.equals(test_program.gApp1, program.rules[1]), 'Testing gApp1');
-	assert(sll_algebra.equals(test_program.gApp2, program.rules[2]), 'Testing gApp2');
+	assert(Algebra.equals(test_program.fMain, program.rules[0]), 'Testing fMain');
+	assert(Algebra.equals(test_program.gApp1, program.rules[1]), 'Testing gApp1');
+	assert(Algebra.equals(test_program.gApp2, program.rules[2]), 'Testing gApp2');
 }
 
 const test_algebra_replace_args = function () {
 	var args1 = [test_terms.var_b, test_terms.nil];
-	var res1 = sll_algebra.replace_args(test_terms.cons_a_nil, args1);
-	assert(sll_algebra.equals(res1, test_terms.cons_b_nil), 'replace1');
+	var res1 = Algebra.replace_args(test_terms.cons_a_nil, args1);
+	assert(Algebra.equals(res1, test_terms.cons_b_nil), 'replace1');
 }
 
 const test_algebra_apply_sub = function () {
 	var sub1 = { 'a': test_terms.var_b };
-	var res1 = sll_algebra.apply_subst(test_terms.cons_a_nil, sub1);
-	assert(sll_algebra.equals(res1, test_terms.cons_b_nil), 'sub1');
+	var res1 = Algebra.apply_subst(test_terms.cons_a_nil, sub1);
+	assert(Algebra.equals(res1, test_terms.cons_b_nil), 'sub1');
 
 	var sub2 = {};
-	var res2 = sll_algebra.apply_subst(test_terms.cons_a_nil, sub2);
-	assert(sll_algebra.equals(res2, test_terms.cons_a_nil), 'sub2');
+	var res2 = Algebra.apply_subst(test_terms.cons_a_nil, sub2);
+	assert(Algebra.equals(res2, test_terms.cons_a_nil), 'sub2');
 }
 
 const test_algebra_match_against = function () {
-	var actual1 = sll_algebra.match_against(test_terms.cons_a_nil, test_terms.cons_b_nil);
+	var actual1 = Algebra.match_against(test_terms.cons_a_nil, test_terms.cons_b_nil);
 	var expect1 = { a: test_terms.var_b };
-	assert(sll_algebra.subst_equals(expect1, actual1), 'match1');
+	assert(Algebra.subst_equals(expect1, actual1), 'match1');
 
-	var actual2 = sll_algebra.match_against(test_terms.cons_a_b_nil, test_terms.cons_a_b_nil);
+	var actual2 = Algebra.match_against(test_terms.cons_a_b_nil, test_terms.cons_a_b_nil);
 	var expect2 = { a: test_terms.var_a, b: test_terms.var_b };
-	assert(sll_algebra.subst_equals(expect2, actual2), 'match2');
+	assert(Algebra.subst_equals(expect2, actual2), 'match2');
 
-	var actual3 = sll_algebra.match_against(test_terms.cons_a_b_nil, test_terms.cons_b_a_nil);
+	var actual3 = Algebra.match_against(test_terms.cons_a_b_nil, test_terms.cons_b_a_nil);
 	var expect3 = { a: test_terms.var_b, b: test_terms.var_a };
-	assert(sll_algebra.subst_equals(expect3, actual3), 'match3');
+	assert(Algebra.subst_equals(expect3, actual3), 'match3');
 
-	var actual4 = sll_algebra.match_against(test_terms.cons_a_nil, test_terms.nil);
+	var actual4 = Algebra.match_against(test_terms.cons_a_nil, test_terms.nil);
 	var expect4 = null;
-	assert(sll_algebra.subst_equals(expect4, actual4), 'match4');
+	assert(Algebra.subst_equals(expect4, actual4), 'match4');
 
-	var actual5 = sll_algebra.match_against(test_terms.nil, test_terms.cons_a_nil);
+	var actual5 = Algebra.match_against(test_terms.nil, test_terms.cons_a_nil);
 	var expect5 = null;
-	assert(sll_algebra.subst_equals(expect5, actual5), 'match5');
+	assert(Algebra.subst_equals(expect5, actual5), 'match5');
 }
 
 const test_algebra_instance_of = function () {
-	assert(sll_algebra.instance_of(test_terms.nil, test_terms.nil), 'instance_of_1');
-	assert(sll_algebra.instance_of(test_terms.var_a, test_terms.nil), 'instance_of_2');
-	assert(!sll_algebra.instance_of(test_terms.nil, test_terms.var_a), 'instance_of_3');
-	assert(sll_algebra.instance_of(test_terms.cons_a_b_nil, test_terms.cons_a_b_nil), 'instance_of_4');
-	assert(!sll_algebra.instance_of(test_terms.cons_a_a_nil, test_terms.cons_a_b_nil), 'instance_of_5');
-	assert(sll_algebra.instance_of(test_terms.cons_a_a_nil, test_terms.cons_b_b_nil), 'instance_of_6');
-	assert(sll_algebra.instance_of(test_terms.cons_a_b_nil, test_terms.cons_b_b_nil), 'instance_of_7');
-	assert(sll_algebra.instance_of(test_terms.cons_a_b, test_terms.cons_b_b_nil), 'instance_of_8');
-	assert(sll_algebra.instance_of(test_terms.cons_a_b, test_terms.cons_a_b_nil), 'instance_of_9');
-	assert(!sll_algebra.instance_of(test_terms.cons_a_b_nil, test_terms.cons_a_b), 'instance_of_10');
+	assert(Algebra.instance_of(test_terms.nil, test_terms.nil), 'instance_of_1');
+	assert(Algebra.instance_of(test_terms.var_a, test_terms.nil), 'instance_of_2');
+	assert(!Algebra.instance_of(test_terms.nil, test_terms.var_a), 'instance_of_3');
+	assert(Algebra.instance_of(test_terms.cons_a_b_nil, test_terms.cons_a_b_nil), 'instance_of_4');
+	assert(!Algebra.instance_of(test_terms.cons_a_a_nil, test_terms.cons_a_b_nil), 'instance_of_5');
+	assert(Algebra.instance_of(test_terms.cons_a_a_nil, test_terms.cons_b_b_nil), 'instance_of_6');
+	assert(Algebra.instance_of(test_terms.cons_a_b_nil, test_terms.cons_b_b_nil), 'instance_of_7');
+	assert(Algebra.instance_of(test_terms.cons_a_b, test_terms.cons_b_b_nil), 'instance_of_8');
+	assert(Algebra.instance_of(test_terms.cons_a_b, test_terms.cons_a_b_nil), 'instance_of_9');
+	assert(!Algebra.instance_of(test_terms.cons_a_b_nil, test_terms.cons_a_b), 'instance_of_10');
 };
 
 const test_algebra_equiv = function () {
-	assert(sll_algebra.equiv(test_terms.nil, test_terms.nil), 'equiv_1');
-	assert(!sll_algebra.equiv(test_terms.var_a, test_terms.nil), 'equiv_2');
-	assert(!sll_algebra.equiv(test_terms.nil, test_terms.var_a), 'equiv_3');
-	assert(sll_algebra.equiv(test_terms.cons_a_b_nil, test_terms.cons_a_b_nil), 'equiv_4');
-	assert(!sll_algebra.equiv(test_terms.cons_a_a_nil, test_terms.cons_a_b_nil), 'equiv_5');
-	assert(sll_algebra.equiv(test_terms.cons_a_a_nil, test_terms.cons_b_b_nil), 'equiv_6');
-	assert(!sll_algebra.equiv(test_terms.cons_a_b_nil, test_terms.cons_a_a_nil), 'equiv_7');
+	assert(Algebra.equiv(test_terms.nil, test_terms.nil), 'equiv_1');
+	assert(!Algebra.equiv(test_terms.var_a, test_terms.nil), 'equiv_2');
+	assert(!Algebra.equiv(test_terms.nil, test_terms.var_a), 'equiv_3');
+	assert(Algebra.equiv(test_terms.cons_a_b_nil, test_terms.cons_a_b_nil), 'equiv_4');
+	assert(!Algebra.equiv(test_terms.cons_a_a_nil, test_terms.cons_a_b_nil), 'equiv_5');
+	assert(Algebra.equiv(test_terms.cons_a_a_nil, test_terms.cons_b_b_nil), 'equiv_6');
+	assert(!Algebra.equiv(test_terms.cons_a_b_nil, test_terms.cons_a_a_nil), 'equiv_7');
 };
 
 // // TODO: make it via asserts
 // var test_algebra_vars = function() {
 // 	var exp1 = Parser.parse_exp('Cons(a, b)');
-// 	var vars1 = sll_algebra.vars(exp1);
+// 	var vars1 = Algebra.vars(exp1);
 // 	console.log(vars1);
 
 // 	var exp2 = Parser.parse_exp('A(x,B(y,z),a)');
-// 	var vars2 = sll_algebra.vars(exp2);
+// 	var vars2 = Algebra.vars(exp2);
 // 	console.log(vars2);
 
 // 	var exp3 = Parser.parse_exp('A(x,B(y,x),a)');
-// 	var vars3 = sll_algebra.vars(exp3);
+// 	var vars3 = Algebra.vars(exp3);
 // 	console.log(vars3);
 // };
 
