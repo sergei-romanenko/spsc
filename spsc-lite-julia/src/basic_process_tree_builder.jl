@@ -61,8 +61,10 @@ function drivingStep(d::DrivingEngine, e::CFG)::Vector{Branch}
             return [ driveBranch(d, e, rule) for rule in rules ]
         else
             branches = drivingStep(d, arg1)
-            return [ Branch(
-                CFG(GCall, e.name, append!(Exp[b.e], args)), b.contr)
+            return [Branch(
+                CFG(GCall, e.name, append!(Exp[b.e],
+                    map(applySubst(contr2subst(b.contr)), args)
+                )), b.contr)
                     for b in branches]
         end
     end
@@ -79,7 +81,7 @@ function driveBranch(d::DrivingEngine, e::Exp, rule::Rule)
     # params = rule.params
     cparams = freshNameList(d.nameGen, length(rule.cparams))
     cargs = [Var(vn)::Exp for vn in cparams]
-    vname2ctr = Dict{Name,Exp}(vname => CFG(Ctr, cname, cargs))
+    vname2ctr = Subst(vname => CFG(Ctr, cname, cargs))
     e1 = applySubst(vname2ctr, e)
     branches = drivingStep(d, e1)
     e2 = branches[1].e

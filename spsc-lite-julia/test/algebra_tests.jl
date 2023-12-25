@@ -53,7 +53,7 @@ end
   e1 = parseExpr("E1")
   e2 = parseExpr("E2")
   e = parseExpr("Cons(x1, Cons(x2, Cons(x3, Nil)))")
-  s = Dict{Name,Exp}("x1" => e1, "x2" => e2)
+  s = Subst("x1" => e1, "x2" => e2)
   @test "Cons(E1,Cons(E2,Cons(x3,Nil)))" == string(applySubst(s, e))
 end
 

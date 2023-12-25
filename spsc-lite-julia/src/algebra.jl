@@ -40,7 +40,8 @@ function substToString(s::Subst)
   string(kvs...)
 end
 
-function applySubst(s::Subst, e::Exp)::Exp end
+applySubst(s::Subst) =
+  e::Exp -> applySubst(s, e)
 
 applySubst(s::Subst, v::Var) = get(s, v.name, v)
 
@@ -72,7 +73,7 @@ function matchAgainstAccL(s::Subst, args1::Args, args2::Args)::Bool
 end
 
 function matchAgainst(e1::Exp, e2::Exp)::UNS
-    s = Dict{Name,Exp}()
+    s = Subst()
     matchAgainstAcc!(s, e1, e2) ? s : nothing
 end
 

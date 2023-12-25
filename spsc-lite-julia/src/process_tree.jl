@@ -23,6 +23,15 @@ function Base.show(io::IO, c::Contraction)
     end
 end
 
+function contr2subst(::OptContraction, ::Exp)::Subst end
+
+contr2subst(::Nothing)::Subst = Subst()
+
+function contr2subst(c::Contraction)::Subst
+    cargs = [Var(vn)::Exp for vn in c.cparams]
+    Subst(c.vname => CFG(Ctr, c.cname, cargs))
+end
+
 const NodeId = Int64
 
 mutable struct Node
@@ -157,7 +166,7 @@ function replaceSubtree!(tree::Tree, n::Node, e::Exp)::Nothing
     return
 end
 
-export Contraction, Node, NodeId
+export Contraction, contr2subst, Node, NodeId
 export ancestors, nodes, leaves, funcAncestor
 export Tree, Branch, addChildren!, replaceSubtree!
 export isFuncNode
