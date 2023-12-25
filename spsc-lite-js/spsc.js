@@ -54,7 +54,16 @@ function base_supercompiler(program) {
 							var res = [];
 							for (var i = 0; i < inner_drs.length; i++) {
 								var inner_dr = inner_drs[i];
-								var gc = Lang.gcall(e.name, [inner_dr[0]].concat(e.args.slice(1)));
+								var gc = Lang.gcall(e.name, [inner_dr[0]].concat(e.args.slice(1)
+									.map(function (arg) {
+										if (inner_dr[1]) {
+											var map = {}
+											map[inner_dr[1][0].name] = Lang.constructor(inner_dr[1][1].name, inner_dr[1][1].args);
+											return sll_algebra.apply_subst(arg, map);
+										} else {
+											return arg;
+										}
+									})));
 								res.push([gc, inner_dr[1]]);
 							}
 							return res;
