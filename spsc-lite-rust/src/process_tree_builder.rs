@@ -125,10 +125,22 @@ impl DrivingEngine {
                         let branches0 = self.driving_step(&args[0]);
                         let mut new_branches = Vec::new();
                         for b in branches0 {
+                            let mut vname2ctr = Subst::new();
+                            if let Some(contr) = &b.contr {
+                                let cargs = contr
+                                    .cparams
+                                    .iter()
+                                    .map(|vn| Term::var(vn))
+                                    .collect();
+                                vname2ctr.insert(
+                                    contr.vname.clone(),
+                                    Term::ctr(&contr.cname, cargs),
+                                );
+                            }
                             let mut b_args = Vec::new();
                             b_args.push(b.term);
                             for b_arg in &args[1..] {
-                                b_args.push(Rc::clone(b_arg));
+                                b_args.push(apply_subst(&vname2ctr, b_arg));
                             }
                             new_branches.push(Branch {
                                 term: Rc::new(Term::CFG {
@@ -269,6 +281,7 @@ mod tests {
 
     const P_ADD: &str = "gAdd(Z,y)=y;gAdd(S(x),y)=S(gAdd(x,y));";
     const P_ADD_ACC: &str = "gAddAcc(Z,y)=y;gAddAcc(S(x),y)=gAddAcc(x,S(y));";
+    const P_XX: &str = "f(x)=g2(g1(x),x);g1(C(x))=B();g2(B(),x)=x;";
 
     #[test]
     fn test_driving_step() {
@@ -365,6 +378,14 @@ mod tests {
             3:(c,b=Z,1,[]),4:(S(gAdd(v101,c)),b=S(v101),1,[5]),\
             5:(gAdd(v101,c),,4,[]),2:(gAdd(S(gAdd(v100,b)),c),a=S(v100),0,[6]),\
             6:(S(gAdd(gAdd(v100,b),c)),,2,[7]),7:(gAdd(gAdd(v100,b),c),,6,[])}",
+        );
+        build_pr_tree_ok(
+            P_XX,
+            "f(a)",
+            "{\
+            0:(f(a),,,[1]),1:(g2(g1(a),a),,0,[2]),\
+            2:(g2(B,C(v100)),a=C(v100),1,[3]),\
+            3:(C(v100),,2,[4]),4:(v100,,3,[])}",
         );
     }
 }

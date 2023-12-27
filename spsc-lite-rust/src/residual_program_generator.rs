@@ -4,7 +4,6 @@ use crate::process_tree::*;
 
 use either::*;
 use std::collections::BTreeMap;
-use std::rc::Rc;
 
 type Sig = (Name, Vec<Name>);
 type Sigs = BTreeMap<NodeId, Sig>;
@@ -143,6 +142,7 @@ mod tests {
 
     const P_ADD: &str = "gAdd(Z,y)=y;gAdd(S(x),y)=S(gAdd(x,y));";
     const P_ADD_ACC: &str = "gAddAcc(Z,y)=y;gAddAcc(S(x),y)=gAddAcc(x,S(y));";
+    const P_XX: &str = "f(x)=g2(g1(x),x);g1(C(x))=B();g2(B(),x)=x;";
 
     //---- Basic supercompiler
 
@@ -210,5 +210,8 @@ mod tests {
             gAddAcc2(Z,c)=c;gAddAcc2(S(v101),c)=gAddAcc2(v101,S(c));\
             gAddAcc1(Z,b,c)=gAddAcc2(b,c);gAddAcc1(S(v100),b,c)=gAddAcc1(v100,S(b),c);\
             /gAddAcc1(a,b,c)");
+        advanced_scp_ok(P_XX, "f(x)", "\
+            g21(C(v100))=C(v100);\
+            /g21(x)");
     }
 }
