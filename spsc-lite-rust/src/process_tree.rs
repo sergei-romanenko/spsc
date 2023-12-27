@@ -11,7 +11,24 @@ pub struct Contraction {
     pub cparams: Params,
 }
 
+impl Contraction {
+    pub fn to_subst(&self) -> Subst {
+        let mut vname2ctr = Subst::new();
+        let cargs = self.cparams.iter().map(|vn| Term::var(vn)).collect();
+        vname2ctr.insert(self.vname.clone(), Term::ctr(&self.cname, cargs));
+        vname2ctr
+    }
+}
+
 pub type RcContraction = Rc<Contraction>;
+
+pub fn opt_contr_to_subst(oc: &Option<RcContraction>) -> Subst {
+    if let Some(contr) = oc {
+        contr.to_subst()
+    } else {
+        Subst::new()
+    }
+}
 
 impl fmt::Display for Contraction {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

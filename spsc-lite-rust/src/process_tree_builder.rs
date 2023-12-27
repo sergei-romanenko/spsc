@@ -125,18 +125,7 @@ impl DrivingEngine {
                         let branches0 = self.driving_step(&args[0]);
                         let mut new_branches = Vec::new();
                         for b in branches0 {
-                            let mut vname2ctr = Subst::new();
-                            if let Some(contr) = &b.contr {
-                                let cargs = contr
-                                    .cparams
-                                    .iter()
-                                    .map(|vn| Term::var(vn))
-                                    .collect();
-                                vname2ctr.insert(
-                                    contr.vname.clone(),
-                                    Term::ctr(&contr.cname, cargs),
-                                );
-                            }
+                            let vname2ctr = opt_contr_to_subst(&b.contr);
                             let mut b_args = Vec::new();
                             b_args.push(b.term);
                             for b_arg in &args[1..] {
