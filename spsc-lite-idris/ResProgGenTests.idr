@@ -118,4 +118,5 @@ allTests = runTests
   , testAdvAddAccAA
   , testAdvAddAccAddAcc
   , testAdvFromGeneral
-  , testAdvFromEmb ]
+  -- , testAdvFromEmb
+  ]

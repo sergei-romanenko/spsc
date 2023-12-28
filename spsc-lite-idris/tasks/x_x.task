@@ -1,0 +1,5 @@
+g2(g1(a), a)
+where
+
+g1(C(x)) = B;
+g2(B, x) = x;

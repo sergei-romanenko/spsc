@@ -31,6 +31,15 @@ lookupG (MkProgram rules) name =
     GRule name' cname cparams params body <- rules,
     name == name' ]
 
+-- Applying contractions
+
+applyContr : Maybe Contraction -> Exp -> Exp
+applyContr Nothing e = e
+applyContr (Just (MkContraction vname cname cparams)) e =
+  let cargs = [Var vn | vn <- cparams]
+      subst = the Subst $ fromList [(vname, Call Ctr cname cargs)]
+  in applySubst subst e
+
 -- Driving
 
 mutual
@@ -57,7 +66,8 @@ mutual
                  driveBranch prog e vname cname cparams params)
       Call GCall name (arg0 :: args) =>
         do branches <- drivingStep prog arg0
-           pure $ [ (Call GCall name (e' :: args), c) | (e', c) <- branches]
+           pure $ [ (Call GCall name (e' ::
+                      [ applyContr c arg | arg <- args ]), c) | (e', c) <- branches]
       _ => idris_crash "drivingStep: unexpected case"
 
   driveBranch : Program -> Exp -> Name -> Name -> Params -> Params ->

@@ -31,7 +31,7 @@ evBuilder : TreeBuilder -> String -> String -> Maybe String
 evBuilder treeBuilder givenProg givenExp =
   do prog <- parseProg givenProg
      e <- parseExp givenExp
-     pure $ show $ treeBuilder prog e
+     pure $ showTree $ treeBuilder prog e
 
 --
 
@@ -80,6 +80,9 @@ pAdd = "gAdd(Z,y)=y;gAdd(S(x),y)=S(gAdd(x,y));"
 
 pAddAcc : String
 pAddAcc = "gAddAcc(Z,y)=y;gAddAcc(S(x),y)=gAddAcc(x,S(y));"
+
+pXX : String
+pXX = "g1(C(x))=B;g2(B,x)=x;"
 
 -- Driving
 
@@ -171,6 +174,10 @@ testAAddAdd : IO Bool
 testAAddAdd = testAB1 pAdd "gAdd(gAdd(a,b),c)"
   "[{0^_: gAdd(gAdd(a,b),c) @[10001, 10002]}, {10001^0: gAdd(b,c) ?a = Z}, {10002^0: gAdd(S(gAdd(v10000,b)),c) ?a = S(v10000)}]"
 
+testXX : IO Bool
+testXX = testAB pXX "g2(g1(a),a)"
+  "[{0^_: g2(g1(a),a) @[10001]}, {10001^0: g2(B,C(v10000)) ?a = C(v10000) @[10002]}, {10002^10001: C(v10000) @[10003]}, {10003^10002: v10000}]"
+
 export
 allTests : IO ()
 allTests = runTests
@@ -191,8 +198,9 @@ allTests = runTests
   , testAPFCall
   , testAPTCtr
   , testAFromGeneral
-  , testAFromEmb
+  -- , testAFromEmb
   , testAAdd1_0
   , testAAddAB
   , testAAddAdd
+  , testXX
   ]

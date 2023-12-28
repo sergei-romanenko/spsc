@@ -23,10 +23,10 @@ modules =
     PrettyPrinter,
     Main
 
-tests =
-    SLanguageTests.allTests,
-    AlgebraTests.allTests,
-    HETests.allTests,
-    MSGTests.allTests,
-    PTBuilderTests.allTests,
-    ResProgGenTests.allTests
+tests
+    = SLanguageTests.allTests
+    , AlgebraTests.allTests
+    , HETests.allTests
+    , MSGTests.allTests
+    , PTBuilderTests.allTests
+    , ResProgGenTests.allTests
