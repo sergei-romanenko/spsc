@@ -12,7 +12,6 @@ using SPSC.ResidualProgramGenerator
 
 const pAdd = "gAdd(Z,y)=y;gAdd(S(x),y)=S(gAdd(x,y));"
 const pAddAcc = "gAddAcc(Z,y)=y;gAddAcc(S(x),y)=gAddAcc(x,S(y));"
-const pXX = "f(x)=g2(g1(x),x);g1(C(x))= B();g2(B(),x)=x;"
 
 #---- Basic supercompiler
 
@@ -72,9 +71,11 @@ end
         "gAddAcc2(Z,c)=c;gAddAcc2(S(v101),c)=gAddAcc2(v101,S(c));" *
         "gAddAcc1(Z,b,c)=gAddAcc2(b,c);gAddAcc1(S(v100),b,c)=gAddAcc1(v100,S(b),c);" *
         "/gAddAcc1(a,b,c)")
-    advancedScpOK("f(x) = g(f(x));g(A) = B;", "f(a)",
+    advancedScpOK("f(x)=f(S(x));", "f(a)",
+        "f1(a)=f1(S(a));/f1(a)")
+    advancedScpOK("f(x)=g(f(x));g(A)=B;", "f(a)",
         "g2(A)=B;f1(a)=g2(f1(a));/f1(a)")
-    advancedScpOK(pXX, "f(x)",
+    advancedScpOK("g1(C(x))= B;g2(B,x)=x;", "g2(g1(x),x)",
         "g21(C(v100))=C(v100);/g21(x)")
 end
 

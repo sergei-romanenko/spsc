@@ -64,7 +64,10 @@ end
         "4:(gAdd(v102,v103),nothing,0,[7,8]),7:(v103,v102=Z,4,[])," *
         "8:(S(gAdd(v104,v103)),v102=S(v104),4,[9]),9:(gAdd(v104,v103),nothing,8,[])," *
         "5:(a,nothing,0,[]),6:(a,nothing,0,[])}")
-    buildPrTreeOK("f(x) = g(f(x));g(A) = B;", "f(a)", "{" *
+    buildPrTreeOK("f(x) = f(S(x));", "f(a)", "{" *
+        "0:(f(a),nothing,nothing,[1]),1:(let a=S(a) in f(a),nothing,0,[2,3])," *
+        "2:(f(a),nothing,1,[]),3:(S(a),nothing,1,[4]),4:(a,nothing,3,[])}")
+    buildPrTreeOK("f(x) = g(f(x)); g(A) = B;", "f(a)", "{" *
         "0:(f(a),nothing,nothing,[1]),1:(let v101=f(a) in g(v101),nothing,0,[2,3])," *
         "2:(g(v101),nothing,1,[4]),4:(B,v101=A,2,[]),3:(f(a),nothing,1,[])}")
     end
