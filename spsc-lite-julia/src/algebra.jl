@@ -43,9 +43,9 @@ end
 applySubst(s::Subst) =
   e::Exp -> applySubst(s, e)
 
-applySubst(s::Subst, v::Var) = get(s, v.name, v)
+applySubst(s::Subst, v::Var)::Exp = get(s, v.name, v)
 
-applySubst(s::Subst, e::CFG) =
+applySubst(s::Subst, e::CFG)::Exp =
   CFG(e.kind, e.name, [applySubst(s, arg) for arg in e.args])
 
 matchAgainstAcc!(s::Subst, e1::Exp, e2::Exp)::Bool = false  

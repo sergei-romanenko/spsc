@@ -20,10 +20,10 @@ function abstract!(tree::Tree, alpha::Node, e::Exp, subst::Subst)
 end
 
 function split!(ng::NameGen, tree::Tree, beta::Node, e::CFG)
-    names1 = freshNameList(ng, len(e.args))
+    names1 = freshNameList(ng, length(e.args))
     args1 = Exp[Var(x) for x in names1]
     e1 = CFG(e.kind, e.name, args1)
-    bs1 = [Binding(b.name, b.e) for b in zip(names1, args)]
+    bs1 = [Binding(b_name, b_e) for (b_name, b_e) in zip(names1, e.args)]
     letExp = Let(e1, bs1)
     replaceSubtree!(tree, beta, letExp)
 end

@@ -64,6 +64,9 @@ end
         "4:(gAdd(v102,v103),nothing,0,[7,8]),7:(v103,v102=Z,4,[])," *
         "8:(S(gAdd(v104,v103)),v102=S(v104),4,[9]),9:(gAdd(v104,v103),nothing,8,[])," *
         "5:(a,nothing,0,[]),6:(a,nothing,0,[])}")
-end
+    buildPrTreeOK("f(x) = g(f(x));g(A) = B;", "f(a)", "{" *
+        "0:(f(a),nothing,nothing,[1]),1:(let v101=f(a) in g(v101),nothing,0,[2,3])," *
+        "2:(g(v101),nothing,1,[4]),4:(B,v101=A,2,[]),3:(f(a),nothing,1,[])}")
+    end
 
 end

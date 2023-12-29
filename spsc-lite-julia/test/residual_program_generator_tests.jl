@@ -72,6 +72,8 @@ end
         "gAddAcc2(Z,c)=c;gAddAcc2(S(v101),c)=gAddAcc2(v101,S(c));" *
         "gAddAcc1(Z,b,c)=gAddAcc2(b,c);gAddAcc1(S(v100),b,c)=gAddAcc1(v100,S(b),c);" *
         "/gAddAcc1(a,b,c)")
+    advancedScpOK("f(x) = g(f(x));g(A) = B;", "f(a)",
+        "g2(A)=B;f1(a)=g2(f1(a));/f1(a)")
     advancedScpOK(pXX, "f(x)",
         "g21(C(v100))=C(v100);/g21(x)")
 end

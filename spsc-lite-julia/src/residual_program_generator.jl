@@ -21,11 +21,11 @@ function genResidualProgram(tree::Tree)
     return (Program(g.rules), resExp)
 end
 
-function genExp!(g::ResPrGen, beta::Node)
+function genExp!(g::ResPrGen, beta::Node)::Exp
     genExp!(g, beta, funcAncestor(beta))
 end
 
-function genExp!(g::ResPrGen, beta::Node, alpha::Node)
+function genExp!(g::ResPrGen, beta::Node, alpha::Node)::Exp
     (name, params) = g.sigs[alpha.nodeId]
     args = [Var(param) for param in params]
     subst = matchAgainst(alpha.e, beta.e)
@@ -37,7 +37,7 @@ function genExp!(g::ResPrGen, beta::Node, alpha::Node)
     end
 end
 
-function genExp!(g::ResPrGen, beta::Node, ::Nothing)
+function genExp!(g::ResPrGen, beta::Node, ::Nothing)::Exp
     genExp!Beta(g, beta, beta.e)
 end
 
@@ -47,7 +47,7 @@ end
 
 function genExp!Beta(g::ResPrGen, beta::Node, e::CFG)::Exp
     if isCtr(e)
-        resExps = [genExp!(g, n) for n in beta.children]
+        resExps = Exp[genExp!(g, n) for n in beta.children]
         return CFG(Ctr, e.name, resExps)
     else
         return genCall!(g, beta)
@@ -55,7 +55,7 @@ function genExp!Beta(g::ResPrGen, beta::Node, e::CFG)::Exp
 end
 
 function genExp!Beta(g::ResPrGen, beta::Node, e::Let)::Exp
-    resExpList = [genExp!(g, n) for n in beta.children]
+    resExpList = Exp[genExp!(g, n) for n in beta.children]
     vnames = [b.name for b in e.bindings]
     subst = Dict(zip(vnames, resExpList[2:end]))
     return applySubst(subst, resExpList[1])
@@ -92,7 +92,7 @@ function genCall!(g::ResPrGen, beta::Node)
         append!(g.rules, grules)
         return CFG(GCall, name1, [Var(param) for param in params])
     elseif isFuncNode(g.tree, beta)
-        (name1, vs1) = getFGSig!(g, "f", beta, name, params)
+        (name1, params1) = getFGSig!(g, "f", beta, name, params)
         body1 = genExp!(g, beta.children[1])
         push!(g.rules, FRule(name1, params1, body1))
         return CFG(FCall, name1, [Var(param) for param in params])
