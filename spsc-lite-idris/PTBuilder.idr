@@ -184,7 +184,7 @@ abstract tree alpha@(MkNode aId eA _ _ _ _) e subst =
   decomposeNode tree aId e (toList subst)
 
 split : Tree -> Node -> State Nat Tree
-split tree b@(MkNode nId e@(Call kind name args) c p chIds back) =
+split tree b@(MkNode nId (Call kind name args) c p chIds back) =
   do names' <- freshNameList (length args)
      let e = Call kind name (map Var names')
      let bindings = names' `zip` args

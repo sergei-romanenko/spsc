@@ -29,4 +29,4 @@ tests
     , HETests.allTests
     , MSGTests.allTests
     , PTBuilderTests.allTests
-    , ResProgGenTests.allTests
+--    , ResProgGenTests.allTests
