@@ -7,3 +7,7 @@ bin/
 .cache
 .classpath
 .project
+.bloop
+.bsp/
+.metals/
+.vscode

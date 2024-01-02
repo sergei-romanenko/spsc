@@ -1,4 +1,4 @@
-scalaVersion := "2.11.6"
+scalaVersion := "2.12.18"
 
 name := "spsc-lite"
 

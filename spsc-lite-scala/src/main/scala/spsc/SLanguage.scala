@@ -44,11 +44,11 @@ case class GRule(name: String, p: Pat, args: List[Var], term: Term) extends Rule
 }
 
 case class Program(rules: List[Rule]){
-  val f = (rules :\ (Map[String, FRule]())) 
+  val f = rules.foldRight(Map[String, FRule]())
     {case (d: FRule, m) => m + (d.name -> d); case (_, m) => m}
-  val g = (rules :\ (Map[(String, String), GRule]())) 
+  val g = rules.foldRight(Map[(String, String), GRule]())
     {case (d: GRule, m) => m + ((d.name, d.p.name) -> d); case (_, m) => m}
-  val gs = (g :\ Map[String, List[GRule]]())
+  val gs = g.foldRight(Map[String, List[GRule]]())
     {case (((n, _), d), m) => m + (n -> (d :: m.getOrElse(n, Nil)))}
   override def toString = rules.mkString("\n")
 }

@@ -13,7 +13,7 @@ class BasicSupercompiler(p: Program){
     case gCall @ GCall(name, (v : Var) :: args) => 
       for (g <- p.gs(name); fp = freshPat(g.p); ctr = Ctr(fp.name, fp.args)) 
         yield driveExp(applySubst(Map(v -> ctr), gCall)) match 
-          {case (k, _) :: _ => (k, Contraction(v, fp))} 
+          {case kcs => (kcs.head._1, Contraction(v, fp))} 
     case GCall(name, args) => 
       driveExp(args(0)) map {case (k, v) => (GCall(name, k :: args.tail), v)}
     case Let(term, bs) => (term, null) :: bs.map {case (_, v) => (v, null)}
