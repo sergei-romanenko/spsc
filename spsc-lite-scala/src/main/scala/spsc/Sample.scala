@@ -116,7 +116,15 @@ object Sample {
     gElistTail(En())=En();
     gElistTail(Ec(exp,elist))=elist;
     """  
-  
+
+    val target9  =
+      "g2(g1(a),a)"
+    val program9 =
+      """
+      g1(C(x)) = B();
+      g2(B(),x) = x;
+      """
+
   def main(args : Array[String]) : Unit = {
     runBaseSuperCompiler(target7, program7)
     runBaseSuperCompiler(target1, program1)
@@ -140,6 +148,8 @@ object Sample {
     
     runSuperCompiler(target7, program7)
     runSuperCompiler(target8, program8)
+
+    runSuperCompiler(target9, program9)
   }
   
   def runSuperCompiler(targetText: String, programText: String) = {
