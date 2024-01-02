@@ -9,6 +9,6 @@ libraryDependencies += "com.novocode" % "junit-interface" % "0.10" % "test"
 scalacOptions ++= Seq("-deprecation", "-feature")
 
 // there is a global genVar
-parallelExecution in Test := false
+Test / parallelExecution := false
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
