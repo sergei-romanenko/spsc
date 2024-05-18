@@ -66,4 +66,14 @@ export const samples = {
 			'g2(B(), x) = x;'],
 		goal: 'f(x)'
 	},
+
+	// While the initial program takes O(2^n) time to compute, the residual
+	// program takes O(n) time on the same input. Thus, a superlinear speedup
+	// is achieved by supercompilation.
+	gxx_gxx: {
+		rules: [
+			'g(Z(), y) = y;',
+			'g(S(x), y) = g(g(x, x), g(x, x));'],
+		goal: 'g(x, x)'
+	},
 };
