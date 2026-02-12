@@ -1,0 +1,22 @@
+name = "spsc-lite-lean4"
+version = "0.1.0"
+defaultTargets = ["spsc-lite-lean4"]
+
+[[lean_lib]]
+name = "SPSC"
+
+[[lean_exe]]
+name = "spsc-lite-lean4"
+root = "Main"
+
+[[require]]
+name = "batteries"
+scope = "leanprover-community"
+rev = "v4.26.0"
+
+[[require]]
+name = "Parser"
+git = "https://github.com/fgdorais/lean4-parser"
+# rev = "v4.26.0"
+rev = "b50def30c0b666297fdbeeb0dfe229047ebe2860"
+

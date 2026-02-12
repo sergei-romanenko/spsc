@@ -1,6 +1,7 @@
 target/
 .idea/
 .idea_modules/
+.metals/
 output/
 *.pyc
 *.out.sl
